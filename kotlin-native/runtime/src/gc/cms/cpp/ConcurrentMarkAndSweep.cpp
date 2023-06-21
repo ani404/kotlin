@@ -59,10 +59,6 @@ struct ProcessWeaksTraits {
 
 } // namespace
 
-void gc::ConcurrentMarkAndSweep::ThreadData::SafePointAllocation(size_t size) noexcept {
-    gcScheduler_.OnSafePointAllocation(size);
-}
-
 void gc::ConcurrentMarkAndSweep::ThreadData::Schedule() noexcept {
     RuntimeLogInfo({kTagGC}, "Scheduling GC manually");
     ThreadStateGuard guard(ThreadState::kNative);
@@ -185,8 +181,6 @@ void gc::ConcurrentMarkAndSweep::PerformFullGC(int64_t epoch) noexcept {
     gc::Mark<internal::MarkTraits>(gcHandle, markQueue_);
 
     mm::WaitForThreadsSuspension();
-    auto markStats = gcHandle.getMarked();
-    scheduler.gcData().UpdateAliveSetBytes(markStats.markedSizeBytes);
 
 #ifndef CUSTOM_ALLOCATOR
     // Taking the locks before the pause is completed. So that any destroying thread
@@ -226,6 +220,7 @@ void gc::ConcurrentMarkAndSweep::PerformFullGC(int64_t epoch) noexcept {
         finalizerQueue.TransferAllFrom(thread.gc().Allocator().ExtractFinalizerQueue());
     }
 #endif
+    scheduler.gcData().UpdateAliveSetBytes(allocatedBytes());
     state_.finish(epoch);
     gcHandle.finalizersScheduled(finalizerQueue.size());
     gcHandle.finished();
