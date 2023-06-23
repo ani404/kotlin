@@ -6,7 +6,13 @@
 package org.jetbrains.kotlin.gradle.plugin
 
 enum class KotlinJsCompilerType {
-    IR;
+    @Deprecated("Legacy compiler is deprecated. Migrate your project to the new IR-based compiler")
+    LEGACY,
+
+    IR,
+
+    @Deprecated("Legacy compiler is deprecated. Migrate your project to the new IR-based compiler")
+    BOTH;
 
     companion object {
         const val jsCompilerProperty = "kotlin.js.compiler"

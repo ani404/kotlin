@@ -8,9 +8,18 @@
 // Old package for compatibility
 package org.jetbrains.kotlin.gradle.plugin.mpp
 
-import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrSingleTargetPreset
-import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrTargetPreset
+import org.gradle.api.Project
 
-typealias KotlinJsTargetPreset = KotlinJsIrTargetPreset
+@Deprecated("Only for compatibility", level = DeprecationLevel.WARNING)
+abstract class KotlinJsTargetPreset(
+    project: Project
+) : KotlinOnlyTargetPreset<KotlinOnlyTarget<KotlinJsCompilation>, KotlinJsCompilation>(
+    project
+)
 
-typealias KotlinJsSingleTargetPreset = KotlinJsIrSingleTargetPreset
+@Deprecated("Only for compatibility", level = DeprecationLevel.HIDDEN)
+abstract class KotlinJsSingleTargetPreset(
+    project: Project
+) : KotlinJsTargetPreset(
+    project
+)

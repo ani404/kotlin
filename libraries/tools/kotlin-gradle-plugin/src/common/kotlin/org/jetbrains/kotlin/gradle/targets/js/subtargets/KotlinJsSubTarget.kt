@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.gradle.targets.js.subtargets
 
-import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrSubTarget
+import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsSubTargetDsl
 
-typealias KotlinJsSubTarget = KotlinJsIrSubTarget
+@Deprecated("Only for compatibility", level = DeprecationLevel.WARNING)
+abstract class KotlinJsSubTarget : KotlinJsSubTargetDsl

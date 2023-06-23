@@ -5,6 +5,9 @@
 
 package org.jetbrains.kotlin.gradle.targets.js.subtargets
 
-import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinNodeJsIr
+import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsNodeDsl
 
-typealias KotlinNodeJs = KotlinNodeJsIr
+@Deprecated("Only for compatibility", level = DeprecationLevel.HIDDEN)
+abstract class KotlinNodeJs :
+    KotlinJsSubTarget(),
+    KotlinJsNodeDsl

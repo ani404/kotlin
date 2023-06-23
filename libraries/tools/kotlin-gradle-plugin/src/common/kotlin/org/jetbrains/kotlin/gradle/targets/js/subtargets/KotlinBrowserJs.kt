@@ -5,6 +5,9 @@
 
 package org.jetbrains.kotlin.gradle.targets.js.subtargets
 
-import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinBrowserJsIr
+import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsBrowserDsl
 
-typealias KotlinBrowserJs = KotlinBrowserJsIr
+@Deprecated("Only for compatibility", level = DeprecationLevel.HIDDEN)
+abstract class KotlinBrowserJs :
+    KotlinJsSubTarget(),
+    KotlinJsBrowserDsl
