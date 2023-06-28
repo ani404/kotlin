@@ -328,7 +328,6 @@ extra["compilerArtifactsForIde"] = listOfNotNull(
     ":plugins:parcelize:parcelize-runtime",
     ":kotlin-stdlib-common",
     ":kotlin-stdlib",
-    ":kotlin-stdlib-js",
     ":kotlin-stdlib-wasm",
     ":kotlin-test",
     ":kotlin-daemon",
@@ -345,7 +344,7 @@ val coreLibProjects by extra {
     listOfNotNull(
         ":kotlin-stdlib",
         ":kotlin-stdlib-common",
-        ":kotlin-stdlib-js",
+        ":kotlin-stdlib-js".takeIf { !kotlinBuildProperties.kotlinStdlibMpp },
         ":kotlin-stdlib-jdk7",
         ":kotlin-stdlib-jdk8",
         ":kotlin-test",
@@ -607,9 +606,9 @@ tasks {
     }
 
     register("coreLibsTest") {
-        (coreLibProjects + listOf(
+        (coreLibProjects + listOfNotNull(
             ":kotlin-stdlib:samples",
-            ":kotlin-stdlib-js-ir",
+            ":kotlin-stdlib-js-ir".takeIf { !kotlinBuildProperties.kotlinStdlibMpp },
             ":kotlin-test:kotlin-test-js-ir".takeIf { !kotlinBuildProperties.isInJpsBuildIdeaSync },
             ":kotlin-test:kotlin-test-js:kotlin-test-js-it".takeIf { !kotlinBuildProperties.isInJpsBuildIdeaSync },
             ":kotlin-test:kotlin-test-js-ir:kotlin-test-js-ir-it".takeIf { !kotlinBuildProperties.isInJpsBuildIdeaSync },

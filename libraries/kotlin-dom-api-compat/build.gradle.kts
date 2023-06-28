@@ -20,7 +20,7 @@ kotlin {
                     kotlin.srcDir("$jsStdlibSources/kotlin/dom")
                 }
                 dependencies {
-                    api(project(":kotlin-stdlib-js"))
+                    api(project(":kotlin-stdlib"))
                 }
             }
         }
