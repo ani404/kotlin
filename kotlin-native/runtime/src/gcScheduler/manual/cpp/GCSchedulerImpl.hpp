@@ -9,15 +9,20 @@
 
 #include "Logging.hpp"
 
-namespace kotlin::gcScheduler::internal {
+namespace kotlin::gcScheduler {
+
+namespace internal {
 
 class GCSchedulerDataManual : public GCSchedulerData {
 public:
     GCSchedulerDataManual() noexcept { RuntimeLogInfo({kTagGC}, "Manual GC scheduler initialized"); }
 
     void OnPerformFullGC() noexcept override {}
-    void UpdateAliveSetBytes(size_t bytes) noexcept override {}
     void SetAllocatedBytes(size_t bytes) noexcept override {}
 };
 
-} // namespace kotlin::gcScheduler::internal
+} // namespace internal
+
+class GCScheduler::ThreadData::Impl : private Pinned {};
+
+} // namespace kotlin::gcScheduler

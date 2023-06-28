@@ -36,6 +36,7 @@ public:
 #ifndef CUSTOM_ALLOCATOR
         extraObjectDataThreadQueue_(ExtraObjectDataFactory::Instance()),
 #endif
+        gcScheduler_(GlobalData::Instance().gcScheduler(), *this),
         gc_(GlobalData::Instance().gc(), *this),
         suspensionData_(ThreadState::kNative, *this) {}
 
@@ -60,6 +61,8 @@ public:
     ShadowStack& shadowStack() noexcept { return shadowStack_; }
 
     std_support::vector<std::pair<ObjHeader**, ObjHeader*>>& initializingSingletons() noexcept { return initializingSingletons_; }
+
+    gcScheduler::GCScheduler::ThreadData& gcScheduler() noexcept { return gcScheduler_; }
 
     gc::GC::ThreadData& gc() noexcept { return gc_; }
 
@@ -93,6 +96,7 @@ private:
     ExtraObjectDataFactory::ThreadQueue extraObjectDataThreadQueue_;
 #endif
     ShadowStack shadowStack_;
+    gcScheduler::GCScheduler::ThreadData gcScheduler_;
     gc::GC::ThreadData gc_;
     std_support::vector<std::pair<ObjHeader**, ObjHeader*>> initializingSingletons_;
     ThreadSuspensionData suspensionData_;
