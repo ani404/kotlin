@@ -7,8 +7,7 @@ package org.jetbrains.kotlin.gradle.dsl
 
 import org.gradle.api.Action
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
-import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinWasmTargetDsl
+import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinWasmJsTargetDsl
 import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinWasmTargetPreset
 
 @KotlinGradlePluginDsl
@@ -16,8 +15,8 @@ interface KotlinTargetContainerWithWasmPresetFunctions : KotlinTargetContainerWi
     @ExperimentalWasmDsl
     fun wasmJs(
         name: String = "wasmJs",
-        configure: KotlinWasmTargetDsl.() -> Unit = { },
-    ): KotlinWasmTargetDsl =
+        configure: KotlinWasmJsTargetDsl.() -> Unit = { },
+    ): KotlinWasmJsTargetDsl =
         configureOrCreate(
             name,
             presets.getByName("wasm") as KotlinWasmTargetPreset,
@@ -31,17 +30,17 @@ interface KotlinTargetContainerWithWasmPresetFunctions : KotlinTargetContainerWi
     fun wasmJs(name: String) = wasmJs(name) { }
 
     @ExperimentalWasmDsl
-    fun wasmJs(name: String, configure: Action<KotlinWasmTargetDsl>) = wasmJs(name) { configure.execute(this) }
+    fun wasmJs(name: String, configure: Action<KotlinWasmJsTargetDsl>) = wasmJs(name) { configure.execute(this) }
 
     @ExperimentalWasmDsl
-    fun wasmJs(configure: Action<KotlinWasmTargetDsl>) = wasmJs { configure.execute(this) }
+    fun wasmJs(configure: Action<KotlinWasmJsTargetDsl>) = wasmJs { configure.execute(this) }
 
     @Deprecated("Use wasmJs instead", replaceWith = ReplaceWith("wasmJs(name, configure)"))
     @ExperimentalWasmDsl
     fun wasm(
         name: String = "wasmJs",
-        configure: KotlinWasmTargetDsl.() -> Unit = { },
-    ): KotlinWasmTargetDsl = wasmJs(name, configure)
+        configure: KotlinWasmJsTargetDsl.() -> Unit = { },
+    ): KotlinWasmJsTargetDsl = wasmJs(name, configure)
 
     @Deprecated("Use wasmJs instead", replaceWith = ReplaceWith("wasmJs()"))
     @ExperimentalWasmDsl
@@ -53,9 +52,9 @@ interface KotlinTargetContainerWithWasmPresetFunctions : KotlinTargetContainerWi
 
     @Deprecated("Use wasmJs instead", replaceWith = ReplaceWith("wasmJs(name, configure)"))
     @ExperimentalWasmDsl
-    fun wasm(name: String, configure: Action<KotlinWasmTargetDsl>) = wasmJs(name, configure)
+    fun wasm(name: String, configure: Action<KotlinWasmJsTargetDsl>) = wasmJs(name, configure)
 
     @Deprecated("Use wasmJs instead", replaceWith = ReplaceWith("wasmJs(configure)"))
     @ExperimentalWasmDsl
-    fun wasm(configure: Action<KotlinWasmTargetDsl>) = wasmJs(configure)
+    fun wasm(configure: Action<KotlinWasmJsTargetDsl>) = wasmJs(configure)
 }

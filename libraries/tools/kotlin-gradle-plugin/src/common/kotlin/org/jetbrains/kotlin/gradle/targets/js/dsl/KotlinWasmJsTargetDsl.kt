@@ -20,7 +20,7 @@ interface KotlinWasmSubTargetContainerDsl : KotlinTarget {
     fun whenBinaryenApplied(body: (BinaryenExec.() -> Unit) -> Unit)
 }
 
-interface KotlinWasmTargetDsl : KotlinJsTargetDsl {
+interface KotlinWasmJsTargetDsl : KotlinJsTargetDsl {
     fun d8() = d8 { }
     fun d8(body: KotlinWasmD8Dsl.() -> Unit)
     fun d8(fn: Action<KotlinWasmD8Dsl>) {
