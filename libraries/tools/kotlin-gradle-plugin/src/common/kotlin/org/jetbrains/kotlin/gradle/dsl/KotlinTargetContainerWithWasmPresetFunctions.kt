@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.gradle.dsl
 import org.gradle.api.Action
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinWasmJsTargetDsl
+import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinWasmWasiTargetDsl
 import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinWasmTargetPreset
 
 @KotlinGradlePluginDsl
@@ -34,6 +35,29 @@ interface KotlinTargetContainerWithWasmPresetFunctions : KotlinTargetContainerWi
 
     @ExperimentalWasmDsl
     fun wasmJs(configure: Action<KotlinWasmJsTargetDsl>) = wasmJs { configure.execute(this) }
+
+    @ExperimentalWasmDsl
+    fun wasmWasi(
+        name: String = "wasmWasi",
+        configure: KotlinWasmWasiTargetDsl.() -> Unit = { },
+    ): KotlinWasmWasiTargetDsl =
+        configureOrCreate(
+            name,
+            presets.getByName("wasm") as KotlinWasmTargetPreset,
+            configure
+        )
+
+    @ExperimentalWasmDsl
+    fun wasmWasi() = wasmJs("wasmWasi") { }
+
+    @ExperimentalWasmDsl
+    fun wasmWasi(name: String) = wasmWasi(name) { }
+
+    @ExperimentalWasmDsl
+    fun wasmWasi(name: String, configure: Action<KotlinWasmWasiTargetDsl>) = wasmWasi(name) { configure.execute(this) }
+
+    @ExperimentalWasmDsl
+    fun wasmWasi(configure: Action<KotlinWasmWasiTargetDsl>) = wasmWasi { configure.execute(this) }
 
     @Deprecated("Use wasmJs instead", replaceWith = ReplaceWith("wasmJs(name, configure)"))
     @ExperimentalWasmDsl

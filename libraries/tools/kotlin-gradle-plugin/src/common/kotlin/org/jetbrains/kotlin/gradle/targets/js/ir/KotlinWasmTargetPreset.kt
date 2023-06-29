@@ -12,10 +12,14 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinCompilationFactory
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinOnlyTargetPreset
+import org.jetbrains.kotlin.gradle.targets.js.KotlinWasmTarget
 import org.jetbrains.kotlin.gradle.utils.runProjectConfigurationHealthCheckWhenEvaluated
+import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
+import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 
 class KotlinWasmTargetPreset(
     project: Project,
+    private val target: KotlinWasmTarget
 ) : KotlinOnlyTargetPreset<KotlinJsIrTarget, KotlinJsIrCompilation>(project) {
     override val platformType: KotlinPlatformType = KotlinPlatformType.wasm
 
@@ -26,6 +30,7 @@ class KotlinWasmTargetPreset(
 
         val irTarget = project.objects.newInstance(KotlinJsIrTarget::class.java, project, KotlinPlatformType.wasm, false)
         irTarget.isMpp = true
+        irTarget.wasmTarget = target
 
         return irTarget
     }
@@ -33,7 +38,7 @@ class KotlinWasmTargetPreset(
     override fun createKotlinTargetConfigurator(): AbstractKotlinTargetConfigurator<KotlinJsIrTarget> =
         KotlinJsIrTargetConfigurator()
 
-    override fun getName(): String = WASM_PRESET_NAME
+    override fun getName(): String = WASM_PRESET_NAME + target.name.toLowerCaseAsciiOnly().capitalizeAsciiOnly()
 
     public override fun createCompilationFactory(
         forTarget: KotlinJsIrTarget
