@@ -10,12 +10,13 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsOptions
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.plugin.AbstractKotlinTargetConfigurator.Companion.runTaskNameSuffix
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
-import org.jetbrains.kotlin.gradle.plugin.mpp.DefaultKotlinUsageContext
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinTargetWithBinaries
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinUsageContext
+import org.jetbrains.kotlin.gradle.plugin.mpp.*
+import org.jetbrains.kotlin.gradle.plugin.mpp.PRIMARY_SINGLE_COMPONENT_NAME
 import org.jetbrains.kotlin.gradle.targets.js.JsAggregatingExecutionSource
 import org.jetbrains.kotlin.gradle.targets.js.KotlinJsReportAggregatingTestRun
 import org.jetbrains.kotlin.gradle.targets.js.KotlinJsTarget
@@ -27,8 +28,13 @@ import org.jetbrains.kotlin.gradle.targets.js.npm.npmProject
 import org.jetbrains.kotlin.gradle.targets.js.typescript.TypeScriptValidationTask
 import org.jetbrains.kotlin.gradle.tasks.locateOrRegisterTask
 import org.jetbrains.kotlin.gradle.tasks.registerTask
+import org.jetbrains.kotlin.gradle.utils.dashSeparatedName
+import org.jetbrains.kotlin.gradle.utils.decamelize
 import org.jetbrains.kotlin.gradle.utils.lowerCamelCaseName
 import org.jetbrains.kotlin.gradle.utils.setProperty
+import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
+import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
+import org.jetbrains.kotlin.utils.addIfNotNull
 import javax.inject.Inject
 
 abstract class KotlinJsIrTarget
@@ -36,7 +42,7 @@ abstract class KotlinJsIrTarget
 constructor(
     project: Project,
     platformType: KotlinPlatformType,
-    internal val mixedMode: Boolean
+    internal val mixedMode: Boolean,
 ) :
     KotlinTargetWithBinaries<KotlinJsIrCompilation, KotlinJsBinaryContainer>(project, platformType),
     KotlinTargetWithTests<JsAggregatingExecutionSource, KotlinJsReportAggregatingTestRun>,
@@ -66,6 +72,38 @@ constructor(
             }
             field = value
         }
+
+    override val kotlinComponents: Set<KotlinTargetComponent> by lazy {
+        val mainCompilation = compilations.getByName(KotlinCompilation.MAIN_COMPILATION_NAME)
+        val usageContexts = createUsageContexts(mainCompilation).toMutableSet()
+
+        val componentName =
+            if (project.kotlinExtension is KotlinMultiplatformExtension)
+                targetName
+            else PRIMARY_SINGLE_COMPONENT_NAME
+
+        usageContexts.addIfNotNull(
+            createSourcesJarAndUsageContextIfPublishable(
+                producingCompilation = mainCompilation,
+                componentName = componentName,
+                artifactNameAppendix = wasmDecamelizedDefaultNameOrNull() ?: dashSeparatedName(targetName.toLowerCaseAsciiOnly())
+            )
+        )
+
+        val result = createKotlinVariant(componentName, mainCompilation, usageContexts)
+
+        setOf(result)
+    }
+
+    override fun createKotlinVariant(
+        componentName: String,
+        compilation: KotlinCompilation<*>,
+        usageContexts: Set<DefaultKotlinUsageContext>,
+    ): KotlinVariant {
+        return super.createKotlinVariant(componentName, compilation, usageContexts).apply {
+            artifactTargetName = wasmDecamelizedDefaultNameOrNull() ?: componentName
+        }
+    }
 
     override fun createUsageContexts(producingCompilation: KotlinCompilation<*>): Set<DefaultKotlinUsageContext> {
         val usageContexts = super.createUsageContexts(producingCompilation)
@@ -349,3 +387,14 @@ constructor(
             }
     }
 }
+
+fun KotlinJsIrTarget.wasmDecamelizedDefaultNameOrNull(): String? = if (platformType == KotlinPlatformType.wasm) {
+    val defaultWasmTargetName = wasmTarget?.let {
+        KotlinWasmTargetPreset.WASM_PRESET_NAME + it.name.toLowerCaseAsciiOnly().capitalizeAsciiOnly()
+    }
+
+    defaultWasmTargetName
+        ?.takeIf {
+            targetName == defaultWasmTargetName
+        }?.decamelize()
+} else null

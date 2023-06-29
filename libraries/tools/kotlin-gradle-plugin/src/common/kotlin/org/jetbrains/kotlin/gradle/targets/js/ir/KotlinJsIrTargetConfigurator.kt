@@ -13,13 +13,16 @@ import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
 import org.jetbrains.kotlin.gradle.dsl.JsSourceMapEmbedMode
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompilerOptions
 import org.jetbrains.kotlin.gradle.plugin.*
-import org.jetbrains.kotlin.gradle.plugin.internal.BasePluginConfiguration
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinUsages
+import org.jetbrains.kotlin.gradle.plugin.mpp.isMain
 import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.libsDirectory
+import org.jetbrains.kotlin.gradle.plugin.mpp.sourcesJarTask
 import org.jetbrains.kotlin.gradle.targets.js.KotlinJsReportAggregatingTestRun
 import org.jetbrains.kotlin.gradle.tasks.KotlinTasksProvider
 import org.jetbrains.kotlin.gradle.testing.internal.kotlinTestRegistry
 import org.jetbrains.kotlin.gradle.testing.testTaskName
+import org.jetbrains.kotlin.gradle.utils.decamelize
+import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 
 open class KotlinJsIrTargetConfigurator :
     KotlinOnlyTargetConfigurator<KotlinJsIrCompilation, KotlinJsIrTarget>(true),
@@ -64,7 +67,13 @@ open class KotlinJsIrTargetConfigurator :
 
     override fun buildCompilationProcessor(compilation: KotlinJsIrCompilation): KotlinSourceSetProcessor<*> {
         val tasksProvider = KotlinTasksProvider()
-        return KotlinJsIrSourceSetProcessor(tasksProvider, KotlinCompilationInfo(compilation))
+        return KotlinJsIrSourceSetProcessor(tasksProvider, KotlinCompilationInfo(compilation)).apply {
+            if (compilation.platformType == KotlinPlatformType.wasm && compilation.isMain()) {
+                val artifactNameAppendix = (compilation.target as KotlinJsIrTarget).wasmDecamelizedDefaultNameOrNull()
+                    ?: compilation.target.targetName.toLowerCaseAsciiOnly()
+                sourcesJarTask(compilation, compilation.target.targetName, artifactNameAppendix)
+            }
+        }
     }
 
     override fun createArchiveTasks(target: KotlinJsIrTarget): TaskProvider<out Zip> {
@@ -73,6 +82,14 @@ open class KotlinJsIrTargetConfigurator :
             configure {
                 it.archiveExtension.set(KLIB_TYPE)
                 it.destinationDirectory.set(libsDirectory)
+
+                if (target.platformType == KotlinPlatformType.wasm) {
+                    if (target.wasmDecamelizedDefaultNameOrNull() != null) {
+                        target.disambiguationClassifier?.let { classifier ->
+                            it.archiveAppendix.set(classifier.decamelize())
+                        }
+                    }
+                }
             }
         }
     }
