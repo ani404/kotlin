@@ -163,7 +163,7 @@ class ConfigurationsTest : MultiplatformExtensionTest() {
             js("nodeJs", KotlinJsCompilerType.IR) { attributes { attribute(jsAttribute, "nodeJs") } }
             js("browser", KotlinJsCompilerType.IR) { attributes { attribute(jsAttribute, "browser") } }
             @OptIn(ExperimentalWasmDsl::class)
-            wasm()
+            wasmJs()
 
             val allJs = sourceSets.create("allJs")
             targets.getByName("nodeJs").compilations.getByName("main").defaultSourceSet.dependsOn(allJs)

@@ -14,10 +14,10 @@ import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinWasmTargetPreset
 @KotlinGradlePluginDsl
 interface KotlinTargetContainerWithWasmPresetFunctions : KotlinTargetContainerWithPresetFunctions {
     @ExperimentalWasmDsl
-    fun wasm(
-        name: String = "wasm",
-        configure: KotlinWasmTargetDsl.() -> Unit = { }
-    ): KotlinJsTargetDsl =
+    fun wasmJs(
+        name: String = "wasmJs",
+        configure: KotlinWasmTargetDsl.() -> Unit = { },
+    ): KotlinWasmTargetDsl =
         configureOrCreate(
             name,
             presets.getByName("wasm") as KotlinWasmTargetPreset,
@@ -25,14 +25,37 @@ interface KotlinTargetContainerWithWasmPresetFunctions : KotlinTargetContainerWi
         )
 
     @ExperimentalWasmDsl
-    fun wasm() = wasm("wasm") { }
+    fun wasmJs() = wasmJs("wasmJs") { }
 
     @ExperimentalWasmDsl
-    fun wasm(name: String) = wasm(name) { }
+    fun wasmJs(name: String) = wasmJs(name) { }
 
     @ExperimentalWasmDsl
-    fun wasm(name: String, configure: Action<KotlinWasmTargetDsl>) = wasm(name) { configure.execute(this) }
+    fun wasmJs(name: String, configure: Action<KotlinWasmTargetDsl>) = wasmJs(name) { configure.execute(this) }
 
     @ExperimentalWasmDsl
-    fun wasm(configure: Action<KotlinWasmTargetDsl>) = wasm { configure.execute(this) }
+    fun wasmJs(configure: Action<KotlinWasmTargetDsl>) = wasmJs { configure.execute(this) }
+
+    @Deprecated("Use wasmJs instead", replaceWith = ReplaceWith("wasmJs(name, configure)"))
+    @ExperimentalWasmDsl
+    fun wasm(
+        name: String = "wasmJs",
+        configure: KotlinWasmTargetDsl.() -> Unit = { },
+    ): KotlinWasmTargetDsl = wasmJs(name, configure)
+
+    @Deprecated("Use wasmJs instead", replaceWith = ReplaceWith("wasmJs()"))
+    @ExperimentalWasmDsl
+    fun wasm() = wasmJs()
+
+    @Deprecated("Use wasmJs instead", replaceWith = ReplaceWith("wasmJs(name)"))
+    @ExperimentalWasmDsl
+    fun wasm(name: String) = wasmJs(name)
+
+    @Deprecated("Use wasmJs instead", replaceWith = ReplaceWith("wasmJs(name, configure)"))
+    @ExperimentalWasmDsl
+    fun wasm(name: String, configure: Action<KotlinWasmTargetDsl>) = wasmJs(name, configure)
+
+    @Deprecated("Use wasmJs instead", replaceWith = ReplaceWith("wasmJs(configure)"))
+    @ExperimentalWasmDsl
+    fun wasm(configure: Action<KotlinWasmTargetDsl>) = wasmJs(configure)
 }

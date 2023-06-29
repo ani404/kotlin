@@ -324,7 +324,7 @@ class KotlinHierarchyDslTest {
             }
         }
 
-        kotlin.wasm()
+        kotlin.wasmJs()
         kotlin.js()
 
         assertEquals(
@@ -353,7 +353,7 @@ class KotlinHierarchyDslTest {
             }
         }
 
-        kotlin.wasm()
+        kotlin.wasmJs()
         kotlin.js()
         kotlin.jvm()
         kotlin.linuxX64()
