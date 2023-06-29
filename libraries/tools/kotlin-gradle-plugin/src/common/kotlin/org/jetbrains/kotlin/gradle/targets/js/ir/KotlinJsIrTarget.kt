@@ -40,7 +40,7 @@ constructor(
     KotlinTargetWithBinaries<KotlinJsIrCompilation, KotlinJsBinaryContainer>(project, platformType),
     KotlinTargetWithTests<JsAggregatingExecutionSource, KotlinJsReportAggregatingTestRun>,
     KotlinJsTargetDsl,
-    KotlinWasmTargetDsl,
+    KotlinWasmJsTargetDsl,
     KotlinJsSubTargetContainerDsl,
     KotlinWasmSubTargetContainerDsl {
     private val propertiesProvider = PropertiesProvider(project)
