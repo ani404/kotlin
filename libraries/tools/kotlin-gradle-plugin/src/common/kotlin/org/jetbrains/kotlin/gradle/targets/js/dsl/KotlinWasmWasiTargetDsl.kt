@@ -5,4 +5,10 @@
 
 package org.jetbrains.kotlin.gradle.targets.js.dsl
 
-interface KotlinWasmWasiTargetDsl : KotlinWasmTargetDsl, KotlinTargetWithNodeJsDsl
+import org.jetbrains.kotlin.gradle.plugin.mpp.IKotlinTargetWithBinaries
+import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsBinaryContainer
+
+interface KotlinWasmWasiTargetDsl :
+    KotlinWasmTargetDsl,
+    KotlinTargetWithNodeJsDsl,
+    IKotlinTargetWithBinaries<KotlinJsBinaryContainer>

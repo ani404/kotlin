@@ -236,7 +236,9 @@ constructor(
         get() = nodejsLazyDelegate.isInitialized()
 
     override fun nodejs(body: KotlinJsNodeDsl.() -> Unit) {
-        body(nodejs)
+        if (wasmTarget != KotlinWasmTarget.WASI) {
+            body(nodejs)
+        }
     }
 
     //d8
