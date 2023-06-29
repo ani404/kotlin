@@ -46,6 +46,6 @@ class KotlinWasmTargetPreset(
         KotlinJsIrCompilationFactory(forTarget)
 
     companion object {
-        private const val WASM_PRESET_NAME = "wasm"
+        internal const val WASM_PRESET_NAME = "wasm"
     }
 }

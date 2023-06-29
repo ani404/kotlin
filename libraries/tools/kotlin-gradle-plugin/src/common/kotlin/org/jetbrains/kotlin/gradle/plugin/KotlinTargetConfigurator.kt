@@ -314,6 +314,10 @@ abstract class KotlinOnlyTargetConfigurator<KotlinCompilationType : KotlinCompil
             it.from(target.compilations.getByName(KotlinCompilation.MAIN_COMPILATION_NAME).output.allOutputs)
             it.isPreserveFileTimestamps = false
             it.isReproducibleFileOrder = true
+
+            target.disambiguationClassifier?.let { classifier ->
+                it.archiveAppendix.set(classifier.toLowerCaseAsciiOnly())
+            }
         }
     }
 
@@ -323,12 +327,6 @@ abstract class KotlinOnlyTargetConfigurator<KotlinCompilationType : KotlinCompil
         val mainCompilation = target.compilations.getByName(KotlinCompilation.MAIN_COMPILATION_NAME)
 
         val task = createArchiveTasks(target)
-
-        target.disambiguationClassifier?.let { classifier ->
-            task.configure { taskInstance ->
-                taskInstance.archiveAppendix.set(classifier.toLowerCaseAsciiOnly())
-            }
-        }
 
         // Workaround: adding the artifact during configuration seems to interfere with the Java plugin, which results into missing
         // task dependency 'assemble -> jar' if the Java plugin is applied after this steps
