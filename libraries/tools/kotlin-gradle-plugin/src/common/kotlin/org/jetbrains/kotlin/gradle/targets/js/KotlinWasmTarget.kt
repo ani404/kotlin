@@ -11,3 +11,10 @@ enum class KotlinWasmTarget {
     WASI,
     JS;
 }
+
+fun KotlinWasmTarget.toAttribute(): KotlinWasmTargetAttribute {
+    return when(this) {
+        KotlinWasmTarget.WASI -> KotlinWasmTargetAttribute.wasi
+        KotlinWasmTarget.JS -> KotlinWasmTargetAttribute.js
+    }
+}
