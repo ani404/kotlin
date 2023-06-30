@@ -31,6 +31,8 @@ import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
+import org.jetbrains.kotlin.js.config.JSConfigurationKeys
+import org.jetbrains.kotlin.js.config.WasmTarget
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.util.OperatorNameConventions
@@ -41,12 +43,15 @@ import org.jetbrains.kotlin.util.OperatorNameConventions
 class JsInteropFunctionsLowering(val context: WasmBackendContext) : DeclarationTransformer {
     val builtIns = context.irBuiltIns
     val symbols = context.wasmSymbols
-    val adapters = symbols.jsInteropAdapters
+    val jsRelatedSymbols get() = context.wasmSymbols.jsRelatedSymbols
+    val adapters get() = jsRelatedSymbols.jsInteropAdapters
 
     val additionalDeclarations = mutableListOf<IrDeclaration>()
     lateinit var currentParent: IrDeclarationParent
 
     override fun transformFlat(declaration: IrDeclaration): List<IrDeclaration>? {
+        if (context.configuration.get(JSConfigurationKeys.WASM_TARGET, WasmTarget.WASI) == WasmTarget.WASI) return null
+
         if (declaration.isFakeOverride) return null
         if (declaration !is IrSimpleFunction) return null
         val isExported = declaration.isJsExport()
@@ -176,10 +181,10 @@ class JsInteropFunctionsLowering(val context: WasmBackendContext) : DeclarationT
         val builder: DeclarationIrBuilder = context.createIrBuilder(newFun.symbol)
         newFun.body = createAdapterFunctionBody(builder, newFun, function, valueParametersAdapters, resultAdapter)
 
-        newFun.annotations += builder.irCallConstructor(context.wasmSymbols.jsNameConstructor, typeArguments = emptyList()).also {
+        newFun.annotations += builder.irCallConstructor(jsRelatedSymbols.jsNameConstructor, typeArguments = emptyList()).also {
             it.putValueArgument(0, builder.irString(function.getJsNameOrKotlinName().identifier))
         }
-        function.annotations = function.annotations.filter { it.symbol != context.wasmSymbols.jsExportConstructor }
+        function.annotations = function.annotations.filter { it.symbol != jsRelatedSymbols.jsExportConstructor }
 
         return listOf(function, newFun)
     }
@@ -202,15 +207,17 @@ class JsInteropFunctionsLowering(val context: WasmBackendContext) : DeclarationT
         )
     }
 
-    val primitivesToExternRefAdapters: Map<IrType, InteropTypeAdapter> = mapOf(
-        builtIns.byteType to adapters.kotlinByteToExternRefAdapter,
-        builtIns.shortType to adapters.kotlinShortToExternRefAdapter,
-        builtIns.charType to adapters.kotlinCharToExternRefAdapter,
-        builtIns.intType to adapters.kotlinIntToExternRefAdapter,
-        builtIns.longType to adapters.kotlinLongToExternRefAdapter,
-        builtIns.floatType to adapters.kotlinFloatToExternRefAdapter,
-        builtIns.doubleType to adapters.kotlinDoubleToExternRefAdapter,
-    ).mapValues { FunctionBasedAdapter(it.value.owner) }
+    val primitivesToExternRefAdapters: Map<IrType, InteropTypeAdapter> by lazy {
+        mapOf(
+            builtIns.byteType to adapters.kotlinByteToExternRefAdapter,
+            builtIns.shortType to adapters.kotlinShortToExternRefAdapter,
+            builtIns.charType to adapters.kotlinCharToExternRefAdapter,
+            builtIns.intType to adapters.kotlinIntToExternRefAdapter,
+            builtIns.longType to adapters.kotlinLongToExternRefAdapter,
+            builtIns.floatType to adapters.kotlinFloatToExternRefAdapter,
+            builtIns.doubleType to adapters.kotlinDoubleToExternRefAdapter,
+        ).mapValues { FunctionBasedAdapter(it.value.owner) }
+    }
 
     private fun IrType.kotlinToJsAdapterIfNeeded(isReturn: Boolean): InteropTypeAdapter? {
         if (isReturn && this == builtIns.unitType)
@@ -462,7 +469,7 @@ class JsInteropFunctionsLowering(val context: WasmBackendContext) : DeclarationT
         }
 
         // TODO find out a better way to export the such declarations only when it's required. Also, fix building roots for DCE, then.
-        result.annotations += builder.irCallConstructor(context.wasmSymbols.jsExportConstructor, typeArguments = emptyList())
+        result.annotations += builder.irCallConstructor(jsRelatedSymbols.jsExportConstructor, typeArguments = emptyList())
         additionalDeclarations += result
         return result
     }
@@ -470,7 +477,7 @@ class JsInteropFunctionsLowering(val context: WasmBackendContext) : DeclarationT
     private fun createKotlinToJsClosureConvertor(info: FunctionTypeInfo): IrSimpleFunction {
         val result = context.irFactory.buildFun {
             name = Name.identifier("__convertKotlinClosureToJsClosure_${info.signatureString}")
-            returnType = context.wasmSymbols.jsAnyType
+            returnType = jsRelatedSymbols.jsAnyType
             isExternal = true
         }
         result.parent = currentParent
@@ -491,7 +498,7 @@ class JsInteropFunctionsLowering(val context: WasmBackendContext) : DeclarationT
             append(")")
         }
 
-        result.annotations += builder.irCallConstructor(context.wasmSymbols.jsFunConstructor, typeArguments = emptyList()).also {
+        result.annotations += builder.irCallConstructor(jsRelatedSymbols.jsFunConstructor, typeArguments = emptyList()).also {
             it.putValueArgument(0, builder.irString(jsCode))
         }
 
@@ -511,7 +518,7 @@ class JsInteropFunctionsLowering(val context: WasmBackendContext) : DeclarationT
         result.parent = currentParent
         result.addValueParameter {
             name = Name.identifier("f")
-            type = context.wasmSymbols.jsAnyType
+            type = jsRelatedSymbols.jsAnyType
         }
 
         val closureClass = context.irFactory.buildClass {
@@ -524,7 +531,7 @@ class JsInteropFunctionsLowering(val context: WasmBackendContext) : DeclarationT
 
         val closureClassField = closureClass.addField {
             name = Name.identifier("jsClosure")
-            type = context.wasmSymbols.jsAnyType
+            type = jsRelatedSymbols.jsAnyType
             visibility = DescriptorVisibilities.PRIVATE
             isFinal = true
         }
@@ -593,7 +600,7 @@ class JsInteropFunctionsLowering(val context: WasmBackendContext) : DeclarationT
         result.parent = currentParent
         result.addValueParameter {
             name = Name.identifier("f")
-            type = symbols.jsAnyType
+            type = jsRelatedSymbols.jsAnyType
         }
         val arity = info.adaptedParameterTypes.size
         repeat(arity) { paramIndex ->
@@ -611,7 +618,7 @@ class JsInteropFunctionsLowering(val context: WasmBackendContext) : DeclarationT
             append(")")
         }
 
-        result.annotations += builder.irCallConstructor(context.wasmSymbols.jsFunConstructor, typeArguments = emptyList()).also {
+        result.annotations += builder.irCallConstructor(jsRelatedSymbols.jsFunConstructor, typeArguments = emptyList()).also {
             it.putValueArgument(0, builder.irString(jsFun))
         }
 
@@ -821,7 +828,7 @@ class JsInteropFunctionsLowering(val context: WasmBackendContext) : DeclarationT
         private val fromElementType: IrType,
     ) : InteropTypeAdapter {
         override val toType: IrType =
-            context.wasmSymbols.jsAnyType
+            jsRelatedSymbols.jsAnyType
 
         private val elementAdapter =
             primitivesToExternRefAdapters[fromElementType]
@@ -841,7 +848,7 @@ class JsInteropFunctionsLowering(val context: WasmBackendContext) : DeclarationT
                 //      newJsArray.push(adapt(originalArray[index]));
                 //      index++
                 //  }
-                val newJsArrayVar = irTemporary(irCall(symbols.newJsArray))
+                val newJsArrayVar = irTemporary(irCall(jsRelatedSymbols.newJsArray))
                 val indexVar = irTemporary(irInt(0), isMutable = true)
                 val arraySizeVar = irTemporary(irCall(sizeMethod).apply { dispatchReceiver = irGet(originalArrayVar) })
 
@@ -858,7 +865,7 @@ class JsInteropFunctionsLowering(val context: WasmBackendContext) : DeclarationT
                             ),
                             this@irBlock
                         )
-                        +irCall(symbols.jsArrayPush).apply {
+                        +irCall(jsRelatedSymbols.jsArrayPush).apply {
                             putValueArgument(0, irGet(newJsArrayVar))
                             putValueArgument(1, adaptedValue)
                         }
@@ -889,6 +896,7 @@ internal fun StringBuilder.appendParameterList(size: Int, name: String = "p", is
  */
 class JsInteropFunctionCallsLowering(val context: WasmBackendContext) : BodyLoweringPass {
     override fun lower(irBody: IrBody, container: IrDeclaration) {
+        if (context.configuration.get(JSConfigurationKeys.WASM_TARGET, WasmTarget.WASI) == WasmTarget.WASI) return
         irBody.transformChildrenVoid(object : IrElementTransformerVoid() {
             override fun visitCall(expression: IrCall): IrExpression {
                 expression.transformChildrenVoid()

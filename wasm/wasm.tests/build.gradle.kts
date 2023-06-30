@@ -76,6 +76,7 @@ dependencies {
 val generationRoot = projectDir.resolve("tests-gen")
 
 useD8Plugin()
+useNodeJsPlugin()
 optInToExperimentalCompilerApi()
 
 sourceSets {
@@ -144,6 +145,7 @@ fun Project.wasmProjectTest(
     ) {
         workingDir = rootDir
         setupV8()
+        setupNodeJs()
         setupSpiderMonkey()
         useJUnitPlatform()
         setupWasmStdlib()
