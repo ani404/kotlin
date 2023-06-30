@@ -18,11 +18,11 @@ private fun toPrecision(value: Double, decimals: Int): String =
     js("value.toPrecision(decimals)")
 
 internal actual fun formatToExactDecimals(value: Double, decimals: Int): String {
+    value.toString()
     val rounded = if (decimals == 0) {
         value
     } else {
         val pow = (10.0).pow(decimals)
-        round(abs(value) * pow) / pow * sign(value)
         round(abs(value) * pow) / pow * sign(value)
     }
     return if (abs(rounded) < 1e21) {

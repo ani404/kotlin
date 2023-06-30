@@ -14,7 +14,7 @@ val commonMainSources by task<Sync> {
 
 kotlin {
     @OptIn(org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl::class)
-    wasm("wasm") {
+    wasmWasi("wasm") {
         nodejs()
     }
 
@@ -30,7 +30,8 @@ kotlin {
             dependencies {
                 api(project(":kotlin-stdlib-wasm"))
             }
-            kotlin.srcDir("$rootDir/libraries/kotlin.test/wasm/src")
+//            kotlin.srcDirs("$rootDir/libraries/kotlin.test/wasm/src", "$rootDir/libraries/kotlin.test/wasm/js")
+            kotlin.srcDirs("$rootDir/libraries/kotlin.test/wasm/src", "$rootDir/libraries/kotlin.test/wasm/wasi")
         }
     }
 }

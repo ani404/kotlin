@@ -22,6 +22,8 @@ import org.jetbrains.kotlin.ir.declarations.IrFactory
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.util.ExternalDependenciesGenerator
 import org.jetbrains.kotlin.ir.util.patchDeclarationParents
+import org.jetbrains.kotlin.js.config.JSConfigurationKeys
+import org.jetbrains.kotlin.js.config.WasmTarget
 import org.jetbrains.kotlin.js.sourceMap.SourceFilePathResolver
 import org.jetbrains.kotlin.js.sourceMap.SourceMap3Builder
 import org.jetbrains.kotlin.name.FqName
@@ -32,13 +34,19 @@ import org.jetbrains.kotlin.wasm.ir.source.location.SourceLocationMapping
 import java.io.ByteArrayOutputStream
 import java.io.File
 
-class WasmCompilerResult(
+open class WasmCompilerResult(
     val wat: String?,
-    val jsUninstantiatedWrapper: String,
-    val jsWrapper: String,
     val wasm: ByteArray,
     val sourceMap: String?
 )
+
+class EjsLoadedWasmCompilerResult(
+    wat: String?,
+    val jsUninstantiatedWrapper: String,
+    val jsWrapper: String,
+    wasm: ByteArray,
+    sourceMap: String?
+) : WasmCompilerResult(wat, wasm, sourceMap)
 
 fun compileToLoweredIr(
     depsDescriptors: ModulesStructure,
@@ -109,12 +117,6 @@ fun compileWasm(
         null
     }
 
-    val jsUninstantiatedWrapper = compiledWasmModule.generateAsyncJsWrapper(
-        "./$baseFileName.wasm",
-        backendContext.jsModuleAndQualifierReferences
-    )
-    val jsWrapper = generateEsmExportsWrapper("./$baseFileName.uninstantiated.mjs")
-
     val os = ByteArrayOutputStream()
 
     val sourceMapFileName = "$baseFileName.map".takeIf { generateSourceMaps }
@@ -135,13 +137,26 @@ fun compileWasm(
 
     val byteArray = os.toByteArray()
 
-    return WasmCompilerResult(
-        wat = wat,
-        jsUninstantiatedWrapper = jsUninstantiatedWrapper,
-        jsWrapper = jsWrapper,
-        wasm = byteArray,
-        sourceMap = generateSourceMap(backendContext.configuration, sourceLocationMappings)
-    )
+    if (backendContext.configuration.get(JSConfigurationKeys.WASM_TARGET, WasmTarget.WASI) == WasmTarget.WASI) {
+        return WasmCompilerResult(
+            wat = wat,
+            wasm = byteArray,
+            sourceMap = generateSourceMap(backendContext.configuration, sourceLocationMappings)
+        )
+    } else {
+        val jsUninstantiatedWrapper = compiledWasmModule.generateAsyncJsWrapper(
+            "./$baseFileName.wasm",
+            backendContext.jsModuleAndQualifierReferences
+        )
+        val jsWrapper = generateEsmExportsWrapper("./$baseFileName.uninstantiated.mjs")
+        return EjsLoadedWasmCompilerResult(
+            wat = wat,
+            jsUninstantiatedWrapper = jsUninstantiatedWrapper,
+            jsWrapper = jsWrapper,
+            wasm = byteArray,
+            sourceMap = generateSourceMap(backendContext.configuration, sourceLocationMappings)
+        )
+    }
 }
 
 private fun generateSourceMap(
@@ -317,7 +332,7 @@ For more information see $d{uri("https://kotl.in/wasm_help/")}.
     
     wasmExports = wasmInstance.exports;
     if (runInitializer) {
-        wasmExports.__init();
+        wasmExports._initialize();
     }
 
     return { instance: wasmInstance,  exports: wasmExports };
@@ -341,8 +356,10 @@ fun writeCompilationResult(
     }
     File(dir, "$fileNameBase.wasm").writeBytes(result.wasm)
 
-    File(dir, "$fileNameBase.uninstantiated.mjs").writeText(result.jsUninstantiatedWrapper)
-    File(dir, "$fileNameBase.mjs").writeText(result.jsWrapper)
+    if (result is EjsLoadedWasmCompilerResult) {
+        File(dir, "$fileNameBase.uninstantiated.mjs").writeText(result.jsUninstantiatedWrapper)
+        File(dir, "$fileNameBase.mjs").writeText(result.jsWrapper)
+    }
 
     if (result.sourceMap != null) {
         File(dir, "$fileNameBase.map").writeText(result.sourceMap)

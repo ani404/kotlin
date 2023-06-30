@@ -25,6 +25,7 @@ import org.jetbrains.kotlin.test.services.LibraryProvider
 import org.jetbrains.kotlin.test.services.configuration.WasmEnvironmentConfigurator
 import org.jetbrains.kotlin.test.services.sourceProviders.CoroutineHelpersSourceFilesProvider
 import org.jetbrains.kotlin.wasm.test.handlers.WasmBoxRunner
+import org.jetbrains.kotlin.wasm.test.handlers.WasiBoxRunner
 
 abstract class AbstractWasmBlackBoxCodegenTestBase<R : ResultingArtifact.FrontendOutput<R>, I : ResultingArtifact.BackendInput<I>, A : ResultingArtifact.Binary<A>>(
     private val targetFrontend: FrontendKind<R>,
@@ -106,7 +107,12 @@ abstract class AbstractWasmBlackBoxCodegenTestBase<R : ResultingArtifact.Fronten
         }
 
         wasmArtifactsHandlersStep {
-            useHandlers(::WasmBoxRunner)
+            useHandlers(::WasiBoxRunner)
+//            when (targetBackend) {
+//                TargetBackend.WASM -> useHandlers(::WasmBoxRunner)
+//                TargetBackend.WASM_WASI -> useHandlers(::WasiBoxRunner)
+//                else -> error("Not supported: $targetBackend")
+//            }
         }
     }
 }
