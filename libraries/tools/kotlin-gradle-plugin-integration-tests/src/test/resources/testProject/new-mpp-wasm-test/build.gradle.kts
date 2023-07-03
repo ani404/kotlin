@@ -29,7 +29,7 @@ tasks.named<org.jetbrains.kotlin.gradle.targets.js.yarn.YarnLockCopyTask>("kotli
 }
 
 kotlin {
-    wasm {
+    wasmJs {
         <JsEngine> {
             testTask {
                 filter.apply {
