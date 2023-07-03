@@ -79,7 +79,7 @@ D8RootPlugin.apply(rootProject).version = v8Version
 
 kotlin {
     @OptIn(org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl::class)
-    wasm {
+    wasm("wasm") {
         d8()
     }
 
