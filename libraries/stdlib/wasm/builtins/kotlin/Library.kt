@@ -30,7 +30,7 @@ public operator fun String?.plus(other: Any?): String = (this ?: "null") + other
  *
  * @throws RuntimeException if the specified [size] is negative.
  */
-// TODO: Should T be reified?
+// TODO: Remove the reified constraint
 @Suppress("REIFIED_TYPE_PARAMETER_NO_INLINE")
 public fun <@PureReifiable reified T> arrayOfNulls(size: Int): Array<T?> = Array(size)
 
