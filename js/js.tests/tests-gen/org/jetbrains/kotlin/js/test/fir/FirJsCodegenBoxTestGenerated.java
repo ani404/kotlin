@@ -12614,6 +12614,12 @@ public class FirJsCodegenBoxTestGenerated extends AbstractFirJsCodegenBoxTest {
         }
 
         @Test
+        @TestMetadata("enumEntriesIntrinsicWithoutFeature.kt")
+        public void testEnumEntriesIntrinsicWithoutFeature() throws Exception {
+            runTest("compiler/testData/codegen/box/enum/enumEntriesIntrinsicWithoutFeature.kt");
+        }
+
+        @Test
         @TestMetadata("enumEntriesMultimoduleNoMappings.kt")
         public void testEnumEntriesMultimoduleNoMappings() throws Exception {
             runTest("compiler/testData/codegen/box/enum/enumEntriesMultimoduleNoMappings.kt");

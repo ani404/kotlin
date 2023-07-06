@@ -16688,6 +16688,12 @@ public class IrBlackBoxCodegenTestGenerated extends AbstractIrBlackBoxCodegenTes
         }
 
         @Test
+        @TestMetadata("enumEntriesIntrinsicWithoutFeature.kt")
+        public void testEnumEntriesIntrinsicWithoutFeature() throws Exception {
+            runTest("compiler/testData/codegen/box/enum/enumEntriesIntrinsicWithoutFeature.kt");
+        }
+
+        @Test
         @TestMetadata("enumEntriesMultimodule.kt")
         public void testEnumEntriesMultimodule() throws Exception {
             runTest("compiler/testData/codegen/box/enum/enumEntriesMultimodule.kt");

@@ -13781,6 +13781,11 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
             runTest("compiler/testData/codegen/box/enum/enumEntriesInCompanion.kt");
         }
 
+        @TestMetadata("enumEntriesIntrinsicWithoutFeature.kt")
+        public void testEnumEntriesIntrinsicWithoutFeature() throws Exception {
+            runTest("compiler/testData/codegen/box/enum/enumEntriesIntrinsicWithoutFeature.kt");
+        }
+
         @TestMetadata("enumEntriesMultimodule.kt")
         public void testEnumEntriesMultimodule() throws Exception {
             runTest("compiler/testData/codegen/box/enum/enumEntriesMultimodule.kt");
