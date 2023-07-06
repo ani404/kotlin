@@ -20,7 +20,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.PRIMARY_SINGLE_COMPONENT_NAME
 import org.jetbrains.kotlin.gradle.targets.js.JsAggregatingExecutionSource
 import org.jetbrains.kotlin.gradle.targets.js.KotlinJsReportAggregatingTestRun
 import org.jetbrains.kotlin.gradle.targets.js.KotlinJsTarget
-import org.jetbrains.kotlin.gradle.targets.js.KotlinWasmTarget
+import org.jetbrains.kotlin.gradle.targets.js.KotlinWasmTargetType
 import org.jetbrains.kotlin.gradle.targets.js.binaryen.BinaryenExec
 import org.jetbrains.kotlin.gradle.targets.js.dsl.*
 import org.jetbrains.kotlin.gradle.targets.js.npm.NpmResolverPlugin
@@ -59,7 +59,7 @@ constructor(
     open var isMpp: Boolean? = null
         internal set
 
-    override var wasmTarget: KotlinWasmTarget? = null
+    override var wasmTargetType: KotlinWasmTargetType? = null
         internal set
 
     var legacyTarget: KotlinJsTarget? = null
@@ -274,7 +274,7 @@ constructor(
         get() = nodejsLazyDelegate.isInitialized()
 
     override fun nodejs(body: KotlinJsNodeDsl.() -> Unit) {
-        if (wasmTarget != KotlinWasmTarget.WASI) {
+        if (wasmTargetType != KotlinWasmTargetType.WASI) {
             body(nodejs)
         }
     }
@@ -389,7 +389,7 @@ constructor(
 }
 
 fun KotlinJsIrTarget.wasmDecamelizedDefaultNameOrNull(): String? = if (platformType == KotlinPlatformType.wasm) {
-    val defaultWasmTargetName = wasmTarget?.let {
+    val defaultWasmTargetName = wasmTargetType?.let {
         KotlinWasmTargetPreset.WASM_PRESET_NAME + it.name.toLowerCaseAsciiOnly().capitalizeAsciiOnly()
     }
 
