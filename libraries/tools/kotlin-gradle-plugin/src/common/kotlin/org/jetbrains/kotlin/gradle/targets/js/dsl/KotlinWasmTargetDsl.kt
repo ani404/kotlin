@@ -6,8 +6,8 @@
 package org.jetbrains.kotlin.gradle.targets.js.dsl
 
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
-import org.jetbrains.kotlin.gradle.targets.js.KotlinWasmTarget
+import org.jetbrains.kotlin.gradle.targets.js.KotlinWasmTargetType
 
 interface KotlinWasmTargetDsl : KotlinTarget {
-    val wasmTarget: KotlinWasmTarget?
+    val wasmTargetType: KotlinWasmTargetType?
 }

@@ -438,7 +438,7 @@ fun Configuration.usesPlatformOf(target: KotlinTarget): Configuration {
         if (target.platformType == KotlinPlatformType.js) {
             attributes.attribute(KotlinJsCompilerAttribute.jsCompilerAttribute, KotlinJsCompilerAttribute.ir)
         } else {
-            attributes.attribute(KotlinWasmTargetAttribute.wasmTargetAttribute, target.wasmTarget!!.toAttribute())
+            attributes.attribute(KotlinWasmTargetAttribute.wasmTargetAttribute, target.wasmTargetType!!.toAttribute())
         }
     }
 

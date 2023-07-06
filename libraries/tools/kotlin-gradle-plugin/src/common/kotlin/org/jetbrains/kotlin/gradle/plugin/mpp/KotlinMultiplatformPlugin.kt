@@ -27,7 +27,7 @@ import org.jetbrains.kotlin.gradle.plugin.sources.awaitPlatformCompilations
 import org.jetbrains.kotlin.gradle.plugin.sources.internal
 import org.jetbrains.kotlin.gradle.plugin.statistics.KotlinBuildStatsService
 import org.jetbrains.kotlin.gradle.scripting.internal.ScriptingGradleSubplugin
-import org.jetbrains.kotlin.gradle.targets.js.KotlinWasmTarget
+import org.jetbrains.kotlin.gradle.targets.js.KotlinWasmTargetType
 import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrTargetPreset
 import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinWasmTargetPreset
 import org.jetbrains.kotlin.gradle.targets.native.createFatFrameworks
@@ -138,8 +138,8 @@ class KotlinMultiplatformPlugin : Plugin<Project> {
                     irPreset = KotlinJsIrTargetPreset(project).apply { mixedMode = true }
                 }
             )
-            add(KotlinWasmTargetPreset(project, KotlinWasmTarget.JS))
-            add(KotlinWasmTargetPreset(project, KotlinWasmTarget.WASI))
+            add(KotlinWasmTargetPreset(project, KotlinWasmTargetType.JS))
+            add(KotlinWasmTargetPreset(project, KotlinWasmTargetType.WASI))
             add(project.objects.newInstance(KotlinAndroidTargetPreset::class.java, project))
             add(KotlinJvmWithJavaTargetPreset(project))
 
