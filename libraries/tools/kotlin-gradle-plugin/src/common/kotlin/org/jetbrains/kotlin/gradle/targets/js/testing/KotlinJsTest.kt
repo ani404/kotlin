@@ -40,8 +40,6 @@ constructor(
 
     private val nodeExecutable by project.provider { nodeJs.requireConfigured().nodeExecutable }
 
-    private val npmProjectDir by project.provider { compilation.npmProject.dir }
-
     @Input
     var environment = mutableMapOf<String, String>()
 
@@ -157,7 +155,7 @@ constructor(
 
     override fun createTestExecutionSpec(): TCServiceMessagesTestExecutionSpec {
         val forkOptions = DefaultProcessForkOptions(fileResolver)
-        forkOptions.workingDir = npmProjectDir
+        forkOptions.workingDir = testFramework!!.workingDir.toFile()
         forkOptions.executable = nodeExecutable
 
         environment.forEach { (key, value) ->
