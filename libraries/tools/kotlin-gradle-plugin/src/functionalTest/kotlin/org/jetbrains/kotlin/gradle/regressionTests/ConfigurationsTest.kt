@@ -252,7 +252,6 @@ class ConfigurationsTest : MultiplatformExtensionTest() {
 
             kotlin {
                 jvm()
-                @Suppress("DEPRECATION")
                 js()
                 linuxX64("linux")
                 androidTarget()
@@ -292,7 +291,6 @@ class ConfigurationsTest : MultiplatformExtensionTest() {
         val project = buildProjectWithMPP {
             kotlin {
                 jvm()
-                @Suppress("DEPRECATION")
                 js()
                 linuxX64("linux")
             }

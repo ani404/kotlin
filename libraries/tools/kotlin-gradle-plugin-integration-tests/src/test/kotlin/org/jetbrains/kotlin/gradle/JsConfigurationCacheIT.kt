@@ -9,7 +9,8 @@ import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.testbase.*
 import org.junit.jupiter.api.DisplayName
 
-abstract class AbstractJsConfigurationCacheIT(protected val irBackend: Boolean) : KGPBaseTest() {
+@JsGradlePluginTests
+abstract class JsIrConfigurationCacheIT : KGPBaseTest() {
     @Suppress("DEPRECATION")
     private val defaultJsOptions = BuildOptions.JsOptions(
     )
@@ -44,7 +45,7 @@ abstract class AbstractJsConfigurationCacheIT(protected val irBackend: Boolean) 
                     ":app:packageJson",
                     ":app:publicPackageJson",
                     ":app:compileKotlinJs",
-                    if (irBackend) ":app:compileProductionExecutableKotlinJs" else ":app:processDceKotlinJs",
+                    ":app:compileProductionExecutableKotlinJs",
                     ":app:browserProductionWebpack",
                 )
             )
@@ -65,7 +66,7 @@ abstract class AbstractJsConfigurationCacheIT(protected val irBackend: Boolean) 
                 assertTasksUpToDate(
                     ":app:packageJson",
                     ":app:publicPackageJson",
-                    if (irBackend) ":app:compileProductionExecutableKotlinJs" else ":app:processDceKotlinJs",
+                    ":app:compileProductionExecutableKotlinJs",
                     ":app:browserProductionWebpack",
                 )
             }
@@ -85,7 +86,7 @@ abstract class AbstractJsConfigurationCacheIT(protected val irBackend: Boolean) 
                     ":rootPackageJson",
                     ":compileKotlinJs",
                     ":nodeTest",
-                ) + if (irBackend) listOf(":compileProductionExecutableKotlinJs") else emptyList()
+                ) + listOf(":compileProductionExecutableKotlinJs")
             )
         }
     }
@@ -107,7 +108,7 @@ abstract class AbstractJsConfigurationCacheIT(protected val irBackend: Boolean) 
                     ":rootPackageJson",
                     ":compileKotlinJs",
                     ":nodeTest",
-                ) + if (irBackend) listOf(":compileProductionExecutableKotlinJs") else emptyList()
+                ) + listOf(":compileProductionExecutableKotlinJs")
                 assertTasksUpToDate(*upToDateTasks.toTypedArray())
             }
         }
@@ -148,6 +149,3 @@ abstract class AbstractJsConfigurationCacheIT(protected val irBackend: Boolean) 
         }
     }
 }
-
-@JsGradlePluginTests
-class JsIrConfigurationCacheIT : AbstractJsConfigurationCacheIT(irBackend = true)

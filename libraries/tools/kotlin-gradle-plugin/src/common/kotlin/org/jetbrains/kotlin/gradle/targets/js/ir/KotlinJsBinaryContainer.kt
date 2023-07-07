@@ -79,7 +79,7 @@ constructor(
             return compilation.binaries.executableIrInternal(compilation)
         }
 
-        throw GradleException("Target should KotlinJsIrTarget, but found $target")
+        throw GradleException("Target should be KotlinJsIrTarget, but found $target")
     }
 
     internal fun executableIrInternal(compilation: KotlinJsCompilation): List<JsBinary> = createBinaries(

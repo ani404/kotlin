@@ -5,6 +5,8 @@
 
 package org.jetbrains.kotlin.gradle.plugin
 
+import java.util.*
+
 enum class KotlinJsCompilerType {
     @Deprecated("Legacy compiler is deprecated. Migrate your project to the new IR-based compiler")
     LEGACY,
@@ -26,4 +28,18 @@ enum class KotlinJsCompilerType {
                     "Unable to find $argument setting. Use [${values().toList().joinToString()}]"
                 )
     }
+}
+
+@Deprecated("This method is planned to be removed")
+val KotlinJsCompilerType.lowerName
+    get() = name.toLowerCase(Locale.ENGLISH)
+
+@Deprecated("This method is planned to be removed")
+fun String.removeJsCompilerSuffix(compilerType: KotlinJsCompilerType): String {
+    val truncatedString = removeSuffix(compilerType.lowerName)
+    if (this != truncatedString) {
+        return truncatedString
+    }
+
+    return removeSuffix(compilerType.lowerName.capitalize(Locale.ENGLISH))
 }

@@ -7,7 +7,7 @@ package org.jetbrains.kotlin.gradle.targets.js.subtargets
 
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsBrowserDsl
 
-@Deprecated("Only for compatibility", level = DeprecationLevel.HIDDEN)
+@Deprecated("The Kotlin/JS legacy target is deprecated and its support completely discontinued", level = DeprecationLevel.HIDDEN)
 abstract class KotlinBrowserJs :
     KotlinJsSubTarget(),
     KotlinJsBrowserDsl

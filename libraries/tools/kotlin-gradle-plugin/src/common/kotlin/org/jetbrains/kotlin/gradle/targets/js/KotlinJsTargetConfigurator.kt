@@ -7,4 +7,5 @@ package org.jetbrains.kotlin.gradle.targets.js
 
 import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrTargetConfigurator
 
+@Deprecated("The Kotlin/JS legacy target is deprecated and its support completely discontinued")
 typealias KotlinJsTargetConfigurator = KotlinJsIrTargetConfigurator
