@@ -27,6 +27,8 @@ abstract class Visibility protected constructor(
 
     open fun normalize(): Visibility = this
 
+    open val isFormOfProtected get() = normalize() == Visibilities.Protected
+
     // Should be overloaded in Java visibilities
     open fun customEffectiveVisibility(): EffectiveVisibility? = null
 

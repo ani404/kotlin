@@ -24,6 +24,8 @@ object JavaVisibilities {
             return Visibilities.Protected
         }
 
+        override val isFormOfProtected get() = false
+
         override val internalDisplayName: String
             get() = "public/*package*/"
 
