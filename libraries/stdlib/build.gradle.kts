@@ -78,6 +78,7 @@ kotlin {
                 }
             }
 
+            project.sourceSets.maybeCreate("main") // TODO: remove after bootstrap
             val main by getting {
                 compileTaskProvider.configure {
                     this as UsesKotlinJavaToolchain
