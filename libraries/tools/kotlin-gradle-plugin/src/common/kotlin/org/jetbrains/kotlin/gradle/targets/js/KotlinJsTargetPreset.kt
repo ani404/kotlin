@@ -17,6 +17,7 @@ abstract class KotlinJsTargetPreset(
     project
 )
 
+@Suppress("DEPRECATION")
 @Deprecated("The Kotlin/JS legacy target is deprecated and its support completely discontinued", level = DeprecationLevel.HIDDEN)
 abstract class KotlinJsSingleTargetPreset(
     project: Project

@@ -244,14 +244,6 @@ abstract class KotlinJsProjectExtension(project: Project) :
         targetSetObservers.add(observer)
     }
 
-    companion object {
-        internal fun reportJsCompilerMode(compilerType: KotlinJsCompilerType) {
-            when (compilerType) {
-                KotlinJsCompilerType.IR -> KotlinBuildStatsService.getInstance()?.report(StringMetrics.JS_COMPILER_MODE, "ir")
-            }
-        }
-    }
-
     @Deprecated("Use js() instead", ReplaceWith("js()"))
     @Suppress("DEPRECATION")
     override val target: KotlinJsTargetDsl
@@ -269,7 +261,6 @@ abstract class KotlinJsProjectExtension(project: Project) :
     ): KotlinJsTargetDsl {
         if (_target == null) {
             val compilerOrDefault = compiler ?: defaultJsCompilerType
-            reportJsCompilerMode(compilerOrDefault)
             val target: KotlinJsTargetDsl = irPreset
                 .createTarget("js")
 

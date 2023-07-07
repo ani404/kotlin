@@ -6,7 +6,6 @@
 package org.jetbrains.kotlin.gradle.dsl
 
 import org.gradle.api.Action
-import org.jetbrains.kotlin.gradle.dsl.KotlinJsProjectExtension.Companion.reportJsCompilerMode
 import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
 
@@ -83,8 +82,6 @@ private fun KotlinTargetContainerWithJsPresetFunctions.jsInternal(
 ): KotlinJsTargetDsl {
     val compilerOrDefault = compiler
         ?: defaultJsCompilerType
-
-    reportJsCompilerMode(compilerOrDefault)
 
     @Suppress("UNCHECKED_CAST")
     return configureOrCreate(

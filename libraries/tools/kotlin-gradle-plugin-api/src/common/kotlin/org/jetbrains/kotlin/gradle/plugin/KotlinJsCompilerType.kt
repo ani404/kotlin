@@ -34,6 +34,7 @@ enum class KotlinJsCompilerType {
 val KotlinJsCompilerType.lowerName
     get() = name.toLowerCase(Locale.ENGLISH)
 
+@Suppress("DEPRECATION")
 @Deprecated("This method is planned to be removed")
 fun String.removeJsCompilerSuffix(compilerType: KotlinJsCompilerType): String {
     val truncatedString = removeSuffix(compilerType.lowerName)
