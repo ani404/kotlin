@@ -37,13 +37,13 @@ class WasmDependencyResolutionSmokeTest {
         producer.multiplatformExtension.apply {
             jvm()
             js(IR) { browser() }
-            wasm()
+            wasmJs()
         }
 
         consumer.multiplatformExtension.apply {
             jvm()
             js(IR) { browser() }
-            wasm()
+            wasmJs()
 
             sourceSets.commonMain.dependencies {
                 implementation(producer)
