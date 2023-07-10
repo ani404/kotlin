@@ -18,6 +18,11 @@
 #include "ScopedThread.hpp"
 #include "Utils.hpp"
 
+#if KONAN_OBJC_INTEROP
+#include "ObjCMMAPI.h"
+#include <CoreFoundation/CoreFoundation.h>
+#endif
+
 namespace kotlin::gc {
 
 template <typename FinalizerQueue, typename FinalizerQueueTraits>
@@ -87,7 +92,14 @@ public:
                 lock.unlock();
                 if (!FinalizerQueueTraits::isEmpty(queue)) {
                     ThreadStateGuard guard(ThreadState::kRunnable);
+#if KONAN_OBJC_INTEROP
+                    konan::AutoreleasePool autoreleasePool;
+#endif
                     FinalizerQueueTraits::process(std::move(queue));
+#if KONAN_OBJC_INTEROP
+                    // FIXME how many seconds do we need?
+                    while (CFRunLoopRunInMode(kCFRunLoopDefaultMode, 42, TRUE) == kCFRunLoopRunHandledSource) {}
+#endif
                 }
                 epochDoneCallback_(finalizersEpoch);
             }
