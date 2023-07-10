@@ -7,6 +7,7 @@
 
 package kotlin
 
+import kotlin.enums.EnumEntries
 import kotlin.internal.PureReifiable
 import kotlin.js.*
 
@@ -89,3 +90,7 @@ public inline fun <reified T : Enum<T>> enumValues(): Array<T> = enumValuesIntri
  */
 @SinceKotlin("1.1")
 public inline fun <reified T : Enum<T>> enumValueOf(name: String): T = enumValueOfIntrinsic<T>(name)
+
+@ExperimentalStdlibApi
+@SinceKotlin("1.9")
+public inline fun <reified T : Enum<T>> enumEntries(): EnumEntries<T> = enumEntriesIntrinsic<T>()

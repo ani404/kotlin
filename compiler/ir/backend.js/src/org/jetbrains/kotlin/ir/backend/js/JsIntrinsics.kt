@@ -142,6 +142,7 @@ class JsIntrinsics(private val irBuiltIns: IrBuiltIns, val context: JsIrBackendC
 
     val enumValueOfIntrinsic = getInternalFunction("enumValueOfIntrinsic")
     val enumValuesIntrinsic = getInternalFunction("enumValuesIntrinsic")
+    val enumEntriesIntrinsic = getInternalFunction("enumEntriesIntrinsic")
 
 
     // Other:

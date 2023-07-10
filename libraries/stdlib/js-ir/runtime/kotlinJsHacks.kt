@@ -5,8 +5,14 @@
 
 package kotlin.js
 
+import kotlin.enums.EnumEntries
+
 @PublishedApi
 internal fun <T : Enum<T>> enumValuesIntrinsic(): Array<T> =
+    throw IllegalStateException("Should be replaced by compiler")
+
+@PublishedApi
+internal fun <T : Enum<T>> enumEntriesIntrinsic(): EnumEntries<T> =
     throw IllegalStateException("Should be replaced by compiler")
 
 @PublishedApi
