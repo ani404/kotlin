@@ -59,6 +59,8 @@ val debuggerTest = nativeTest("debuggerTest", "debugger")
 val cachesTest = nativeTest("cachesTest", "caches")
 val klibContentsTest = nativeTest("klibContentsTest", "klib-contents & !frontend-fir")
 val klibContentsK2Test = nativeTest("klibContentsK2Test", "klib-contents & frontend-fir")
+val headerKlibCompareTest = nativeTest("headerKlibCompareTest", "header-klib-compare")
+val headerKlibCompileTest = nativeTest("headerKlibCompileTest", "header-klib-compile")
 
 val testTags = findProperty("kotlin.native.tests.tags")?.toString()
 // Note: arbitrary JUnit tag expressions can be used in this property.

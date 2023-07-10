@@ -241,6 +241,24 @@ fun main() {
                 model("diagnostics/nativeTests", excludedPattern = CUSTOM_TEST_DATA_EXTENSION_PATTERN)
             }
         }
+
+        // Header klib comparison tests
+        testGroup("native/native.tests/tests-gen", "native/native.tests/testData") {
+            testClass<AbstractNativeHeaderKlibCompareTest>(
+                suiteTestClassName = "NativeHeaderKlibCompareTestGenerated",
+            ) {
+                model("headerKlibs/compare", extension = null, recursive = false)
+            }
+        }
+
+        // Header klib compilation tests
+        testGroup("native/native.tests/tests-gen", "native/native.tests/testData") {
+            testClass<AbstractNativeHeaderKlibCompileTest>(
+                suiteTestClassName = "NativeHeaderKlibCompileTestGenerated",
+            ) {
+                model("headerKlibs/compile", extension = null, recursive = false)
+            }
+        }
     }
 }
 
