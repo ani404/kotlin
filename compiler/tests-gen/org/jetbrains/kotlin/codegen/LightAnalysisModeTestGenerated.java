@@ -2331,6 +2331,78 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
         }
     }
 
+    @TestMetadata("compiler/testData/codegen/box/builderInference")
+    @TestDataPath("$PROJECT_ROOT")
+    @RunWith(JUnit3RunnerWithInners.class)
+    public static class BuilderInference extends AbstractLightAnalysisModeTest {
+        private void runTest(String testDataFilePath) throws Exception {
+            KotlinTestUtils.runTest(this::doTest, TargetBackend.JVM_IR, testDataFilePath);
+        }
+
+        public void testAllFilesPresentInBuilderInference() throws Exception {
+            KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM_IR, true);
+        }
+
+        @TestMetadata("compiler/testData/codegen/box/builderInference/singleBuilderParameter")
+        @TestDataPath("$PROJECT_ROOT")
+        @RunWith(JUnit3RunnerWithInners.class)
+        public static class SingleBuilderParameter extends AbstractLightAnalysisModeTest {
+            private void runTest(String testDataFilePath) throws Exception {
+                KotlinTestUtils.runTest(this::doTest, TargetBackend.JVM_IR, testDataFilePath);
+            }
+
+            public void testAllFilesPresentInSingleBuilderParameter() throws Exception {
+                KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/singleBuilderParameter"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM_IR, true);
+            }
+
+            @TestMetadata("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable")
+            @TestDataPath("$PROJECT_ROOT")
+            @RunWith(JUnit3RunnerWithInners.class)
+            public static class SinglePostponedTypeVariable extends AbstractLightAnalysisModeTest {
+                private void runTest(String testDataFilePath) throws Exception {
+                    KotlinTestUtils.runTest(this::doTest, TargetBackend.JVM_IR, testDataFilePath);
+                }
+
+                public void testAllFilesPresentInSinglePostponedTypeVariable() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM_IR, true);
+                }
+
+                @TestMetadata("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin")
+                @TestDataPath("$PROJECT_ROOT")
+                @RunWith(JUnit3RunnerWithInners.class)
+                public static class SingleTypeInfoOrigin extends AbstractLightAnalysisModeTest {
+                    private void runTest(String testDataFilePath) throws Exception {
+                        KotlinTestUtils.runTest(this::doTest, TargetBackend.JVM_IR, testDataFilePath);
+                    }
+
+                    public void testAllFilesPresentInSingleTypeInfoOrigin() throws Exception {
+                        KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM_IR, true);
+                    }
+
+                    @TestMetadata("AnonymousFunctionArgumentAndBuildeeParameter.kt")
+                    public void testAnonymousFunctionArgumentAndBuildeeParameter() throws Exception {
+                        runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/AnonymousFunctionArgumentAndBuildeeParameter.kt");
+                    }
+
+                    @TestMetadata("AnonymousFunctionArgumentAndBuildeeReceiver.kt")
+                    public void testAnonymousFunctionArgumentAndBuildeeReceiver() throws Exception {
+                        runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/AnonymousFunctionArgumentAndBuildeeReceiver.kt");
+                    }
+
+                    @TestMetadata("LambdaArgumentAndBuildeeParameter.kt")
+                    public void testLambdaArgumentAndBuildeeParameter() throws Exception {
+                        runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/LambdaArgumentAndBuildeeParameter.kt");
+                    }
+
+                    @TestMetadata("LambdaArgumentAndBuildeeReceiver.kt")
+                    public void testLambdaArgumentAndBuildeeReceiver() throws Exception {
+                        runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/LambdaArgumentAndBuildeeReceiver.kt");
+                    }
+                }
+            }
+        }
+    }
+
     @TestMetadata("compiler/testData/codegen/box/builtinStubMethods")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)

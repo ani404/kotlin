@@ -1793,6 +1793,70 @@ public class K1WasmCodegenBoxTestGenerated extends AbstractK1WasmCodegenBoxTest 
     }
 
     @Nested
+    @TestMetadata("compiler/testData/codegen/box/builderInference")
+    @TestDataPath("$PROJECT_ROOT")
+    public class BuilderInference {
+        @Test
+        public void testAllFilesPresentInBuilderInference() throws Exception {
+            KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference"), Pattern.compile("^([^_](.+))\\.kt$"), null, TargetBackend.WASM, true);
+        }
+
+        @Nested
+        @TestMetadata("compiler/testData/codegen/box/builderInference/singleBuilderParameter")
+        @TestDataPath("$PROJECT_ROOT")
+        public class SingleBuilderParameter {
+            @Test
+            public void testAllFilesPresentInSingleBuilderParameter() throws Exception {
+                KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/singleBuilderParameter"), Pattern.compile("^([^_](.+))\\.kt$"), null, TargetBackend.WASM, true);
+            }
+
+            @Nested
+            @TestMetadata("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable")
+            @TestDataPath("$PROJECT_ROOT")
+            public class SinglePostponedTypeVariable {
+                @Test
+                public void testAllFilesPresentInSinglePostponedTypeVariable() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable"), Pattern.compile("^([^_](.+))\\.kt$"), null, TargetBackend.WASM, true);
+                }
+
+                @Nested
+                @TestMetadata("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin")
+                @TestDataPath("$PROJECT_ROOT")
+                public class SingleTypeInfoOrigin {
+                    @Test
+                    public void testAllFilesPresentInSingleTypeInfoOrigin() throws Exception {
+                        KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin"), Pattern.compile("^([^_](.+))\\.kt$"), null, TargetBackend.WASM, true);
+                    }
+
+                    @Test
+                    @TestMetadata("AnonymousFunctionArgumentAndBuildeeParameter.kt")
+                    public void testAnonymousFunctionArgumentAndBuildeeParameter() throws Exception {
+                        runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/AnonymousFunctionArgumentAndBuildeeParameter.kt");
+                    }
+
+                    @Test
+                    @TestMetadata("AnonymousFunctionArgumentAndBuildeeReceiver.kt")
+                    public void testAnonymousFunctionArgumentAndBuildeeReceiver() throws Exception {
+                        runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/AnonymousFunctionArgumentAndBuildeeReceiver.kt");
+                    }
+
+                    @Test
+                    @TestMetadata("LambdaArgumentAndBuildeeParameter.kt")
+                    public void testLambdaArgumentAndBuildeeParameter() throws Exception {
+                        runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/LambdaArgumentAndBuildeeParameter.kt");
+                    }
+
+                    @Test
+                    @TestMetadata("LambdaArgumentAndBuildeeReceiver.kt")
+                    public void testLambdaArgumentAndBuildeeReceiver() throws Exception {
+                        runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/LambdaArgumentAndBuildeeReceiver.kt");
+                    }
+                }
+            }
+        }
+    }
+
+    @Nested
     @TestMetadata("compiler/testData/codegen/box/builtinStubMethods")
     @TestDataPath("$PROJECT_ROOT")
     public class BuiltinStubMethods {

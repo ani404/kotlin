@@ -3206,6 +3206,52 @@ public class FirPsiOldFrontendDiagnosticsTestGenerated extends AbstractFirPsiDia
         }
 
         @Nested
+        @TestMetadata("compiler/testData/diagnostics/tests/builderInference")
+        @TestDataPath("$PROJECT_ROOT")
+        public class BuilderInference {
+            @Test
+            public void testAllFilesPresentInBuilderInference() throws Exception {
+                KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/diagnostics/tests/builderInference"), Pattern.compile("^(.*)\\.kts?$"), Pattern.compile("^(.+)\\.(reversed|fir|ll)\\.kts?$"), true, "multiplatform");
+            }
+
+            @Nested
+            @TestMetadata("compiler/testData/diagnostics/tests/builderInference/singleBuilderParameter")
+            @TestDataPath("$PROJECT_ROOT")
+            public class SingleBuilderParameter {
+                @Test
+                public void testAllFilesPresentInSingleBuilderParameter() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/diagnostics/tests/builderInference/singleBuilderParameter"), Pattern.compile("^(.*)\\.kts?$"), Pattern.compile("^(.+)\\.(reversed|fir|ll)\\.kts?$"), true, "multiplatform");
+                }
+
+                @Nested
+                @TestMetadata("compiler/testData/diagnostics/tests/builderInference/singleBuilderParameter/singlePostponedTypeVariable")
+                @TestDataPath("$PROJECT_ROOT")
+                public class SinglePostponedTypeVariable {
+                    @Test
+                    public void testAllFilesPresentInSinglePostponedTypeVariable() throws Exception {
+                        KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/diagnostics/tests/builderInference/singleBuilderParameter/singlePostponedTypeVariable"), Pattern.compile("^(.*)\\.kts?$"), Pattern.compile("^(.+)\\.(reversed|fir|ll)\\.kts?$"), true, "multiplatform");
+                    }
+
+                    @Nested
+                    @TestMetadata("compiler/testData/diagnostics/tests/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin")
+                    @TestDataPath("$PROJECT_ROOT")
+                    public class SingleTypeInfoOrigin {
+                        @Test
+                        public void testAllFilesPresentInSingleTypeInfoOrigin() throws Exception {
+                            KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/diagnostics/tests/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin"), Pattern.compile("^(.*)\\.kts?$"), Pattern.compile("^(.+)\\.(reversed|fir|ll)\\.kts?$"), true, "multiplatform");
+                        }
+
+                        @Test
+                        @TestMetadata("AnonymousFunctionArgumentAndBuildeeReceiver.kt")
+                        public void testAnonymousFunctionArgumentAndBuildeeReceiver() throws Exception {
+                            runTest("compiler/testData/diagnostics/tests/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/AnonymousFunctionArgumentAndBuildeeReceiver.kt");
+                        }
+                    }
+                }
+            }
+        }
+
+        @Nested
         @TestMetadata("compiler/testData/diagnostics/tests/callableReference")
         @TestDataPath("$PROJECT_ROOT")
         public class CallableReference {
