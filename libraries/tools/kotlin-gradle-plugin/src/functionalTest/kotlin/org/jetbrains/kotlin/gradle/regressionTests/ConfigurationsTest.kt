@@ -187,7 +187,7 @@ class ConfigurationsTest : MultiplatformExtensionTest() {
 
         // WASM
         val actualWasmConfigurations = targetSpecificConfigurationsToCheck
-            .map { project.configurations.getByName("wasm$it") }
+            .map { project.configurations.getByName("wasmJs$it") }
             .filter { it.attributes.contains(KotlinJsCompilerAttribute.jsCompilerAttribute) }
 
         assertEquals(
