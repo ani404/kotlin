@@ -1932,6 +1932,43 @@ public class NativeCodegenBoxTestNoPLGenerated extends AbstractNativeCodegenBoxT
                         public void testLambdaArgumentAndBuildeeReceiver() throws Exception {
                             runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/LambdaArgumentAndBuildeeReceiver.kt");
                         }
+
+                        @Nested
+                        @TestMetadata("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/sourceSinkFeedContexts")
+                        @TestDataPath("$PROJECT_ROOT")
+                        @UseExtTestCaseGroupProvider()
+                        @UsePartialLinkage(mode = Mode.DISABLED)
+                        @Tag("no-partial-linkage-may-be-skipped")
+                        public class SourceSinkFeedContexts {
+                            @Test
+                            public void testAllFilesPresentInSourceSinkFeedContexts() throws Exception {
+                                KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/sourceSinkFeedContexts"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.NATIVE, true);
+                            }
+
+                            @Test
+                            @TestMetadata("InsideAnonymousObject.kt")
+                            public void testInsideAnonymousObject() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/sourceSinkFeedContexts/InsideAnonymousObject.kt");
+                            }
+
+                            @Test
+                            @TestMetadata("InsideNestedLambda.kt")
+                            public void testInsideNestedLambda() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/sourceSinkFeedContexts/InsideNestedLambda.kt");
+                            }
+
+                            @Test
+                            @TestMetadata("ThroughDelegatedLocalVariable.kt")
+                            public void testThroughDelegatedLocalVariable() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/sourceSinkFeedContexts/ThroughDelegatedLocalVariable.kt");
+                            }
+
+                            @Test
+                            @TestMetadata("ThroughLocalVariable.kt")
+                            public void testThroughLocalVariable() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/sourceSinkFeedContexts/ThroughLocalVariable.kt");
+                            }
+                        }
                     }
                 }
             }
