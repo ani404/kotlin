@@ -1862,6 +1862,203 @@ public class NativeCodegenBoxTestNoPLGenerated extends AbstractNativeCodegenBoxT
         }
 
         @Nested
+        @TestMetadata("compiler/testData/codegen/box/builderInference")
+        @TestDataPath("$PROJECT_ROOT")
+        @UseExtTestCaseGroupProvider()
+        @UsePartialLinkage(mode = Mode.DISABLED)
+        @Tag("no-partial-linkage-may-be-skipped")
+        public class BuilderInference {
+            @Test
+            public void testAllFilesPresentInBuilderInference() throws Exception {
+                KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.NATIVE, true);
+            }
+
+            @Nested
+            @TestMetadata("compiler/testData/codegen/box/builderInference/singleBuilderParameter")
+            @TestDataPath("$PROJECT_ROOT")
+            @UseExtTestCaseGroupProvider()
+            @UsePartialLinkage(mode = Mode.DISABLED)
+            @Tag("no-partial-linkage-may-be-skipped")
+            public class SingleBuilderParameter {
+                @Test
+                public void testAllFilesPresentInSingleBuilderParameter() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/singleBuilderParameter"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.NATIVE, true);
+                }
+
+                @Nested
+                @TestMetadata("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable")
+                @TestDataPath("$PROJECT_ROOT")
+                @UseExtTestCaseGroupProvider()
+                @UsePartialLinkage(mode = Mode.DISABLED)
+                @Tag("no-partial-linkage-may-be-skipped")
+                public class SinglePostponedTypeVariable {
+                    @Test
+                    public void testAllFilesPresentInSinglePostponedTypeVariable() throws Exception {
+                        KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.NATIVE, true);
+                    }
+
+                    @Nested
+                    @TestMetadata("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin")
+                    @TestDataPath("$PROJECT_ROOT")
+                    @UseExtTestCaseGroupProvider()
+                    @UsePartialLinkage(mode = Mode.DISABLED)
+                    @Tag("no-partial-linkage-may-be-skipped")
+                    public class SingleTypeInfoOrigin {
+                        @Test
+                        public void testAllFilesPresentInSingleTypeInfoOrigin() throws Exception {
+                            KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.NATIVE, true);
+                        }
+
+                        @Nested
+                        @TestMetadata("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/targetTypes")
+                        @TestDataPath("$PROJECT_ROOT")
+                        @UseExtTestCaseGroupProvider()
+                        @UsePartialLinkage(mode = Mode.DISABLED)
+                        @Tag("no-partial-linkage-may-be-skipped")
+                        public class TargetTypes {
+                            @Test
+                            public void testAllFilesPresentInTargetTypes() throws Exception {
+                                KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/targetTypes"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.NATIVE, true);
+                            }
+
+                            @Test
+                            @TestMetadata("AnonymousObject.kt")
+                            public void testAnonymousObject() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/targetTypes/AnonymousObject.kt");
+                            }
+
+                            @Test
+                            @TestMetadata("ContravariantGeneric.kt")
+                            public void testContravariantGeneric() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/targetTypes/ContravariantGeneric.kt");
+                            }
+
+                            @Test
+                            @TestMetadata("CovariantGeneric.kt")
+                            public void testCovariantGeneric() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/targetTypes/CovariantGeneric.kt");
+                            }
+
+                            @Test
+                            @TestMetadata("DefinitelyNonNullableTypeParameter.kt")
+                            public void testDefinitelyNonNullableTypeParameter() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/targetTypes/DefinitelyNonNullableTypeParameter.kt");
+                            }
+
+                            @Test
+                            @TestMetadata("Enumeration.kt")
+                            public void testEnumeration() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/targetTypes/Enumeration.kt");
+                            }
+
+                            @Test
+                            @TestMetadata("FunctionWithParameterToUnit.kt")
+                            public void testFunctionWithParameterToUnit() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/targetTypes/FunctionWithParameterToUnit.kt");
+                            }
+
+                            @Test
+                            @TestMetadata("FunctionWithReceiverToUnit.kt")
+                            public void testFunctionWithReceiverToUnit() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/targetTypes/FunctionWithReceiverToUnit.kt");
+                            }
+
+                            @Test
+                            @TestMetadata("InProjectedGeneric.kt")
+                            public void testInProjectedGeneric() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/targetTypes/InProjectedGeneric.kt");
+                            }
+
+                            @Test
+                            @TestMetadata("Int.kt")
+                            public void testInt() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/targetTypes/Int.kt");
+                            }
+
+                            @Test
+                            @TestMetadata("Intersection.kt")
+                            public void testIntersection() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/targetTypes/Intersection.kt");
+                            }
+
+                            @Test
+                            @TestMetadata("InvariantGeneric.kt")
+                            public void testInvariantGeneric() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/targetTypes/InvariantGeneric.kt");
+                            }
+
+                            @Test
+                            @TestMetadata("LocalClass.kt")
+                            public void testLocalClass() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/targetTypes/LocalClass.kt");
+                            }
+
+                            @Test
+                            @TestMetadata("Nothing.kt")
+                            public void testNothing() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/targetTypes/Nothing.kt");
+                            }
+
+                            @Test
+                            @TestMetadata("NullableNothing.kt")
+                            public void testNullableNothing() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/targetTypes/NullableNothing.kt");
+                            }
+
+                            @Test
+                            @TestMetadata("NullableTypeParameter.kt")
+                            public void testNullableTypeParameter() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/targetTypes/NullableTypeParameter.kt");
+                            }
+
+                            @Test
+                            @TestMetadata("NullaryFunctionToUnit.kt")
+                            public void testNullaryFunctionToUnit() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/targetTypes/NullaryFunctionToUnit.kt");
+                            }
+
+                            @Test
+                            @TestMetadata("NullaryFunctionWithReturnValue.kt")
+                            public void testNullaryFunctionWithReturnValue() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/targetTypes/NullaryFunctionWithReturnValue.kt");
+                            }
+
+                            @Test
+                            @TestMetadata("OutProjectedGeneric.kt")
+                            public void testOutProjectedGeneric() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/targetTypes/OutProjectedGeneric.kt");
+                            }
+
+                            @Test
+                            @TestMetadata("StarProjectedGeneric.kt")
+                            public void testStarProjectedGeneric() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/targetTypes/StarProjectedGeneric.kt");
+                            }
+
+                            @Test
+                            @TestMetadata("String.kt")
+                            public void testString() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/targetTypes/String.kt");
+                            }
+
+                            @Test
+                            @TestMetadata("SuspendingFunction.kt")
+                            public void testSuspendingFunction() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/targetTypes/SuspendingFunction.kt");
+                            }
+
+                            @Test
+                            @TestMetadata("TypeParameter.kt")
+                            public void testTypeParameter() throws Exception {
+                                runTest("compiler/testData/codegen/box/builderInference/singleBuilderParameter/singlePostponedTypeVariable/singleTypeInfoOrigin/targetTypes/TypeParameter.kt");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        @Nested
         @TestMetadata("compiler/testData/codegen/box/builtinStubMethods")
         @TestDataPath("$PROJECT_ROOT")
         @UseExtTestCaseGroupProvider()
