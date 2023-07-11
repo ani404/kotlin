@@ -5,6 +5,8 @@
 
 package kotlin.collections
 
+import kotlin.experimental.ExperimentalNativeApi
+
 actual class HashSet<E> internal constructor(
         private val backing: HashMap<E, *>
 ) : MutableSet<E>, kotlin.native.internal.KonanSet<E>, AbstractMutableSet<E>() {
@@ -63,6 +65,11 @@ actual class HashSet<E> internal constructor(
     override actual val size: Int get() = backing.size
     override actual fun isEmpty(): Boolean = backing.isEmpty()
     override actual fun contains(element: E): Boolean = backing.containsKey(element)
+
+    /**
+     * This function is not supposed to be used directly. Compiler uses it for ObjC interop.
+     */
+    @ExperimentalNativeApi
     override fun getElement(element: E): E? = backing.getKey(element)
     override actual fun clear() = backing.clear()
     override actual fun add(element: E): Boolean = backing.addKey(element) >= 0
