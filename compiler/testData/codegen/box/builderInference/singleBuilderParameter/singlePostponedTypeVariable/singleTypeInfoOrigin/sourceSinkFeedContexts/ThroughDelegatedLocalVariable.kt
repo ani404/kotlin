@@ -1,4 +1,5 @@
 // IGNORE_BACKEND_K1: ANY
+// ISSUE: KT-60274
 
 import kotlin.reflect.KProperty
 

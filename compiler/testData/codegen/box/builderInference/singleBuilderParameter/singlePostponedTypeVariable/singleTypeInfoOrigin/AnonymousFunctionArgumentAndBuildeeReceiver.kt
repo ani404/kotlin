@@ -1,4 +1,5 @@
 // IGNORE_BACKEND_K1: ANY
+// ISSUE: KT-59551
 
 class Buildee<CT> {
     fun yield(arg: CT) {}
