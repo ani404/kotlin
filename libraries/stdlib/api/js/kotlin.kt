@@ -69,6 +69,10 @@ public inline fun doubleArrayOf(vararg elements: kotlin.Double): kotlin.DoubleAr
 
 public inline fun <T> emptyArray(): kotlin.Array<T>
 
+@kotlin.ExperimentalStdlibApi
+@kotlin.SinceKotlin(version = "1.9")
+public inline fun <reified T : kotlin.Enum<T>> enumEntries(): kotlin.enums.EnumEntries<T>
+
 @kotlin.SinceKotlin(version = "1.1")
 public inline fun <reified T : kotlin.Enum<T>> enumValueOf(name: kotlin.String): T
 
