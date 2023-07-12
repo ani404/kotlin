@@ -11,7 +11,7 @@ public fun interface KotlinGlobalModuleStateModificationListener {
     /**
      * [onModification] is invoked in a write action before or after global modification of the module state of all [KtModule]s.
      *
-     * This event is published after SDK removal.
+     * This event is published after SDK removal and to invalidate caches during/between tests.
      */
     public fun onModification()
 }
