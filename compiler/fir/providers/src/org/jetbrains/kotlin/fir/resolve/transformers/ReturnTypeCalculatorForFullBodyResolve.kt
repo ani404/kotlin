@@ -6,6 +6,8 @@
 package org.jetbrains.kotlin.fir.resolve.transformers
 
 import org.jetbrains.kotlin.fir.declarations.FirCallableDeclaration
+import org.jetbrains.kotlin.fir.declarations.FirSimpleFunction
+import org.jetbrains.kotlin.fir.declarations.utils.isLocal
 import org.jetbrains.kotlin.fir.diagnostics.ConeSimpleDiagnostic
 import org.jetbrains.kotlin.fir.diagnostics.DiagnosticKind
 import org.jetbrains.kotlin.fir.render
@@ -25,10 +27,17 @@ object ReturnTypeCalculatorForFullBodyResolve : ReturnTypeCalculator() {
         }
 
         return buildErrorTypeRef {
-            diagnostic = ConeSimpleDiagnostic(
-                "Cannot calculate return type during full-body resolution (local class/object?): ${declaration.render()}",
-                DiagnosticKind.InferenceError
-            )
+            diagnostic = if (declaration is FirSimpleFunction && declaration.isLocal) {
+                ConeSimpleDiagnostic(
+                    "Recursion with local function: ${declaration.render()}",
+                    DiagnosticKind.RecursionInImplicitTypes
+                )
+            } else {
+                ConeSimpleDiagnostic(
+                    "Cannot calculate return type during full-body resolution (local class/object?): ${declaration.render()}",
+                    DiagnosticKind.InferenceError
+                )
+            }
         }
     }
 }
