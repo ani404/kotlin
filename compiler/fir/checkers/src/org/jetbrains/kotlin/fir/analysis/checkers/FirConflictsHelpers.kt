@@ -305,7 +305,6 @@ class FirDeclarationInspector {
                 action(constructor)
             }
 
-            override fun visitDeclarationStatus(declarationStatus: FirDeclarationStatus) {}
             override fun visitRegularClass(regularClass: FirRegularClass) {}
             override fun visitProperty(property: FirProperty) {}
             override fun visitSimpleFunction(simpleFunction: FirSimpleFunction) {}
@@ -315,6 +314,12 @@ class FirDeclarationInspector {
             acceptChildren(ClassConstructorVisitor())
         }
     }
+}
+
+@JvmName("checkConflictingElementsInterface")
+@Suppress("UNCHECKED_CAST")
+fun checkConflictingElements(elements: List<FirElementInterface>, context: CheckerContext, reporter: DiagnosticReporter) {
+    checkConflictingElements(elements as List<FirElement>, context, reporter)
 }
 
 fun checkConflictingElements(elements: List<FirElement>, context: CheckerContext, reporter: DiagnosticReporter) {

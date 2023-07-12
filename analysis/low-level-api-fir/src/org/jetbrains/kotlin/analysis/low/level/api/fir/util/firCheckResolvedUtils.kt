@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.analysis.low.level.api.fir.util
 import org.jetbrains.kotlin.analysis.utils.errors.ExceptionAttachmentBuilder
 import org.jetbrains.kotlin.analysis.utils.errors.checkWithAttachmentBuilder
 import org.jetbrains.kotlin.fir.FirAnnotationContainer
+import org.jetbrains.kotlin.fir.FirElement
 import org.jetbrains.kotlin.fir.FirElementWithResolveState
 import org.jetbrains.kotlin.fir.contracts.FirResolvedContractDescription
 import org.jetbrains.kotlin.fir.contracts.impl.FirEmptyContractDescription
@@ -86,7 +87,7 @@ internal fun checkReferenceIsResolved(
                     "but ${reference::class.simpleName} found"
         }
     ) {
-        withFirEntry("referenceOwner", owner)
+        withFirEntry("referenceOwner", owner as FirElement)
         extraAttachment()
     }
 }
@@ -130,7 +131,7 @@ internal fun checkContractDescriptionIsResolved(declaration: FirContractDescript
         condition = contractDescription is FirResolvedContractDescription || contractDescription is FirEmptyContractDescription,
         message = { "Expected ${FirResolvedContractDescription::class.simpleName} or ${FirEmptyContractDescription::class.simpleName} but ${contractDescription::class.simpleName} found for ${declaration::class.simpleName}" }
     ) {
-        withFirEntry("declaration", declaration)
+        withFirEntry("declaration", declaration as FirElement)
     }
 }
 
@@ -160,7 +161,7 @@ internal inline fun checkAnnotationArgumentsMappingIsResolved(
         }
     ) {
         withFirEntry("annotation", annotation)
-        withFirEntry("firDeclaration", owner)
+        withFirEntry("firDeclaration", owner as FirElement)
         extraAttachment()
     }
 }
