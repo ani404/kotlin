@@ -241,7 +241,7 @@ class FirSamResolver(
             newContextReceiverTypes = newContextReceiverTypes,
             newReturnType = newReturnType,
             newParameterTypes = newParameterTypes,
-            newTypeParameters = typeAliasSymbol.fir.typeParameters,
+            newTypeParameters = typeAliasSymbol.fir.typeParameters.filterIsInstance<FirTypeParameter>(),
         ).symbol
     }
 

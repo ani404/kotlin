@@ -35,7 +35,7 @@ class TestSuperForGenericBase<T> : GB<T>() {
         super<GenericBase>.foo()
         super<GB>.foo()
         super<MyBase>.foo()
-        super<<!NOT_A_SUPERTYPE!>MyBaseInt<!>>.foo() // Type arguments don't matter here
+        super<MyBaseInt>.foo() // Type arguments don't matter here
         super<<!NOT_A_SUPERTYPE!>U<!>>.foo()
     }
 }

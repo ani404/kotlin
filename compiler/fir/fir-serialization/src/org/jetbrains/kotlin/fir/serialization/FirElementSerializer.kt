@@ -620,6 +620,10 @@ class FirElementSerializer private constructor(
         builder.name = getSimpleNameIndex(typeAlias.name)
 
         for (typeParameter in typeAlias.typeParameters) {
+            if (typeParameter !is FirTypeParameter) {
+                continue
+            }
+
             builder.addTypeParameter(local.typeParameterProto(typeParameter))
         }
 

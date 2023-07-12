@@ -308,7 +308,7 @@ object NodeConfigurator : AbstractFieldConfigurator<FirTreeBuilder>(FirTreeBuild
         }
 
         typeAlias.configure {
-            +typeParameters
+            +typeParameterRefs
             +name
             +symbol("FirTypeAliasSymbol")
             +field("expandedTypeRef", typeRef, withReplace = true).withTransform()

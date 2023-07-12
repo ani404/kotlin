@@ -1137,28 +1137,32 @@ class LightTreeRawFirDeclarationBuilder(
 
         val typeAliasName = identifier.nameAsSafeName()
         val typeAliasIsExpect = modifiers.hasExpect() || context.containerIsExpect
+        val typeAliasSource = typeAlias.toFirSourceElement()
         return withChildClassName(typeAliasName, isExpect = typeAliasIsExpect) {
-            val classSymbol = FirTypeAliasSymbol(context.currentClassId)
+            withCapturedTypeParameters(true, typeAliasSource, emptyList()) {
+                val classSymbol = FirTypeAliasSymbol(context.currentClassId)
 
-            val firTypeParameters = mutableListOf<FirTypeParameter>()
-            typeAlias.forEachChildren {
-                if (it.tokenType == TYPE_PARAMETER_LIST) {
-                    firTypeParameters += convertTypeParameters(it, emptyList(), classSymbol)
+                val firTypeParameters = mutableListOf<FirTypeParameter>()
+                typeAlias.forEachChildren {
+                    if (it.tokenType == TYPE_PARAMETER_LIST) {
+                        firTypeParameters += convertTypeParameters(it, emptyList(), classSymbol)
+                    }
                 }
-            }
-            return@withChildClassName buildTypeAlias {
-                source = typeAlias.toFirSourceElement()
-                moduleData = baseModuleData
-                origin = FirDeclarationOrigin.Source
-                name = typeAliasName
-                status = FirDeclarationStatusImpl(modifiers.getVisibility(), Modality.FINAL).apply {
-                    isExpect = typeAliasIsExpect
-                    isActual = modifiers.hasActual()
+                return@withChildClassName buildTypeAlias {
+                    source = typeAliasSource
+                    moduleData = baseModuleData
+                    origin = FirDeclarationOrigin.Source
+                    name = typeAliasName
+                    status = FirDeclarationStatusImpl(modifiers.getVisibility(), Modality.FINAL).apply {
+                        isExpect = typeAliasIsExpect
+                        isActual = modifiers.hasActual()
+                    }
+                    symbol = classSymbol
+                    expandedTypeRef = firType
+                    annotations += modifiers.annotations
+                    typeParameters += firTypeParameters
+                    context.appendOuterTypeParameters(ignoreLastLevel = false, typeParameters)
                 }
-                symbol = classSymbol
-                expandedTypeRef = firType
-                annotations += modifiers.annotations
-                typeParameters += firTypeParameters
             }
         }
     }

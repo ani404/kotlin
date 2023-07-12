@@ -53,7 +53,7 @@ object FirTreeBuilder : AbstractFirTreeBuilder() {
     val classLikeDeclaration by sealedElement(Declaration, memberDeclaration, statement)
     val klass by sealedElement("Class", Declaration, classLikeDeclaration, statement, typeParameterRefsOwner, controlFlowGraphOwner)
     val regularClass by element(Declaration, klass)
-    val typeAlias by element(Declaration, classLikeDeclaration, typeParametersOwner)
+    val typeAlias by element(Declaration, classLikeDeclaration, typeParameterRefsOwner)
 
     val function by sealedElement(Declaration, callableDeclaration, targetElement, controlFlowGraphOwner, statement)
 

@@ -12,7 +12,7 @@ FILE: [ResolvedTo(RAW_FIR)] nestedTypeAlias.kt
 
         }
 
-        public? final [ResolvedTo(RAW_FIR)] typealias NestedType<[ResolvedTo(RAW_FIR)] T> = NestedClass<T>
+        public? final [ResolvedTo(RAW_FIR)] typealias NestedType<[ResolvedTo(RAW_FIR)] T, [ResolvedTo(RAW_FIR)] T1> = NestedClass<T>
 
     }
     public? open [ResolvedTo(RAW_FIR)] class Another : R|kotlin/Any| {
@@ -42,7 +42,7 @@ FILE: [ResolvedTo(IMPORTS)] nestedTypeAlias.kt
 
         }
 
-        public? final [ResolvedTo(RAW_FIR)] typealias NestedType<[ResolvedTo(RAW_FIR)] T> = NestedClass<T>
+        public? final [ResolvedTo(RAW_FIR)] typealias NestedType<[ResolvedTo(RAW_FIR)] T, [ResolvedTo(RAW_FIR)] T1> = NestedClass<T>
 
     }
     public? open [ResolvedTo(RAW_FIR)] class Another : R|kotlin/Any| {
@@ -72,7 +72,7 @@ FILE: [ResolvedTo(IMPORTS)] nestedTypeAlias.kt
 
         }
 
-        public? final [ResolvedTo(COMPILER_REQUIRED_ANNOTATIONS)] typealias NestedType<[ResolvedTo(COMPILER_REQUIRED_ANNOTATIONS)] T> = NestedClass<T>
+        public? final [ResolvedTo(COMPILER_REQUIRED_ANNOTATIONS)] typealias NestedType<[ResolvedTo(COMPILER_REQUIRED_ANNOTATIONS)] T, [ResolvedTo(RAW_FIR)] T1> = NestedClass<T>
 
     }
     public? open [ResolvedTo(RAW_FIR)] class Another : R|kotlin/Any| {
@@ -102,7 +102,7 @@ FILE: [ResolvedTo(IMPORTS)] nestedTypeAlias.kt
 
         }
 
-        public? final [ResolvedTo(COMPANION_GENERATION)] typealias NestedType<[ResolvedTo(COMPANION_GENERATION)] T> = NestedClass<T>
+        public? final [ResolvedTo(COMPANION_GENERATION)] typealias NestedType<[ResolvedTo(COMPANION_GENERATION)] T, [ResolvedTo(RAW_FIR)] T1> = NestedClass<T>
 
     }
     public? open [ResolvedTo(RAW_FIR)] class Another : R|kotlin/Any| {
@@ -132,7 +132,7 @@ FILE: [ResolvedTo(IMPORTS)] nestedTypeAlias.kt
 
         }
 
-        public? final [ResolvedTo(SUPER_TYPES)] typealias NestedType<[ResolvedTo(SUPER_TYPES)] T> = R|OuterClass.NestedClass<T>|
+        public? final [ResolvedTo(SUPER_TYPES)] typealias NestedType<[ResolvedTo(SUPER_TYPES)] T, [ResolvedTo(SUPER_TYPES)] T1> = R|OuterClass.NestedClass<T>|
 
     }
     public? open [ResolvedTo(SUPER_TYPES)] class Another : R|kotlin/Any| {
@@ -162,7 +162,7 @@ FILE: [ResolvedTo(IMPORTS)] nestedTypeAlias.kt
 
         }
 
-        public? final [ResolvedTo(TYPES)] typealias NestedType<[ResolvedTo(TYPES)] T> = R|OuterClass.NestedClass<T>|
+        public? final [ResolvedTo(TYPES)] typealias NestedType<[ResolvedTo(TYPES)] T, [ResolvedTo(TYPES)] T1> = R|OuterClass.NestedClass<T>|
 
     }
     public? open [ResolvedTo(SUPER_TYPES)] class Another : R|kotlin/Any| {
@@ -192,7 +192,7 @@ FILE: [ResolvedTo(IMPORTS)] nestedTypeAlias.kt
 
         }
 
-        public final [ResolvedTo(STATUS)] typealias NestedType<[ResolvedTo(STATUS)] T> = R|OuterClass.NestedClass<T>|
+        public final [ResolvedTo(STATUS)] typealias NestedType<[ResolvedTo(STATUS)] T, [ResolvedTo(STATUS)] T1> = R|OuterClass.NestedClass<T>|
 
     }
     public? open [ResolvedTo(SUPER_TYPES)] class Another : R|kotlin/Any| {
@@ -222,7 +222,7 @@ FILE: [ResolvedTo(IMPORTS)] nestedTypeAlias.kt
 
         }
 
-        public final [ResolvedTo(EXPECT_ACTUAL_MATCHING)] typealias NestedType<[ResolvedTo(EXPECT_ACTUAL_MATCHING)] T> = R|OuterClass.NestedClass<T>|
+        public final [ResolvedTo(EXPECT_ACTUAL_MATCHING)] typealias NestedType<[ResolvedTo(EXPECT_ACTUAL_MATCHING)] T, [ResolvedTo(STATUS)] T1> = R|OuterClass.NestedClass<T>|
 
     }
     public? open [ResolvedTo(SUPER_TYPES)] class Another : R|kotlin/Any| {
@@ -252,7 +252,7 @@ FILE: [ResolvedTo(IMPORTS)] nestedTypeAlias.kt
 
         }
 
-        public final [ResolvedTo(ARGUMENTS_OF_ANNOTATIONS)] typealias NestedType<[ResolvedTo(ARGUMENTS_OF_ANNOTATIONS)] T> = R|OuterClass.NestedClass<T>|
+        public final [ResolvedTo(ARGUMENTS_OF_ANNOTATIONS)] typealias NestedType<[ResolvedTo(ARGUMENTS_OF_ANNOTATIONS)] T, [ResolvedTo(STATUS)] T1> = R|OuterClass.NestedClass<T>|
 
     }
     public? open [ResolvedTo(SUPER_TYPES)] class Another : R|kotlin/Any| {
@@ -282,7 +282,7 @@ FILE: [ResolvedTo(IMPORTS)] nestedTypeAlias.kt
 
         }
 
-        public final [ResolvedTo(CONTRACTS)] typealias NestedType<[ResolvedTo(CONTRACTS)] T> = R|OuterClass.NestedClass<T>|
+        public final [ResolvedTo(CONTRACTS)] typealias NestedType<[ResolvedTo(CONTRACTS)] T, [ResolvedTo(STATUS)] T1> = R|OuterClass.NestedClass<T>|
 
     }
     public? open [ResolvedTo(SUPER_TYPES)] class Another : R|kotlin/Any| {
@@ -312,7 +312,7 @@ FILE: [ResolvedTo(IMPORTS)] nestedTypeAlias.kt
 
         }
 
-        public final [ResolvedTo(IMPLICIT_TYPES_BODY_RESOLVE)] typealias NestedType<[ResolvedTo(IMPLICIT_TYPES_BODY_RESOLVE)] T> = R|OuterClass.NestedClass<T>|
+        public final [ResolvedTo(IMPLICIT_TYPES_BODY_RESOLVE)] typealias NestedType<[ResolvedTo(IMPLICIT_TYPES_BODY_RESOLVE)] T, [ResolvedTo(STATUS)] T1> = R|OuterClass.NestedClass<T>|
 
     }
     public? open [ResolvedTo(SUPER_TYPES)] class Another : R|kotlin/Any| {
@@ -342,7 +342,7 @@ FILE: [ResolvedTo(IMPORTS)] nestedTypeAlias.kt
 
         }
 
-        public final [ResolvedTo(ANNOTATIONS_ARGUMENTS_MAPPING)] typealias NestedType<[ResolvedTo(ANNOTATIONS_ARGUMENTS_MAPPING)] T> = R|OuterClass.NestedClass<T>|
+        public final [ResolvedTo(ANNOTATIONS_ARGUMENTS_MAPPING)] typealias NestedType<[ResolvedTo(ANNOTATIONS_ARGUMENTS_MAPPING)] T, [ResolvedTo(STATUS)] T1> = R|OuterClass.NestedClass<T>|
 
     }
     public? open [ResolvedTo(SUPER_TYPES)] class Another : R|kotlin/Any| {
@@ -372,7 +372,7 @@ FILE: [ResolvedTo(IMPORTS)] nestedTypeAlias.kt
 
         }
 
-        public final [ResolvedTo(BODY_RESOLVE)] typealias NestedType<[ResolvedTo(BODY_RESOLVE)] T> = R|OuterClass.NestedClass<T>|
+        public final [ResolvedTo(BODY_RESOLVE)] typealias NestedType<[ResolvedTo(BODY_RESOLVE)] T, [ResolvedTo(STATUS)] T1> = R|OuterClass.NestedClass<T>|
 
     }
     public? open [ResolvedTo(SUPER_TYPES)] class Another : R|kotlin/Any| {
@@ -402,7 +402,7 @@ FILE: [ResolvedTo(IMPORTS)] nestedTypeAlias.kt
 
         }
 
-        public final [ResolvedTo(BODY_RESOLVE)] typealias NestedType<[ResolvedTo(BODY_RESOLVE)] T> = R|OuterClass.NestedClass<T>|
+        public final [ResolvedTo(BODY_RESOLVE)] typealias NestedType<[ResolvedTo(BODY_RESOLVE)] T, [ResolvedTo(BODY_RESOLVE)] T1> = R|OuterClass.NestedClass<T>|
 
     }
     public open [ResolvedTo(BODY_RESOLVE)] class Another : R|kotlin/Any| {

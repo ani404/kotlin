@@ -1534,20 +1534,24 @@ open class PsiRawFirBuilder(
 
         override fun visitTypeAlias(typeAlias: KtTypeAlias, data: FirElement?): FirElement {
             val typeAliasIsExpect = typeAlias.hasExpectModifier() || context.containerIsExpect
+            val typeAliasSource = typeAlias.toFirSourceElement()
             return withChildClassName(typeAlias.nameAsSafeName, isExpect = typeAliasIsExpect) {
-                buildTypeAlias {
-                    source = typeAlias.toFirSourceElement()
-                    moduleData = baseModuleData
-                    origin = FirDeclarationOrigin.Source
-                    name = typeAlias.nameAsSafeName
-                    status = FirDeclarationStatusImpl(typeAlias.visibility, Modality.FINAL).apply {
-                        isExpect = typeAliasIsExpect
-                        isActual = typeAlias.hasActualModifier()
+                withCapturedTypeParameters(true, typeAliasSource, emptyList()) {
+                    buildTypeAlias {
+                        source = typeAliasSource
+                        moduleData = baseModuleData
+                        origin = FirDeclarationOrigin.Source
+                        name = typeAlias.nameAsSafeName
+                        status = FirDeclarationStatusImpl(typeAlias.visibility, Modality.FINAL).apply {
+                            isExpect = typeAliasIsExpect
+                            isActual = typeAlias.hasActualModifier()
+                        }
+                        symbol = FirTypeAliasSymbol(context.currentClassId)
+                        expandedTypeRef = typeAlias.getTypeReference().toFirOrErrorType()
+                        typeAlias.extractAnnotationsTo(this)
+                        typeAlias.extractTypeParametersTo(this, symbol)
+                        context.appendOuterTypeParameters(ignoreLastLevel = false, typeParameters)
                     }
-                    symbol = FirTypeAliasSymbol(context.currentClassId)
-                    expandedTypeRef = typeAlias.getTypeReference().toFirOrErrorType()
-                    typeAlias.extractAnnotationsTo(this)
-                    typeAlias.extractTypeParametersTo(this, symbol)
                 }
             }
         }

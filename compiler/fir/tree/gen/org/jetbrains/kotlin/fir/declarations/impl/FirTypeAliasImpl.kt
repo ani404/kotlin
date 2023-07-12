@@ -16,7 +16,7 @@ import org.jetbrains.kotlin.fir.declarations.FirDeclarationStatus
 import org.jetbrains.kotlin.fir.declarations.FirResolvePhase
 import org.jetbrains.kotlin.fir.declarations.FirResolveState
 import org.jetbrains.kotlin.fir.declarations.FirTypeAlias
-import org.jetbrains.kotlin.fir.declarations.FirTypeParameter
+import org.jetbrains.kotlin.fir.declarations.FirTypeParameterRef
 import org.jetbrains.kotlin.fir.declarations.asResolveState
 import org.jetbrains.kotlin.fir.expressions.FirAnnotation
 import org.jetbrains.kotlin.fir.symbols.impl.FirTypeAliasSymbol
@@ -40,7 +40,7 @@ internal class FirTypeAliasImpl(
     override val attributes: FirDeclarationAttributes,
     override var status: FirDeclarationStatus,
     override var deprecationsProvider: DeprecationsProvider,
-    override val typeParameters: MutableList<FirTypeParameter>,
+    override val typeParameters: MutableList<FirTypeParameterRef>,
     override val name: Name,
     override val symbol: FirTypeAliasSymbol,
     override var expandedTypeRef: FirTypeRef,

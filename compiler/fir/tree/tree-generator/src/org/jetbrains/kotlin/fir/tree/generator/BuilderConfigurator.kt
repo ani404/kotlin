@@ -119,7 +119,7 @@ object BuilderConfigurator : AbstractBuilderConfigurator<FirTreeBuilder>(FirTree
 
         builder(typeAlias) {
             parents += declarationBuilder
-            parents += typeParametersOwnerBuilder
+            parents += typeParameterRefsOwnerBuilder
             withCopy()
         }
 
