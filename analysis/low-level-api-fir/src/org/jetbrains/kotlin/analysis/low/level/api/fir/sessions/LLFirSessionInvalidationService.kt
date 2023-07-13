@@ -27,7 +27,7 @@ class LLFirSessionInvalidationService(private val project: Project) : Disposable
      * be requested.
      */
     fun subscribeToModificationEvents() {
-        val busConnection = project.analysisMessageBus.connect()
+        val busConnection = project.analysisMessageBus.connect(this)
 
         // All modification events the invalidation service subscribes to are guaranteed to be published in a write action. This ensures
         // that invalidation functions are only called in a write action, per the contract of `LLFirSessionInvalidationService`.
