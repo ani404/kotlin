@@ -143,11 +143,17 @@ interface ConeTypeContext : TypeSystemContext, TypeSystemOptimizationContext, Ty
 
     override fun SimpleTypeMarker.isMarkedNullable(): Boolean {
         require(this is ConeKotlinType)
+        if (this is ConeClassLikeType && this.lookupTag.toSymbol(session) is FirTypeAliasSymbol) {
+            return fullyExpandedType(session).isMarkedNullable
+        }
         return this.nullability.isNullable
     }
 
     override fun SimpleTypeMarker.withNullability(nullable: Boolean): SimpleTypeMarker {
         require(this is ConeKotlinType)
+        if (this is ConeClassLikeType && this.lookupTag.toSymbol(session) is FirTypeAliasSymbol) {
+            return fullyExpandedType(session).withNullability(nullable)
+        }
         return withNullability(ConeNullability.create(nullable), session.typeContext)
     }
 
