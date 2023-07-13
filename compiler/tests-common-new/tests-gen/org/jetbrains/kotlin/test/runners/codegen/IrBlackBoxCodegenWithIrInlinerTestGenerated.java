@@ -18636,6 +18636,12 @@ public class IrBlackBoxCodegenWithIrInlinerTestGenerated extends AbstractIrBlack
         }
 
         @Test
+        @TestMetadata("selectingLambdas.kt")
+        public void testSelectingLambdas() throws Exception {
+            runTest("compiler/testData/codegen/box/fir/selectingLambdas.kt");
+        }
+
+        @Test
         @TestMetadata("staticImportFromEnum.kt")
         public void testStaticImportFromEnum() throws Exception {
             runTest("compiler/testData/codegen/box/fir/staticImportFromEnum.kt");

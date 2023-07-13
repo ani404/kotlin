@@ -279,7 +279,7 @@ class FirCallCompleter(
 
             if (receiverType == null) {
                 lambdaArgument.replaceReceiverParameter(null)
-            } else {
+            } else if (!lambdaAtom.coerceFirstParameterToExtensionReceiver) {
                 lambdaArgument.receiverParameter?.apply {
                     replaceTypeRef(
                         typeRef.resolvedTypeFromPrototype(
@@ -288,6 +288,8 @@ class FirCallCompleter(
                         )
                     )
                 }
+            } else {
+                lambdaArgument.replaceReceiverParameter(null)
             }
 
             if (contextReceivers.isNotEmpty()) {
@@ -304,8 +306,15 @@ class FirCallCompleter(
 
             val lookupTracker = session.lookupTracker
             val fileSource = components.file.source
+            val theParameters = when {
+                lambdaAtom.coerceFirstParameterToExtensionReceiver -> when (receiverType) {
+                    null -> error("Coercion to extension receiver while no receiver present")
+                    else -> listOf(receiverType) + parameters
+                }
+                else -> parameters
+            }
             lambdaArgument.valueParameters.forEachIndexed { index, parameter ->
-                val newReturnType = parameters[index].approximateLambdaInputType()
+                val newReturnType = theParameters[index].approximateLambdaInputType()
                 val newReturnTypeRef = if (parameter.returnTypeRef is FirImplicitTypeRef) {
                     newReturnType.toFirResolvedTypeRef(parameter.source?.fakeElement(KtFakeSourceElementKind.ImplicitReturnTypeOfLambdaValueParameter))
                 } else parameter.returnTypeRef.resolvedTypeFromPrototype(newReturnType)
