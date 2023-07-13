@@ -70,9 +70,11 @@ internal class KtModuleProviderImpl(
 
     override val allKtModules: List<KtModule> = mainModules
 
-    override val allSourceFiles: List<PsiFileSystemItem> = buildList {
-        val files = mainModules.mapNotNull { (it as? KtSourceModuleImpl)?.sourceRoots }.flatten()
-        addAll(files)
-        addAll(findJvmRootsForJavaFiles(files.filterIsInstance<PsiJavaFile>()))
+    override val allSourceFiles: List<PsiFileSystemItem> by lazy {
+        buildList {
+            val files = mainModules.mapNotNull { (it as? KtSourceModuleImpl)?.sourceRoots }.flatten()
+            addAll(files)
+            addAll(findJvmRootsForJavaFiles(files.filterIsInstance<PsiJavaFile>()))
+        }
     }
 }
