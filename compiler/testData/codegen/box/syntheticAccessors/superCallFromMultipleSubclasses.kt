@@ -1,19 +1,21 @@
-open class A {
-    open fun test(s: String) = s
-}
+//class X {
+//    companion object Y {
+////        external fun z(): Unit
+////
+////        external interface A
+//
+//        external class B
+//    }
+//}
 
-object B : A() {
-    override fun test(s: String) = "fail"
+//@WasmImport("abc")
+//external fun e(x: Any): Int
 
-    val doTest = { super.test("O") }
-}
-
-object C : A() {
-    override fun test(s: String) = "fail"
-
-    val doTest = { super.test("K") }
+@WasmExport("aas")
+fun xxx(): String {
+    return "sasas"
 }
 
 fun box(): String {
-    return B.doTest() + C.doTest()
+    return "OK"
 }
