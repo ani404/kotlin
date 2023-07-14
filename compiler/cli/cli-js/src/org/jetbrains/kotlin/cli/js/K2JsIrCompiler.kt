@@ -419,6 +419,10 @@ class K2JsIrCompiler : CLICompiler<K2JSCompilerArguments>() {
     ): ModulesStructure {
         lateinit var sourceModule: ModulesStructure
         do {
+            val analyzerFacade = when (arguments.wasm) {
+                true -> TopDownAnalyzerFacadeForWasm.facadeFor(environmentForJS.configuration.get(JSConfigurationKeys.WASM_TARGET))
+                else -> TopDownAnalyzerFacadeForJSIR
+            }
             sourceModule = prepareAnalyzedSourceModule(
                 environmentForJS.project,
                 environmentForJS.getSourceFiles(),
@@ -426,7 +430,7 @@ class K2JsIrCompiler : CLICompiler<K2JSCompilerArguments>() {
                 libraries,
                 friendLibraries,
                 AnalyzerWithCompilerReport(environmentForJS.configuration),
-                analyzerFacade = if (arguments.wasm) TopDownAnalyzerFacadeForWasm else TopDownAnalyzerFacadeForJSIR
+                analyzerFacade = analyzerFacade
             )
             val result = sourceModule.jsFrontEndResult.jsAnalysisResult
             if (result is JsAnalysisResult.RetryWithAdditionalRoots) {
