@@ -178,6 +178,7 @@ fun convertAnalyzedFirToIr(
         } ?: emptyList()
     val fir2IrConfiguration = Fir2IrConfiguration(
         languageVersionSettings = input.configuration.languageVersionSettings,
+        diagnosticReporter = environment.diagnosticsReporter,
         linkViaSignatures = input.configuration.getBoolean(JVMConfigurationKeys.LINK_VIA_SIGNATURES),
         evaluatedConstTracker = input.configuration
             .putIfAbsent(CommonConfigurationKeys.EVALUATED_CONST_TRACKER, EvaluatedConstTracker.create()),
@@ -185,7 +186,7 @@ fun convertAnalyzedFirToIr(
     )
     val (irModuleFragment, components, pluginContext, irActualizedResult) =
         analysisResults.convertToIrAndActualizeForJvm(
-            extensions, fir2IrConfiguration, irGenerationExtensions, environment.diagnosticsReporter,
+            extensions, fir2IrConfiguration, irGenerationExtensions,
         )
 
     return ModuleCompilerIrBackendInput(
