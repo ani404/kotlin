@@ -67,7 +67,7 @@ class WasiBoxRunner(
             }
 
             if (!boxTestPassed)
-                throw `Invalid test status`;
+                process.exit(1);
             """.trimIndent()
 
         val testWasiVerbose = testWasiQuiet + """
@@ -132,6 +132,6 @@ class WasiBoxRunner(
         }
 
         writeToFilesAndRunTest("dev", artifacts.compilerResult)
-//        writeToFilesAndRunTest("dce", artifacts.compilerResultWithDCE)
+        writeToFilesAndRunTest("dce", artifacts.compilerResultWithDCE)
     }
 }
