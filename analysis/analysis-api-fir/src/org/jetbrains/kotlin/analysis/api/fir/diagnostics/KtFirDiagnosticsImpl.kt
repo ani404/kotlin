@@ -2128,6 +2128,12 @@ internal class MultipleDefaultsInheritedFromSupertypesImpl(
     token: KtLifetimeToken,
 ) : KtAbstractFirDiagnostic<KtElement>(firDiagnostic, token), KtFirDiagnostic.MultipleDefaultsInheritedFromSupertypes
 
+internal class TypealiasExpandsToArrayOfNothingsImpl(
+    override val type: KtType,
+    firDiagnostic: KtPsiDiagnostic,
+    token: KtLifetimeToken,
+) : KtAbstractFirDiagnostic<KtElement>(firDiagnostic, token), KtFirDiagnostic.TypealiasExpandsToArrayOfNothings
+
 internal class OverridingFinalMemberImpl(
     override val overriddenDeclaration: KtCallableSymbol,
     override val containingClassName: Name,

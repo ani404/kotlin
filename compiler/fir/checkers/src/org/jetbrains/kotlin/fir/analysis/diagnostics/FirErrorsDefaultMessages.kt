@@ -548,6 +548,7 @@ import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.THROWABLE_TYPE_MI
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.TOO_MANY_ARGUMENTS
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.TOO_MANY_CHARACTERS_IN_CHARACTER_LITERAL
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.TOPLEVEL_TYPEALIASES_ONLY
+import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.TYPEALIAS_EXPANDS_TO_ARRAY_OF_NOTHINGS
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.TYPEALIAS_EXPANSION_DEPRECATION
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.TYPEALIAS_EXPANSION_DEPRECATION_ERROR
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.TYPEALIAS_SHOULD_EXPAND_TO_CLASS
@@ -1423,6 +1424,8 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
             "More than one overridden descriptor declares a default value for ''{0}''. As the compiler can not make sure these values agree, this is not allowed.",
             SYMBOL
         )
+
+        map.put(TYPEALIAS_EXPANDS_TO_ARRAY_OF_NOTHINGS, "Type alias expanded to malformed type ''{0}''", RENDER_TYPE)
 
         map.put(OVERRIDING_FINAL_MEMBER, "''{0}'' in ''{1}'' is final and cannot be overridden", DECLARATION_NAME, TO_STRING)
 
