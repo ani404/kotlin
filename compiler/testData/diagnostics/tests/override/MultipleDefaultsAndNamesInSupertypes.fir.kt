@@ -11,4 +11,4 @@ interface C {
 }
 
 // TODO DIFFERENT_NAMES_FOR_THE_SAME_PARAMETER_IN_SUPERTYPES reported twice
-class Z : A, B(), C
+class <!MULTIPLE_DEFAULTS_INHERITED_FROM_SUPERTYPES!>Z<!> : A, B(), C

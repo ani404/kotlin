@@ -347,6 +347,7 @@ import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.MISSING_VAL_ON_AN
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.MODIFIER_FORM_FOR_NON_BUILT_IN_SUSPEND
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.MODIFIER_FORM_FOR_NON_BUILT_IN_SUSPEND_FUN
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.MULTIPLE_ARGUMENTS_APPLICABLE_FOR_CONTEXT_RECEIVER
+import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.MULTIPLE_DEFAULTS_INHERITED_FROM_SUPERTYPES
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.MULTIPLE_VARARG_PARAMETERS
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.MULTI_FIELD_VALUE_CLASS_PRIMARY_CONSTRUCTOR_DEFAULT_PARAMETER
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.MUST_BE_INITIALIZED
@@ -1417,6 +1418,12 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
             FQ_NAMES_IN_TYPES
         )
 
+        map.put(
+            MULTIPLE_DEFAULTS_INHERITED_FROM_SUPERTYPES,
+            "More than one overridden descriptor declares a default value for ''{0}''. As the compiler can not make sure these values agree, this is not allowed.",
+            SYMBOL
+        )
+
         map.put(OVERRIDING_FINAL_MEMBER, "''{0}'' in ''{1}'' is final and cannot be overridden", DECLARATION_NAME, TO_STRING)
 
         map.put(
@@ -1977,7 +1984,7 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
         map.put(USELESS_CAST, "No cast needed")
         map.put(UNCHECKED_CAST, "Unchecked cast: ''{0}'' to ''{1}''", RENDER_TYPE, RENDER_TYPE)
         map.put(USELESS_IS_CHECK, "Check for instance is always ''{0}''", TO_STRING)
-        map.put(DYNAMIC_NOT_ALLOWED, "Dynamic types are not allowed in this position");
+        map.put(DYNAMIC_NOT_ALLOWED, "Dynamic types are not allowed in this position")
         map.put(IS_ENUM_ENTRY, "'is' over enum entry is not allowed, use comparison instead")
         map.put(ENUM_ENTRY_AS_TYPE, "Use of enum entry names as types is not allowed, use enum type instead")
 
