@@ -41,7 +41,7 @@ abstract class AbstractWasmBlackBoxCodegenTestBase<R : ResultingArtifact.Fronten
     override fun TestConfigurationBuilder.configuration() {
         globalDefaults {
             frontend = targetFrontend
-            targetPlatform = WasmPlatforms.Default
+            targetPlatform = WasmPlatforms.WasiPlatform
             dependencyKind = DependencyKind.Binary
         }
 

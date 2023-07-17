@@ -11,7 +11,8 @@ import org.jetbrains.kotlin.platform.jvm.JvmPlatforms.allJvmPlatforms
 import org.jetbrains.kotlin.platform.jvm.JvmPlatforms.unspecifiedJvmPlatform
 import org.jetbrains.kotlin.platform.konan.NativePlatforms.allNativePlatforms
 import org.jetbrains.kotlin.platform.konan.NativePlatforms.unspecifiedNativePlatform
-import org.jetbrains.kotlin.platform.wasm.WasmPlatforms
+import org.jetbrains.kotlin.platform.wasm.WasmPlatforms.allWasmTargetPlatforms
+import org.jetbrains.kotlin.platform.wasm.WasmPlatforms.defaultWasmPlatform
 
 @Suppress("DEPRECATION_ERROR")
 object CommonPlatforms {
@@ -24,7 +25,7 @@ object CommonPlatforms {
         setOf(
             unspecifiedJvmPlatform.single(),
             defaultJsPlatform.single(),
-            WasmPlatforms.Default.single(),
+            defaultWasmPlatform.single(),
             unspecifiedNativePlatform.single()
         )
     ), org.jetbrains.kotlin.analyzer.common.CommonPlatform {
@@ -41,7 +42,7 @@ object CommonPlatforms {
             yieldAll(allJvmPlatforms)
             yieldAll(allNativePlatforms)
             yieldAll(allJsPlatforms)
-            yield(WasmPlatforms.Default)
+            yieldAll(allWasmTargetPlatforms)
 
             // TODO(dsavvinov): extensions points?
         }.toList()

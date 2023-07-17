@@ -25,7 +25,7 @@ abstract class AbstractDiagnosticsWasmTest : AbstractKotlinCompilerTest() {
     override fun TestConfigurationBuilder.configuration() {
         globalDefaults {
             frontend = FrontendKinds.ClassicFrontend
-            targetPlatform = WasmPlatforms.Default
+            targetPlatform = WasmPlatforms.WasiPlatform
             dependencyKind = DependencyKind.Source
         }
 

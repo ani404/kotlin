@@ -5,9 +5,25 @@
 
 package org.jetbrains.kotlin.platform
 
-object WasmPlatform : SimplePlatform("Wasm") {
+sealed class WasmPlatform : SimplePlatform("Wasm") {
     override val oldFashionedDescription: String
         get() = "Wasm "
+
+    override fun toString(): String = targetName
+}
+
+object WasmJsPlatform : WasmPlatform() {
+    override val targetName: String
+        get() = "WasmJs"
+
+    override fun toString(): String = ""
+}
+
+object WasmWasiPlatform : WasmPlatform() {
+    override val targetName: String
+        get() = "WasmWasi"
 }
 
 fun TargetPlatform?.isWasm(): Boolean = this?.singleOrNull() is WasmPlatform
+fun TargetPlatform?.isWasmJs(): Boolean = this?.singleOrNull() is WasmJsPlatform
+fun TargetPlatform?.isWasmWasi(): Boolean = this?.singleOrNull() is WasmWasiPlatform
