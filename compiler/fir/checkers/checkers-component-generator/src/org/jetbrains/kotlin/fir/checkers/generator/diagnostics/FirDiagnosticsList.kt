@@ -21,7 +21,6 @@ import org.jetbrains.kotlin.fir.FirModuleData
 import org.jetbrains.kotlin.util.PrivateForInline
 import org.jetbrains.kotlin.fir.checkers.generator.diagnostics.model.*
 import org.jetbrains.kotlin.fir.declarations.FirFunction
-import org.jetbrains.kotlin.fir.declarations.FirTypeAlias
 import org.jetbrains.kotlin.fir.expressions.FirExpression
 import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.*
@@ -1063,6 +1062,9 @@ object DIAGNOSTICS_LIST : DiagnosticList("FirErrors") {
         }
         val CONST_VAL_WITHOUT_INITIALIZER by error<KtProperty>(PositioningStrategy.CONST_MODIFIER)
         val CONST_VAL_WITH_NON_CONST_INITIALIZER by error<KtExpression>()
+        val EVALUATION_ERROR by error<PsiElement> {
+            parameter<String>("errorDescription")
+        }
         val WRONG_SETTER_PARAMETER_TYPE by error<KtTypeReference> {
             parameter<ConeKotlinType>("expectedType")
             parameter<ConeKotlinType>("actualType")
