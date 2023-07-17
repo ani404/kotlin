@@ -18,13 +18,13 @@ object WasmIdePlatformKind : IdePlatformKind() {
 
     override fun platformByCompilerArguments(arguments: CommonCompilerArguments): TargetPlatform? {
         return if (arguments is K2JSCompilerArguments && arguments.wasm)
-            WasmPlatforms.Default
+            if (arguments.wasmTarget == "wasm-wasi") WasmPlatforms.WasiPlatform else WasmPlatforms.JsPlatform
         else
             null
     }
 
-    val platforms get() = listOf(WasmPlatforms.Default)
-    override val defaultPlatform get() = WasmPlatforms.Default
+    val platforms get() = listOf(WasmPlatforms.allTargetPlatforms)
+    override val defaultPlatform get() = WasmPlatforms.JsPlatform
 
     @Deprecated(
         message = "IdePlatform is deprecated and will be removed soon, please, migrate to org.jetbrains.kotlin.platform.TargetPlatform",

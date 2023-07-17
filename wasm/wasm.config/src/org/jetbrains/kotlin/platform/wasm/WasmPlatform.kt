@@ -6,8 +6,13 @@
 package org.jetbrains.kotlin.platform.wasm
 
 import org.jetbrains.kotlin.platform.TargetPlatform
-import org.jetbrains.kotlin.platform.WasmPlatform
+import org.jetbrains.kotlin.platform.WasmJsPlatform
+import org.jetbrains.kotlin.platform.WasmWasiPlatform
 
 object WasmPlatforms {
-    object Default : TargetPlatform(setOf(WasmPlatform))
+    object JsPlatform : TargetPlatform(setOf(WasmJsPlatform))
+    object WasiPlatform : TargetPlatform(setOf(WasmWasiPlatform))
+
+    val allTargetPlatforms = listOf(JsPlatform, WasiPlatform)
+    val defaultWasmPlatform = listOf(WasmJsPlatform)
 }

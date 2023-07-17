@@ -54,7 +54,7 @@ fun IdePlatform<*, *>.toNewPlatform(): NewPlatform = when (this) {
     is CommonIdePlatformKind.Platform -> CommonPlatforms.defaultCommonPlatform
     is JvmIdePlatformKind.Platform -> JvmPlatforms.jvmPlatformByTargetVersion(this.version)
     is JsIdePlatformKind.Platform -> JsPlatforms.defaultJsPlatform
-    is WasmIdePlatformKind.Platform -> WasmPlatforms.Default
+    is WasmIdePlatformKind.Platform -> WasmPlatforms.JsPlatform
     is NativeIdePlatformKind.Platform -> NativePlatforms.unspecifiedNativePlatform
     else -> error("Unknown platform $this")
 }
