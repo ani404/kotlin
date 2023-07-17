@@ -17,7 +17,9 @@ import org.jetbrains.kotlin.serialization.DescriptorSerializer
 import org.jetbrains.kotlin.serialization.DescriptorSerializerPlugin
 import org.jetbrains.kotlin.serialization.SerializerExtension
 import org.jetbrains.kotlinx.serialization.compiler.resolve.SerializableProperties
+import org.jetbrains.kotlinx.serialization.compiler.resolve.findNamedCompanionAnnotation
 import org.jetbrains.kotlinx.serialization.compiler.resolve.isInternalSerializable
+import org.jetbrains.kotlinx.serialization.compiler.resolve.shouldHaveGeneratedMethodsInCompanion
 
 class SerializationDescriptorSerializerPlugin : DescriptorSerializerPlugin {
     private val hasAnnotationFlag = Flags.HAS_ANNOTATIONS.toFlags(true)
@@ -43,11 +45,11 @@ class SerializationDescriptorSerializerPlugin : DescriptorSerializerPlugin {
 
         if (descriptor.isCompanionObject
             && descriptor.name != SpecialNames.DEFAULT_NAME_FOR_COMPANION_OBJECT
-            && (descriptor.containingDeclaration as? ClassDescriptor)?.isInternalSerializable == true
+            && (descriptor.containingDeclaration as? ClassDescriptor)?.shouldHaveGeneratedMethodsInCompanion == true
         ) {
             // named companion objects are always marked by special annotation in backend
             // in order for this annotation to be visible in runtime through reflection, it is necessary to put down the hasAnnotation flag
-            if (proto.flags and hasAnnotationFlag == 0) {
+            if (proto.flags and hasAnnotationFlag == 0 && descriptor.findNamedCompanionAnnotation() != null) {
                 proto.flags = proto.flags or hasAnnotationFlag
             }
         }

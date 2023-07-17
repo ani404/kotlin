@@ -6,6 +6,8 @@ package kotlinx.serialization.internal
 
 import kotlin.annotation.*
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlin.reflect.KClass
 
 /*
@@ -38,6 +40,32 @@ class WithNamed(val i: Int) {
     }
 }
 
+
+object InterfaceWithCustomSerializer: ToDoSerializer<InterfaceWithCustom>("interface")
+@Serializable(InterfaceWithCustomSerializer::class)
+interface InterfaceWithCustom {
+}
+
+
+object NamedInterfaceWithCustomSerializer: ToDoSerializer<NamedInterfaceWithCustom>("interface.name")
+@Serializable(NamedInterfaceWithCustomSerializer::class)
+interface NamedInterfaceWithCustom {
+    companion object MyCompanion {
+        var j: Int = 42
+    }
+}
+
+@Serializable
+sealed interface SealedInterface {
+}
+
+@Serializable
+sealed interface NamedSealedInterface {
+    companion object MyCompanion {
+        var j: Int = 42
+    }
+}
+
 fun box(): String {
     if (Plain::class.annotations.any { it.annotationClass.simpleName == "Named" }) {
         return "Annotation on Plain class"
@@ -64,5 +92,25 @@ fun box(): String {
         return "Missed annotation on WithNamed.MyCompanion class ${WithNamed.MyCompanion::class.annotations}"
     }
 
+    if (InterfaceWithCustom::class.annotations.any { it.annotationClass.simpleName == "Named" }) {
+        return "Annotation on InterfaceWithCustom class"
+    }
+    if (NamedInterfaceWithCustom.MyCompanion::class.annotations.none { it.annotationClass.simpleName == "Named" }) {
+        return "Missed annotation on NamedInterfaceWithCustom.MyCompanion class ${WithNamed.MyCompanion::class.annotations}"
+    }
+
+    if (SealedInterface::class.annotations.any { it.annotationClass.simpleName == "Named" }) {
+        return "Annotation on SealedInterface class"
+    }
+    if (NamedSealedInterface.MyCompanion::class.annotations.none { it.annotationClass.simpleName == "Named" }) {
+        return "Missed annotation on NamedSealedInterface.MyCompanion class ${WithNamed.MyCompanion::class.annotations}"
+    }
+
     return "OK"
+}
+
+abstract class ToDoSerializer<T: Any>(descriptorName: String): KSerializer<T> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(descriptorName, PrimitiveKind.STRING)
+    override fun deserialize(decoder: Decoder): T = TODO()
+    override fun serialize(encoder: Encoder, value: T) = TODO()
 }
