@@ -2,7 +2,7 @@
  * Copyright 2010-2019 JetBrains s.r.o. and Kotlin Programming Language contributors.
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
-@file:Suppress("DEPRECATION")
+@file:Suppress("DEPRECATION_ERROR")
 
 package kotlinx.metadata.klib
 
@@ -90,7 +90,7 @@ class KlibModuleMetadata(
                 library.packageMetadataParts(packageFqName).map { part ->
                     val packageFragment = parsePackageFragment(library.packageMetadata(packageFqName, part))
                     val nameResolver = NameResolverImpl(packageFragment.strings, packageFragment.qualifiedNames)
-                    KmModuleFragment().apply { packageFragment.accept(this, nameResolver, listOf(fileIndex)) }
+                    packageFragment.toKmModuleFragment(nameResolver, listOf(fileIndex))
                 }.let(readStrategy::processModuleParts)
             }
             return KlibModuleMetadata(moduleHeader.moduleName, moduleFragments, moduleHeader.annotation)

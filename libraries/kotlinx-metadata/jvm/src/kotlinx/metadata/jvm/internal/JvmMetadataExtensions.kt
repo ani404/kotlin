@@ -15,10 +15,11 @@ import org.jetbrains.kotlin.metadata.deserialization.getExtensionOrNull
 import org.jetbrains.kotlin.metadata.jvm.JvmProtoBuf
 import org.jetbrains.kotlin.metadata.jvm.deserialization.JvmProtoBufUtil
 
-@Suppress("DEPRECATION")
+@Suppress("DEPRECATION_ERROR")
 internal class JvmMetadataExtensions : MetadataExtensions {
     override fun readClassExtensions(v: KmClassVisitor, proto: ProtoBuf.Class, c: ReadContext) {
         val ext = v.visitExtensions(JvmClassExtensionVisitor.TYPE) as? JvmClassExtensionVisitor ?: return
+        ext as JvmClassExtension
 
         val anonymousObjectOriginName = proto.getExtensionOrNull(JvmProtoBuf.anonymousObjectOriginName)
         if (anonymousObjectOriginName != null) {
@@ -26,9 +27,7 @@ internal class JvmMetadataExtensions : MetadataExtensions {
         }
 
         for (property in proto.getExtension(JvmProtoBuf.classLocalVariable)) {
-            ext.visitLocalDelegatedProperty(
-                property.flags, c[property.name], property.getPropertyGetterFlags(), property.getPropertySetterFlags()
-            )?.let { property.accept(it, c) }
+            ext.localDelegatedProperties.add(property.toKmProperty(c))
         }
 
         ext.visitModuleName(proto.getExtensionOrNull(JvmProtoBuf.classModuleName)?.let(c::get) ?: JvmProtoBufUtil.DEFAULT_MODULE_NAME)
@@ -40,11 +39,10 @@ internal class JvmMetadataExtensions : MetadataExtensions {
 
     override fun readPackageExtensions(v: KmPackageVisitor, proto: ProtoBuf.Package, c: ReadContext) {
         val ext = v.visitExtensions(JvmPackageExtensionVisitor.TYPE) as? JvmPackageExtensionVisitor ?: return
+        ext as JvmPackageExtension
 
         for (property in proto.getExtension(JvmProtoBuf.packageLocalVariable)) {
-            ext.visitLocalDelegatedProperty(
-                property.flags, c[property.name], property.getPropertyGetterFlags(), property.getPropertySetterFlags()
-            )?.let { property.accept(it, c) }
+            ext.localDelegatedProperties.add(property.toKmProperty(c))
         }
 
         ext.visitModuleName(proto.getExtensionOrNull(JvmProtoBuf.packageModuleName)?.let(c::get) ?: JvmProtoBufUtil.DEFAULT_MODULE_NAME)

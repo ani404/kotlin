@@ -2,7 +2,7 @@
  * Copyright 2010-2023 JetBrains s.r.o. and Kotlin Programming Language contributors.
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
-@file:Suppress("DEPRECATION")
+@file:Suppress("DEPRECATION", "DEPRECATION_ERROR")
 
 package kotlinx.metadata.jvm
 
@@ -58,9 +58,9 @@ public sealed class KotlinClassMetadata(internal val annotationData: Metadata) {
          *
          * Returns the same (mutable) [KmClass] instance every time.
          */
-        public val kmClass: KmClass = KmClass().apply {
+        public val kmClass: KmClass = run {
             val (strings, proto) = JvmProtoBufUtil.readClassDataFrom(annotationData.requireNotEmpty(), annotationData.data2)
-            proto.accept(this, strings)
+            proto.toKmClass(strings)
         }
 
         /**
@@ -78,7 +78,7 @@ public sealed class KotlinClassMetadata(internal val annotationData: Metadata) {
          *
          * @param v the visitor that must visit this class
          */
-        @Deprecated(VISITOR_API_MESSAGE)
+        @Deprecated(VISITOR_API_MESSAGE, level = DeprecationLevel.ERROR)
         public fun accept(v: KmClassVisitor): Unit = kmClass.accept(v)
 
         /**
@@ -127,9 +127,9 @@ public sealed class KotlinClassMetadata(internal val annotationData: Metadata) {
          *
          * Returns the same (mutable) [KmPackage] instance every time.
          */
-        public val kmPackage: KmPackage = KmPackage().apply {
+        public val kmPackage: KmPackage = run {
             val (strings, proto) = JvmProtoBufUtil.readPackageDataFrom(annotationData.requireNotEmpty(), annotationData.data2)
-            proto.accept(this, strings)
+            proto.toKmPackage(strings)
         }
 
         /**
@@ -147,7 +147,7 @@ public sealed class KotlinClassMetadata(internal val annotationData: Metadata) {
          *
          * @param v the visitor that must visit this file facade
          */
-        @Deprecated(VISITOR_API_MESSAGE)
+        @Deprecated(VISITOR_API_MESSAGE, level = DeprecationLevel.ERROR)
         public fun accept(v: KmPackageVisitor): Unit = kmPackage.accept(v)
 
         /**
@@ -203,9 +203,9 @@ public sealed class KotlinClassMetadata(internal val annotationData: Metadata) {
          *
          * Returns the same (mutable) [KmLambda] instance every time.
          */
-        public val kmLambda: KmLambda? = if (!isLambda) null else KmLambda().apply {
+        public val kmLambda: KmLambda? = if (!isLambda) null else {
             val (strings, proto) = functionData!!
-            proto.accept(this, strings)
+            proto.toKmLambda(strings)
         }
 
         /**
@@ -227,7 +227,7 @@ public sealed class KotlinClassMetadata(internal val annotationData: Metadata) {
          *
          * @param v the visitor that must visit this lambda
          */
-        @Deprecated(VISITOR_API_MESSAGE)
+        @Deprecated(VISITOR_API_MESSAGE, level = DeprecationLevel.ERROR)
         public fun accept(v: KmLambdaVisitor) {
             if (!isLambda) throw IllegalArgumentException(
                 "accept(KmLambdaVisitor) is only possible for synthetic classes which are lambdas (isLambda = true)"
@@ -363,9 +363,9 @@ public sealed class KotlinClassMetadata(internal val annotationData: Metadata) {
          *
          * Returns the same (mutable) [KmPackage] instance every time.
          */
-        public val kmPackage: KmPackage = KmPackage().apply {
+        public val kmPackage: KmPackage = run {
             val (strings, proto) = JvmProtoBufUtil.readPackageDataFrom(annotationData.requireNotEmpty(), annotationData.data2)
-            proto.accept(this, strings)
+            proto.toKmPackage(strings)
         }
 
         /**
@@ -389,7 +389,7 @@ public sealed class KotlinClassMetadata(internal val annotationData: Metadata) {
          *
          * @param v the visitor that must visit this multi-file class part
          */
-        @Deprecated(VISITOR_API_MESSAGE)
+        @Deprecated(VISITOR_API_MESSAGE, level = DeprecationLevel.ERROR)
         public fun accept(v: KmPackageVisitor) {
             kmPackage.accept(v)
         }

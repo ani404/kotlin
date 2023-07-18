@@ -6,6 +6,7 @@
 @file:Suppress(
     "MemberVisibilityCanBePrivate",
     "DEPRECATION",
+    "DEPRECATION_ERROR",
     "INVISIBLE_MEMBER", // InconsistentKotlinMetadataException
     "INVISIBLE_REFERENCE"
 )
@@ -13,8 +14,7 @@
 package kotlinx.metadata.jvm
 
 import kotlinx.metadata.*
-import kotlinx.metadata.internal.accept
-import kotlinx.metadata.jvm.internal.IgnoreInApiDump
+import kotlinx.metadata.internal.toKmClass
 import kotlinx.metadata.jvm.KotlinClassMetadata.Companion.COMPATIBLE_METADATA_VERSION
 import kotlinx.metadata.jvm.KotlinClassMetadata.Companion.throwIfNotCompatible
 import kotlinx.metadata.jvm.internal.wrapIntoMetadataExceptionWhenNeeded
@@ -47,7 +47,7 @@ public class KotlinModuleMetadata private constructor(
      *
      * Returns the same (mutable) [KmModule] instance every time.
      */
-    public val kmModule: KmModule = KmModule().apply(this::accept)
+    public val kmModule: KmModule = readImpl()
 
     /**
      * Visits metadata of this module with a new [KmModule] instance and returns that instance.
@@ -57,7 +57,7 @@ public class KotlinModuleMetadata private constructor(
         ReplaceWith("kmModule"),
         DeprecationLevel.WARNING
     )
-    public fun toKmModule(): KmModule = KmModule().apply(kmModule::accept)
+    public fun toKmModule(): KmModule = KmModule().apply { kmModule.accept(this) }
 
 
     /**
@@ -117,24 +117,27 @@ public class KotlinModuleMetadata private constructor(
      *
      * @param v the visitor that must visit this module file
      */
-    @Deprecated(VISITOR_API_MESSAGE)
-    public fun accept(v: KmModuleVisitor) {
+    @Deprecated(VISITOR_API_MESSAGE, level = DeprecationLevel.ERROR)
+    public fun accept(v: KmModuleVisitor): Unit = kmModule.accept(v)
+
+    private fun readImpl(): KmModule {
+        val v = KmModule()
         for ((fqName, parts) in data.packageFqName2Parts) {
             val (fileFacades, multiFileClassParts) = parts.parts.partition { parts.getMultifileFacadeName(it) == null }
-            v.visitPackageParts(fqName, fileFacades, multiFileClassParts.associateWith { parts.getMultifileFacadeName(it)!! })
+            v.packageParts[fqName] = KmPackageParts(
+                fileFacades.toMutableList(),
+                multiFileClassParts.associateWith { parts.getMultifileFacadeName(it)!! }.toMutableMap()
+            )
         }
 
         for (annotation in data.moduleData.annotations) {
-            v.visitAnnotation(KmAnnotation(annotation, emptyMap()))
+            v.annotations.add(KmAnnotation(annotation, emptyMap()))
         }
 
         for (classProto in data.moduleData.optionalAnnotations) {
-            v.visitOptionalAnnotationClass()?.let {
-                classProto.accept(it, data.moduleData.nameResolver)
-            }
+            v.optionalAnnotationClasses.add(classProto.toKmClass(data.moduleData.nameResolver))
         }
-
-        v.visitEnd()
+        return v
     }
 
     /**
@@ -190,7 +193,7 @@ public class KotlinModuleMetadata private constructor(
  *
  * When using this class, [visitEnd] must be called exactly once and after calls to all other visit* methods.
  */
-@Deprecated(VISITOR_API_MESSAGE)
+@Deprecated(VISITOR_API_MESSAGE, level = DeprecationLevel.ERROR)
 @UnstableMetadataApi
 public abstract class KmModuleVisitor(private val delegate: KmModuleVisitor? = null) {
     /**
@@ -265,17 +268,17 @@ public class KmModule : KmModuleVisitor() {
      */
     public val optionalAnnotationClasses: MutableList<KmClass> = ArrayList(0)
 
-    @Deprecated(VISITOR_API_MESSAGE)
+    @Deprecated(VISITOR_API_MESSAGE, level = DeprecationLevel.ERROR)
     override fun visitPackageParts(fqName: String, fileFacades: List<String>, multiFileClassParts: Map<String, String>) {
         packageParts[fqName] = KmPackageParts(fileFacades.toMutableList(), multiFileClassParts.toMutableMap())
     }
 
-    @Deprecated(VISITOR_API_MESSAGE)
+    @Deprecated(VISITOR_API_MESSAGE, level = DeprecationLevel.ERROR)
     override fun visitAnnotation(annotation: KmAnnotation) {
         annotations.add(annotation)
     }
 
-    @Deprecated(VISITOR_API_MESSAGE)
+    @Deprecated(VISITOR_API_MESSAGE, level = DeprecationLevel.ERROR)
     override fun visitOptionalAnnotationClass(): KmClass =
         KmClass().also(optionalAnnotationClasses::add)
 
@@ -284,7 +287,7 @@ public class KmModule : KmModuleVisitor() {
      *
      * @param visitor the visitor which will visit data in this module.
      */
-    @Deprecated(VISITOR_API_MESSAGE)
+    @Deprecated(VISITOR_API_MESSAGE, level = DeprecationLevel.ERROR)
     public fun accept(visitor: KmModuleVisitor) {
         for ((fqName, parts) in packageParts) {
             visitor.visitPackageParts(fqName, parts.fileFacades, parts.multiFileClassParts)
