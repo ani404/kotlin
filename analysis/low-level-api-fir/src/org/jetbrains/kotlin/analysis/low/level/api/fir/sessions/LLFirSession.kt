@@ -6,10 +6,8 @@
 package org.jetbrains.kotlin.analysis.low.level.api.fir.sessions
 
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.ModificationTracker
-import org.jetbrains.kotlin.analysis.low.level.api.fir.transformers.USE_STATE_KEEPER
 import org.jetbrains.kotlin.analysis.project.structure.KtModule
 import org.jetbrains.kotlin.fir.BuiltinTypes
 import org.jetbrains.kotlin.fir.FirElementWithResolveState
@@ -44,31 +42,6 @@ abstract class LLFirSession(
      */
     internal fun markInvalid() {
         isValid = false
-    }
-
-    fun invalidate() {
-        val application = ApplicationManager.getApplication()
-        if (application.isWriteAccessAllowed) {
-            invalidateInWriteAction()
-        } else {
-            // We have to invalidate the session on the EDT per the contract of `LLFirSessionInvalidationService`. The timing here is not
-            // 100% waterproof, but `LLFirSession.invalidate` is only a workaround for when FIR guards consistency protection (see KT-56503)
-            // is turned off. The check restricts usage of `invalidate` to this scenario.
-            check(!USE_STATE_KEEPER) {
-                "Outside a write action, a session may only be invalidated directly when FIR guards are turned off."
-            }
-
-            // The lambda passed to `invokeLater` might survive beyond project disposal (especially in tests), so me must not capture a hard
-            // reference to `this` that can leak `project`. A weak reference is appropriate because we do not need to invalidate the session
-            // when it has already been collected.
-            val weakSession = WeakReference(this)
-            application.invokeLater(
-                { weakSession.invalidateIfAlive() },
-
-                // `ModalityState.any()` can be used because session invalidation does not modify PSI, VFS, or the project model.
-                ModalityState.any(),
-            )
-        }
     }
 
     /**
