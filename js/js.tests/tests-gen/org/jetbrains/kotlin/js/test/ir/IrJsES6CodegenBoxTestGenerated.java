@@ -23520,6 +23520,12 @@ public class IrJsES6CodegenBoxTestGenerated extends AbstractIrJsES6CodegenBoxTes
                 }
 
                 @Test
+                @TestMetadata("kt60438.kt")
+                public void testKt60438() throws Exception {
+                    runTest("compiler/testData/codegen/box/multiplatform/k2/basic/kt60438.kt");
+                }
+
+                @Test
                 @TestMetadata("kt-56329.kt")
                 public void testKt_56329() throws Exception {
                     runTest("compiler/testData/codegen/box/multiplatform/k2/basic/kt-56329.kt");
