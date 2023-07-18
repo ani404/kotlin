@@ -4938,7 +4938,7 @@ if (PlatformInfo.isAppleTarget(project)) {
                 && !isNoopGC // requires some GC
         source = 'interop/objc/autorelease_from_dealloc/main.kt'
         interop = "objc_autorelease_from_dealloc"
-        flags = ["-tr", "-e", "runAllTests"] // Generate test suites, but use custom entrypoint.
+        flags = ["-tr"]
 
         doBeforeBuild {
             mkdir(buildDir)

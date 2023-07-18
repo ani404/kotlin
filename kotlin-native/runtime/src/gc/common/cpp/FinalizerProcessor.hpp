@@ -21,6 +21,7 @@
 #if KONAN_OBJC_INTEROP
 #include "ObjCMMAPI.h"
 #include <CoreFoundation/CoreFoundation.h>
+#include <CoreFoundation/CFRunLoop.h>
 #endif
 
 namespace kotlin::gc {
@@ -71,6 +72,12 @@ public:
 
         finalizerThread_ = ScopedThread(ScopedThread::attributes().name("GC finalizer processor"), [this] {
             Kotlin_initRuntimeIfNeeded();
+#if KONAN_OBJC_INTEROP
+            // create a dummy input source to prevent the run loop from premature termination
+            CFRunLoopSourceContext context{0, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, [](void* info) {}};
+            auto dummyInputSource = CFRunLoopSourceCreate(nullptr, 0, &context);
+            CFRunLoopAddSource(CFRunLoopGetCurrent(), dummyInputSource, kCFRunLoopDefaultMode);
+#endif
             {
                 std::unique_lock guard(initializedMutex_);
                 initialized_ = true;
@@ -96,19 +103,27 @@ public:
                     konan::AutoreleasePool autoreleasePool;
 #endif
                     FinalizerQueueTraits::process(std::move(queue));
-#if KONAN_OBJC_INTEROP
-                    // FIXME how many seconds do we need?
-                    while (CFRunLoopRunInMode(kCFRunLoopDefaultMode, 42, TRUE) == kCFRunLoopRunHandledSource) {}
-#endif
+                    processObjcRunLoop();
                 }
                 epochDoneCallback_(finalizersEpoch);
             }
+            processObjcRunLoop();
             {
                 std::unique_lock guard(initializedMutex_);
                 initialized_ = false;
             }
             initializedCondVar_.notify_all();
         });
+    }
+
+    void processObjcRunLoop() {
+#if KONAN_OBJC_INTEROP
+        while (true) {
+            konan::AutoreleasePool autoreleasePool;
+            auto res = CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.1, TRUE);
+            if (res != kCFRunLoopRunHandledSource) break;
+        }
+#endif
     }
 
     void WaitFinalizerThreadInitialized() noexcept {
