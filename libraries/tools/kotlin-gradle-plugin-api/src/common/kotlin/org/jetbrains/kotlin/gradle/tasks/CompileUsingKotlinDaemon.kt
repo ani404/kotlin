@@ -10,10 +10,12 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
 
+/**
+ * Enumeration class representing different Kotlin compilation execution strategies in Gradle.
+ *
+ * @property propertyValue value that should be passed for `kotlin.compiler.execution.strategy` Gradle property to choose the strategy
+ */
 enum class KotlinCompilerExecutionStrategy(
-    /**
-     * Value that should be passed for `kotlin.compiler.execution.strategy` Gradle property to choose the strategy
-     */
     val propertyValue: String
 ) {
     /**
@@ -38,7 +40,13 @@ enum class KotlinCompilerExecutionStrategy(
     OUT_OF_PROCESS("out-of-process"),
     ;
 
+    /**
+     * @suppress
+     */
     companion object {
+        /**
+         * @suppress
+         */
         fun fromProperty(value: String?) =
             if (value == null) {
                 DAEMON
@@ -50,7 +58,7 @@ enum class KotlinCompilerExecutionStrategy(
 }
 
 /**
- * Task is using Kotlin daemon to run compilation.
+ * Represent a Kotlin task which is using Kotlin daemon to run compilation.
  */
 interface CompileUsingKotlinDaemon : Task {
     /**
@@ -61,13 +69,16 @@ interface CompileUsingKotlinDaemon : Task {
 
     /**
      * Defines compiler execution strategy, see docs for [KotlinCompilerExecutionStrategy] for more details
+     *
+     * @see [KotlinCompilerExecutionStrategy]
      */
     @get:Internal
     val compilerExecutionStrategy: Property<KotlinCompilerExecutionStrategy>
 
     /**
      * Defines whether task execution should fail when [compilerExecutionStrategy] is set to [KotlinCompilerExecutionStrategy.DAEMON]
-     * and compilation via Kotlin daemon was not possible. If set to true then compilation in such case will be retried without the daemon.
+     * and compilation via Kotlin daemon was not possible. If set to true, then compilation in such case will be retried without the daemon.
+     *
      * Default is `true`
      */
     @get:Internal
