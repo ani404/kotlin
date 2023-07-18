@@ -81,7 +81,7 @@ D8RootPlugin.apply(rootProject).version = v8Version
 
 kotlin {
     @OptIn(org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl::class)
-    wasmWasi("wasm") {
+    wasm("wasm") {
         nodejs()
     }
 
@@ -94,8 +94,8 @@ kotlin {
     sourceSets {
         named("wasmMain") {
             addWasmMainDirs()
-//            kotlin.srcDirs("js/builtins/kotlin", "js/internal", "js/src/kotlin", "js/src/kotlinx", "js/src/org.w3c")
-       kotlin.srcDirs("wasi/builtins/kotlin", "wasi/internal", "wasi/src/kotlin", "wasi/src/kotlinx")
+            kotlin.srcDirs("js/builtins/kotlin", "js/internal", "js/src/kotlin", "js/src/kotlinx", "js/src/org.w3c")
+//       kotlin.srcDirs("wasi/builtins/kotlin", "wasi/internal", "wasi/src/kotlin", "wasi/src/kotlinx")
         }
 
         named("commonMain") {

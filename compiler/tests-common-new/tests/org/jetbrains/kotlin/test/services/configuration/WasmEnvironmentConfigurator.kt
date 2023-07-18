@@ -157,6 +157,6 @@ class WasmEnvironmentConfigurator(testServices: TestServices) : EnvironmentConfi
 
         configuration.put(CommonConfigurationKeys.EXPECT_ACTUAL_LINKER, EXPECT_ACTUAL_LINKER in registeredDirectives)
 
-        configuration.put(JSConfigurationKeys.WASM_TARGET, WasmTarget.WASI)
+        configuration.put(JSConfigurationKeys.WASM_TARGET, WasmTarget.JS)
     }
 }

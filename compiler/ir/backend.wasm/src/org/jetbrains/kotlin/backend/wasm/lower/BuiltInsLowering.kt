@@ -59,7 +59,7 @@ class BuiltInsLowering(val context: WasmBackendContext) : FileLoweringPass {
             irBuiltins.eqeqeqSymbol -> {
                 fun callRefIsNull(expr: IrExpression): IrCall {
                     if (
-                        context.configuration.get(JSConfigurationKeys.WASM_TARGET, WasmTarget.WASI) == WasmTarget.WASI &&
+                        context.configuration.get(JSConfigurationKeys.WASM_TARGET, WasmTarget.JS) == WasmTarget.WASI &&
                         expr.type.erasedUpperBound?.isExternal != true
                     ) {
                         //TODO("External ref is not supported in wasi mode")

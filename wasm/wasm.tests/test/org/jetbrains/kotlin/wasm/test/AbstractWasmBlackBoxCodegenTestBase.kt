@@ -107,12 +107,11 @@ abstract class AbstractWasmBlackBoxCodegenTestBase<R : ResultingArtifact.Fronten
         }
 
         wasmArtifactsHandlersStep {
-            useHandlers(::WasiBoxRunner)
-//            when (targetBackend) {
-//                TargetBackend.WASM -> useHandlers(::WasmBoxRunner)
-//                TargetBackend.WASM_WASI -> useHandlers(::WasiBoxRunner)
-//                else -> error("Not supported: $targetBackend")
-//            }
+            when (targetBackend) {
+                TargetBackend.WASM -> useHandlers(::WasmBoxRunner)
+                TargetBackend.WASM_WASI -> useHandlers(::WasiBoxRunner)
+                else -> error("Not supported: $targetBackend")
+            }
         }
     }
 }

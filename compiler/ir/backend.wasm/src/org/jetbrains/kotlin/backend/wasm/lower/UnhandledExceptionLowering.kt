@@ -133,7 +133,7 @@ internal class UnhandledExceptionLowering(val context: WasmBackendContext) : Fil
     }
 
     override fun lower(irFile: IrFile) {
-        if (context.configuration.get(JSConfigurationKeys.WASM_TARGET, WasmTarget.WASI) == WasmTarget.WASI) return
+        if (context.configuration.get(JSConfigurationKeys.WASM_TARGET, WasmTarget.JS) == WasmTarget.WASI) return
         for (declaration in irFile.declarations) {
             if (declaration is IrFunction && declaration.isExported()) {
                 processExportFunction(declaration)

@@ -362,7 +362,7 @@ class WasmSymbols(
     val wasmExportConstructor by lazy { wasmExportClass.constructors.single() }
 
     private val jsRelatedSymbolsIfNonWasi =
-        when (context.configuration.get(JSConfigurationKeys.WASM_TARGET, WasmTarget.WASI) == WasmTarget.JS) {
+        when (context.configuration.get(JSConfigurationKeys.WASM_TARGET, WasmTarget.JS) == WasmTarget.JS) {
             true -> JsRelatedSymbols()
             else -> null
         }

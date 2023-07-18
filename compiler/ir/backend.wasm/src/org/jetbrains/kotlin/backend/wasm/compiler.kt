@@ -137,7 +137,7 @@ fun compileWasm(
 
     val byteArray = os.toByteArray()
 
-    if (backendContext.configuration.get(JSConfigurationKeys.WASM_TARGET, WasmTarget.WASI) == WasmTarget.WASI) {
+    if (backendContext.configuration.get(JSConfigurationKeys.WASM_TARGET, WasmTarget.JS) == WasmTarget.WASI) {
         return WasmCompilerResult(
             wat = wat,
             wasm = byteArray,
