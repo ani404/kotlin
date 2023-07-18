@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.analysis.low.level.api.fir.file.structure
 
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiErrorElement
 import org.jetbrains.kotlin.KtFakeSourceElementKind
 import org.jetbrains.kotlin.analysis.low.level.api.fir.LLFirModuleResolveComponents
 import org.jetbrains.kotlin.analysis.low.level.api.fir.diagnostics.ClassDiagnosticRetriever
@@ -36,15 +37,43 @@ internal class KtToFirMapping(firElement: FirElement, recorder: FirElementsRecor
         return mapping[ktElement]
     }
 
-    fun getFirOfClosestParent(element: KtElement): FirElement? {
-        var current: PsiElement? = element
-        while (current != null && current !is KtFile) {
-            if (current is KtElement) {
-                getElement(current)?.let { return it }
+    fun getFir(element: KtElement): FirElement? {
+        fun grandParent(parent: PsiElement, vararg expectedGrandParentClass: Class<*>): FirElement? {
+            val grandParent = parent.parent
+            return if (expectedGrandParentClass.any { it.isInstance(grandParent) }) {
+                getElement(grandParent as KtElement)
+            } else {
+                null
             }
-            current = current.parent
         }
-        return null
+
+        return getElement(element) ?: when (val parent = element.parent) {
+            is KtSafeQualifiedExpression, is KtDestructuringDeclaration, is KtTypeProjection, is KtThisExpression, is KtSuperExpression,
+            is KtImportDirective, is KtPackageDirective, is KtSuperTypeCallEntry, is KtConstructorDelegationCall, is KtCallExpression ->
+                getElement(parent as KtElement)
+            is KtBinaryExpression ->
+                if (element is KtArrayAccessExpression || element is KtOperationReferenceExpression) getElement(parent) else null
+            is KtPrefixExpression -> if (element is KtConstantExpression) getElement(parent) else null
+            is KtDotQualifiedExpression -> {
+                // We are in KtDotQualifiedExpression chain that ends either with import/package directive or
+                // topmost KtDotQualifiedExpression
+                var current = parent
+                while (current is KtDotQualifiedExpression) {
+                    getElement(current)?.let { return it }
+                    current = current.parent
+                }
+                if (current is KtImportDirective || current is KtPackageDirective) {
+                    getElement(current as KtElement)
+                } else {
+                    null
+                }
+            }
+            is PsiErrorElement -> grandParent(parent, KtDestructuringDeclaration::class.java)
+            is KtUserType -> grandParent(parent, KtTypeReference::class.java)
+            is KtContainerNode -> grandParent(parent, KtThisExpression::class.java, KtSuperExpression::class.java)
+            is KtValueArgumentName -> grandParent(parent, KtValueArgument::class.java)
+            else -> null
+        }
     }
 }
 

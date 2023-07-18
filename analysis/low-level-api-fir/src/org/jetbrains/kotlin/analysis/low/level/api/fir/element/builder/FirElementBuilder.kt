@@ -12,7 +12,6 @@ import org.jetbrains.kotlin.analysis.low.level.api.fir.LLFirModuleResolveCompone
 import org.jetbrains.kotlin.analysis.low.level.api.fir.api.LLFirResolveSession
 import org.jetbrains.kotlin.analysis.low.level.api.fir.file.structure.FileStructureElement
 import org.jetbrains.kotlin.analysis.low.level.api.fir.file.structure.FirElementsRecorder
-import org.jetbrains.kotlin.analysis.low.level.api.fir.file.structure.KtToFirMapping
 import org.jetbrains.kotlin.analysis.low.level.api.fir.lazy.resolve.declarationCanBeLazilyResolved
 import org.jetbrains.kotlin.analysis.low.level.api.fir.util.findSourceNonLocalFirDeclaration
 import org.jetbrains.kotlin.analysis.utils.printer.getElementTextInContext
@@ -34,7 +33,6 @@ import org.jetbrains.kotlin.fir.expressions.FirAnnotation
 import org.jetbrains.kotlin.fir.psi
 import org.jetbrains.kotlin.fir.resolve.providers.firProvider
 import org.jetbrains.kotlin.fir.symbols.lazyResolveToPhase
-import org.jetbrains.kotlin.fir.types.FirTypeRef
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.isObjectLiteral
 import org.jetbrains.kotlin.psi.psiUtil.parentsWithSelf
@@ -76,7 +74,7 @@ internal class FirElementBuilder(
         firResolveSession: LLFirResolveSession,
     ): FirElement? = when (element) {
         is KtFile -> getOrBuildFirForKtFile(element)
-        else -> getOrBuildFirForNonKtFileElement(element, firResolveSession)
+        else -> getFirForNonKtFileElement(element, firResolveSession)
     }
 
     private fun getOrBuildFirForKtFile(ktFile: KtFile): FirFile {
@@ -85,7 +83,7 @@ internal class FirElementBuilder(
         return firFile
     }
 
-    private fun getOrBuildFirForNonKtFileElement(
+    private fun getFirForNonKtFileElement(
         element: KtElement,
         firResolveSession: LLFirResolveSession,
     ): FirElement? {
@@ -95,8 +93,8 @@ internal class FirElementBuilder(
             return null
         }
 
-        getOrBuildFirForElementInsideAnnotations(element, firResolveSession)?.let { return it }
-        getOrBuildFirForElementInsideTypes(element, firResolveSession)?.let { return it }
+        getFirForElementInsideAnnotations(element, firResolveSession)?.let { return it }
+        getFirForElementInsideTypes(element, firResolveSession)?.let { return it }
 
         val psi = getPsiAsFirElementSource(element) ?: return null
         val firFile = element.containingKtFile
@@ -104,10 +102,10 @@ internal class FirElementBuilder(
 
         val structureElement = fileStructure.getStructureElementFor(element)
         val mappings = structureElement.mappings
-        return mappings.getFirOfClosestParent(psi) ?: firResolveSession.getOrBuildFirFile(firFile)
+        return mappings.getFir(psi)
     }
 
-    private inline fun <T : KtElement> getOrBuildFirForNonBodyElement(
+    private inline fun <T : KtElement> getFirForNonBodyElement(
         element: KtElement,
         firResolveSession: LLFirResolveSession,
         anchorElementProvider: (KtElement) -> T?,
@@ -137,10 +135,10 @@ internal class FirElementBuilder(
         return modifierList.owner as? KtDeclaration
     }
 
-    private fun getOrBuildFirForElementInsideAnnotations(
+    private fun getFirForElementInsideAnnotations(
         element: KtElement,
         firResolveSession: LLFirResolveSession,
-    ): FirElement? = getOrBuildFirForNonBodyElement(
+    ): FirElement? = getFirForNonBodyElement(
         element = element,
         firResolveSession = firResolveSession,
         anchorElementProvider = { it.parentOfType<KtAnnotationEntry>(withSelf = true) },
@@ -148,10 +146,10 @@ internal class FirElementBuilder(
         resolveAndFindFirForAnchor = { declaration, anchor -> declaration.resolveAndFindAnnotation(anchor, goDeep = true) },
     )
 
-    private fun getOrBuildFirForElementInsideTypes(
+    private fun getFirForElementInsideTypes(
         element: KtElement,
         firResolveSession: LLFirResolveSession,
-    ): FirElement? = getOrBuildFirForNonBodyElement(
+    ): FirElement? = getFirForNonBodyElement(
         element = element,
         firResolveSession = firResolveSession,
         anchorElementProvider = { it.parentsOfType<KtTypeReference>(withSelf = true).lastOrNull() },
