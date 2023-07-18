@@ -50,7 +50,7 @@ data class ModuleCompilerAnalyzedOutput(
             session, scopeSession, fir,
             fir2IrExtensions, fir2IrConfiguration,
             irMangler, IrFactoryImpl, visibilityConverter,
-            Fir2IrJvmSpecialAnnotationSymbolProvider(), // TODO: replace with appropriate (probably empty) implementation for other backends.
+            Fir2IrJvmSpecialAnnotationSymbolProvider(), // TODO KT-60526: replace with appropriate (probably empty) implementation for other backends.
             kotlinBuiltIns = kotlinBuiltIns,
             commonMemberStorage = commonMemberStorage,
             initializedIrBuiltIns = irBuiltIns
