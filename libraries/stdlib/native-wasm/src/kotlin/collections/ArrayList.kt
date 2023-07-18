@@ -17,6 +17,10 @@ actual class ArrayList<E> private constructor(
         private val Empty = ArrayList<Nothing>(0).also { it.isReadOnly = true }
     }
 
+    init {
+        if (backingList != null) this.modCount = backingList.modCount
+    }
+
     /**
      * Creates a new empty [ArrayList].
      */

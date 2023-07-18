@@ -21,6 +21,10 @@ internal class ListBuilder<E> private constructor(
         private val Empty = ListBuilder<Nothing>(0).also { it.isReadOnly = true }
     }
 
+    init {
+        if (backing != null) this.modCount = backing.modCount
+    }
+
     constructor() : this(10)
 
     constructor(initialCapacity: Int) : this(
@@ -205,7 +209,6 @@ internal class ListBuilder<E> private constructor(
     // ---------------------------- private ----------------------------
 
     private fun registerModification() {
-        checkForComodification()
         modCount += 1
     }
 
