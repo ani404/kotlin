@@ -2174,11 +2174,6 @@ sealed interface KtFirDiagnostic<PSI : PsiElement> : KtDiagnosticWithPsi<PSI> {
         override val diagnosticClass get() = ConstValWithNonConstInitializer::class
     }
 
-    interface EvaluationError : KtFirDiagnostic<PsiElement> {
-        override val diagnosticClass get() = EvaluationError::class
-        val errorDescription: String
-    }
-
     interface WrongSetterParameterType : KtFirDiagnostic<KtTypeReference> {
         override val diagnosticClass get() = WrongSetterParameterType::class
         val expectedType: KtType
