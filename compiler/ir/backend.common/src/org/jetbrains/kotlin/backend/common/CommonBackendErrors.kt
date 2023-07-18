@@ -9,7 +9,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.backend.common.BackendDiagnosticRenderers.INCOMPATIBILITY
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.diagnostics.KtDiagnosticFactoryToRendererMap
-import org.jetbrains.kotlin.diagnostics.error0
+import org.jetbrains.kotlin.diagnostics.error1
 import org.jetbrains.kotlin.diagnostics.error2
 import org.jetbrains.kotlin.diagnostics.error3
 import org.jetbrains.kotlin.diagnostics.rendering.BaseDiagnosticRendererFactory
@@ -24,6 +24,7 @@ object CommonBackendErrors {
     val MANY_INTERFACES_MEMBER_NOT_IMPLEMENTED by error2<PsiElement, String, String>()
     val MANY_IMPL_MEMBER_NOT_IMPLEMENTED by error2<PsiElement, String, String>()
     val INCOMPATIBLE_MATCHING by error3<PsiElement, String, String, ExpectActualCompatibility.Incompatible<*>>()
+    val EVALUATION_ERROR by error1<PsiElement, String>()
 
     init {
         RootDiagnosticRendererFactory.registerFactory(KtDefaultCommonBackendErrorMessages)
@@ -56,6 +57,11 @@ object KtDefaultCommonBackendErrorMessages : BaseDiagnosticRendererFactory() {
             STRING,
             STRING,
             INCOMPATIBILITY
+        )
+        map.put(
+            CommonBackendErrors.EVALUATION_ERROR,
+            "Cannot evaluate constant expression: {0}",
+            STRING,
         )
     }
 }
