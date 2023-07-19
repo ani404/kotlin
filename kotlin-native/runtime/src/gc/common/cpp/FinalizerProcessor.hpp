@@ -98,13 +98,13 @@ public:
                 finalizersEpoch = finalizerQueueEpoch_;
                 lock.unlock();
                 if (!FinalizerQueueTraits::isEmpty(queue)) {
-                    ThreadStateGuard guard(ThreadState::kRunnable);
 #if KONAN_OBJC_INTEROP
                     konan::AutoreleasePool autoreleasePool;
 #endif
+                    ThreadStateGuard guard(ThreadState::kRunnable);
                     FinalizerQueueTraits::process(std::move(queue));
-                    processObjcRunLoop();
                 }
+                processObjcRunLoop();
                 epochDoneCallback_(finalizersEpoch);
             }
             processObjcRunLoop();
