@@ -3,10 +3,9 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-package org.jetbrains.kotlin.fir.declarations
+package org.jetbrains.kotlin.fir
 
 import org.jetbrains.kotlin.KtSourceElement
-import org.jetbrains.kotlin.fir.FirElementInterface
 import org.jetbrains.kotlin.fir.visitors.*
 
 /*
@@ -14,10 +13,7 @@ import org.jetbrains.kotlin.fir.visitors.*
  * DO NOT MODIFY IT MANUALLY
  */
 
-sealed interface FirTypeParameterRefsOwner : FirElementInterface {
-    override val source: KtSourceElement?
-    val typeParameters: List<FirTypeParameterRef>
+interface FirElementInterface {
+    val source: KtSourceElement?
 
-
-    fun <D> transformTypeParameters(transformer: FirTransformer<D>, data: D): FirTypeParameterRefsOwner
 }
