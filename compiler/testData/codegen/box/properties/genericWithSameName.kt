@@ -1,5 +1,5 @@
 // IGNORE_BACKEND: JVM, JVM_IR
-// IGNORE_BACKEND_K2: JS_IR, NATIVE, WASM
+// IGNORE_BACKEND_K2: JS_IR, JS_IR_ES6, NATIVE, WASM
 // FIR status: not supported
 
 package foo
