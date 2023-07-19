@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.targets.js.KotlinJsCompilerAttribute
 import plugins.configureDefaultPublishing
 import plugins.configureKotlinPomAttributes
 
@@ -22,6 +23,14 @@ kotlin {
                 dependencies {
                     api(project(":kotlin-stdlib"))
                 }
+            }
+        }
+        val main by compilations.getting
+        val test by compilations.getting
+        // TODO: Remove together with kotlin.js.compiler.publish.attribute=false property
+        listOf(main, test).forEach { compilation ->
+            configurations[compilation.compileDependencyConfigurationName].attributes {
+                attribute(KotlinJsCompilerAttribute.jsCompilerAttribute, KotlinJsCompilerAttribute.ir)
             }
         }
     }
