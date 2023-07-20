@@ -42,10 +42,11 @@ class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
         expectContainingClass: RegularClassSymbolMarker?,
         actualContainingClass: RegularClassSymbolMarker?,
         context: ExpectActualMatchingContext<T>,
-    ): ExpectActualCompatibility<T> {
-        return with(context) {
+    ): ExpectActualCallableCompatibilityCheckResult<T> {
+        val compatibility = with(context) {
             areCompatibleCallables(expectDeclaration, actualDeclaration, parentSubstitutor, expectContainingClass, actualContainingClass)
         }
+        return ExpectActualCallableCompatibilityCheckResult(compatibility)
     }
 
     fun matchSingleExpectTopLevelDeclarationAgainstPotentialActuals(
@@ -260,14 +261,17 @@ class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
         unfulfilled: MutableList<Pair<T, Map<Incompatible<T>, List<T>>>>?
     ): SymbolsWithCompatibilities<T> {
         val mapping = actualMembers.map { actualMember ->
-            val compatibility = when (expectMember) {
-                is CallableSymbolMarker -> areCompatibleCallables(
-                    expectMember,
-                    actualMember as CallableSymbolMarker,
-                    substitutor,
-                    expectClassSymbol,
-                    actualClassSymbol
-                )
+            val checkResult = when (expectMember) {
+                is CallableSymbolMarker -> {
+                    val compatibility = areCompatibleCallables(
+                        expectMember,
+                        actualMember as CallableSymbolMarker,
+                        substitutor,
+                        expectClassSymbol,
+                        actualClassSymbol
+                    )
+                    ExpectActualCallableCompatibilityCheckResult(compatibility)
+                }
 
                 is RegularClassSymbolMarker -> {
                     val parentSubstitutor = substitutor?.takeIf { !innerClassesCapturesOuterTypeParameters }
@@ -275,15 +279,16 @@ class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
                         expectMember,
                         actualMember as ClassLikeSymbolMarker,
                         parentSubstitutor
-                    ).compatibility
+                    )
                 }
                 else -> error("Unsupported declaration: $expectMember ($actualMembers)")
             }
-            actualMember to compatibility
+            actualMember to checkResult
         }
 
         val incompatibilityMap = mutableMapOf<Incompatible<T>, MutableList<T>>()
-        for ((actualMember, compatibility) in mapping) {
+        for ((actualMember, checkResult) in mapping) {
+            val compatibility = checkResult.compatibility
             when (compatibility) {
                 ExpectActualCompatibility.Compatible -> {
                     onMatchedMembers(expectMember, actualMember)

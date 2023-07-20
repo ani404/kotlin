@@ -80,7 +80,7 @@ object FirExpectActualResolver {
                             expectContainingClass,
                             actualContainingClass,
                             context
-                        )
+                        ).compatibility
                     }.let {
                         // If there is a compatible entry, return a map only containing it
                         when (val compatibleSymbols = it[ExpectActualCompatibility.Compatible]) {

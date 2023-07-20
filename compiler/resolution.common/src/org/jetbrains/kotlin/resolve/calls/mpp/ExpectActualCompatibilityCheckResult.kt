@@ -12,7 +12,15 @@ internal typealias SymbolsWithCompatibilities<T> = List<Pair<T, ExpectActualComp
 
 internal typealias ExpectClassScopeMembersMapping<T> = Map</* expect member */ out T, SymbolsWithCompatibilities<T>>
 
-data class ExpectActualClassifierCompatibilityCheckResult<out T : DeclarationSymbolMarker>(
-    val compatibility: ExpectActualCompatibility<T>,
+sealed interface ExpectActualCompatibilityCheckResult<out T : DeclarationSymbolMarker> {
+    val compatibility: ExpectActualCompatibility<T>
+}
+
+data class ExpectActualCallableCompatibilityCheckResult<out T : DeclarationSymbolMarker> internal constructor(
+    override val compatibility: ExpectActualCompatibility<T>,
+) : ExpectActualCompatibilityCheckResult<T>
+
+data class ExpectActualClassifierCompatibilityCheckResult<out T : DeclarationSymbolMarker> internal constructor(
+    override val compatibility: ExpectActualCompatibility<T>,
     val membersMapping: ExpectClassScopeMembersMapping<T>,
-)
+) : ExpectActualCompatibilityCheckResult<T>

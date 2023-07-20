@@ -38,7 +38,7 @@ object ExpectedActualResolver {
                         expectContainingClass = null,
                         actualContainingClass = null,
                         context
-                    )
+                    ).compatibility
                 }
             }
             is ClassDescriptor -> {
@@ -106,7 +106,7 @@ object ExpectedActualResolver {
                         expectContainingClass = expectedClass,
                         actualContainingClass = actualClass,
                         context
-                    )
+                    ).compatibility
                 }
             }
             is ClassifierDescriptorWithTypeParameters -> {
