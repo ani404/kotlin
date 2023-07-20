@@ -237,7 +237,7 @@ interface BaseKapt : Task,
     val kaptExternalClasspath: ConfigurableFileCollection
 
     /**
-     * Name of Gradle [org.gradle.api.artifacts.Configuration] containing all annotation processor artifacts
+     * Names of Gradle [org.gradle.api.artifacts.Configuration] containing all annotation processor artifacts
      * used to configure [kaptClasspath].
      */
     @get:Internal
