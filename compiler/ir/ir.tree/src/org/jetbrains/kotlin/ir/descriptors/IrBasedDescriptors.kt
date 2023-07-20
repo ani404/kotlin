@@ -132,6 +132,7 @@ fun IrDeclaration.toIrBasedDescriptor(): DeclarationDescriptor = when (this) {
     is IrField -> toIrBasedDescriptor()
     is IrTypeAlias -> toIrBasedDescriptor()
     is IrErrorDeclaration -> toIrBasedDescriptor()
+    is IrScript -> toIrBasedDescriptor()
     else -> error("Unknown declaration kind")
 }
 
@@ -1264,3 +1265,7 @@ private fun IrPropertySymbol.toIrBasedDescriptorIfPossible(): PropertyDescriptor
 // doesn't make any sense.
 @OptIn(ObsoleteDescriptorBasedAPI::class)
 private fun IrScriptSymbol.toIrBasedDescriptorIfPossible(): ScriptDescriptor = descriptor
+
+// see comment above to IrScriptSymbol.toIrBasedDescriptorIfPossible()
+@OptIn(ObsoleteDescriptorBasedAPI::class)
+private fun IrScript.toIrBasedDescriptor() = descriptor
