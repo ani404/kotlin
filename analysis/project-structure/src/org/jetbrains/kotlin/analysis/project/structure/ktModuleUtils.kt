@@ -5,6 +5,9 @@
 
 package org.jetbrains.kotlin.analysis.project.structure
 
+import com.intellij.psi.PsiDirectory
+import com.intellij.psi.PsiFileSystemItem
+import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.utils.topologicalSort
 
 /**
@@ -64,3 +67,28 @@ public inline fun <reified M : KtModule> KtModule.allDirectDependenciesOfType():
  */
 public fun computeTransitiveDependsOnDependencies(directDependsOnDependencies: List<KtModule>): List<KtModule> =
     topologicalSort(directDependsOnDependencies) { this.directDependsOnDependencies }
+
+/**
+ * Returns a flat list of all [KtFile] instances from the [roots]
+ */
+public fun collectKtFiles(roots: List<PsiFileSystemItem>): List<KtFile> {
+    val result = mutableListOf<KtFile>()
+
+    fun processDirectory(directory: PsiDirectory) {
+        for (file in directory.files) {
+            when (file) {
+                is KtFile -> result.add(file)
+                is PsiDirectory -> processDirectory(file)
+            }
+        }
+    }
+
+    for (file in roots) {
+        when (file) {
+            is KtFile -> result.add(file)
+            is PsiDirectory -> processDirectory(file)
+        }
+    }
+
+    return result
+}

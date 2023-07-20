@@ -10,9 +10,11 @@ import com.intellij.psi.PsiFileSystemItem
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.analysis.project.structure.KtModule
 import org.jetbrains.kotlin.analysis.project.structure.KtSourceModule
+import org.jetbrains.kotlin.analysis.project.structure.collectKtFiles
 import org.jetbrains.kotlin.analysis.project.structure.computeTransitiveDependsOnDependencies
 import org.jetbrains.kotlin.config.LanguageVersionSettings
 import org.jetbrains.kotlin.platform.TargetPlatform
+import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.PlatformDependentAnalyzerServices
 
 internal class KtSourceModuleImpl(
@@ -28,4 +30,7 @@ internal class KtSourceModuleImpl(
 ) : KtSourceModule, KtModuleWithPlatform {
     override val transitiveDependsOnDependencies: List<KtModule> by lazy { computeTransitiveDependsOnDependencies(directDependsOnDependencies) }
     override val analyzerServices: PlatformDependentAnalyzerServices = super.analyzerServices
+
+    override val ktFiles: List<KtFile>
+        get() = collectKtFiles(sourceRoots)
 }
