@@ -12,11 +12,11 @@
     void (^onDestroy_)(uintptr_t);
 }
 
-- (uintptr_t)identity {
+-(uintptr_t)identity {
     return (uintptr_t)self;
 }
 
-- (instancetype)init:(void (^)(uintptr_t))onDestroy {
+-(instancetype)init:(void (^)(uintptr_t))onDestroy {
     if (self = [super init]) {
         [onDestroy retain];
         onDestroy_ = onDestroy;
@@ -24,7 +24,7 @@
     return self;
 }
 
-- (void)dealloc {
+-(void)dealloc {
     onDestroy_([self identity]);
     [super dealloc];
 }
@@ -47,29 +47,37 @@ void autorelease(uint64_t obj) {
     volatile atomic_bool triggered_;
 }
 
-- (uintptr_t)identity {
+-(uintptr_t)identity {
     return (uintptr_t)self;
 }
 
-- (void)scheduleWithTimer {
+-(void)scheduleWithTimer {
     assert(![self isTriggered]);
-    [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(triggerDirectly) userInfo:nil repeats:NO];
+    [NSTimer scheduledTimerWithTimeInterval:0 target:self selector:@selector(triggerDirectly) userInfo:nil repeats:NO];
 }
 
-- (void)scheduleWithPerformSelector {
+-(void)scheduleWithPerformSelector {
     assert(![self isTriggered]);
     [[NSRunLoop currentRunLoop] performSelector:@selector(triggerDirectly) target:self argument:nil order:0 modes:@[NSDefaultRunLoopMode]];
 }
 
-- (void)scheduleWithPerformSelectorAfterDelay {
+-(void)scheduleWithPerformSelectorAfterDelay {
     assert(![self isTriggered]);
     [self performSelector:@selector(triggerDirectly) withObject:self afterDelay:0];
 }
 
-- (void)triggerDirectly {
+-(void)scheduleWithPerformBlock {
+    assert(![self isTriggered]);
+    [[NSRunLoop currentRunLoop] performBlock:^{
+        [self triggerDirectly];
+    }];
+}
+
+-(void)triggerDirectly {
     assert(![self isTriggered]);
     atomic_store(&triggered_, true);
 }
+
 -(BOOL)isTriggered {
     return atomic_load(&triggered_) ? YES : NO;
 }

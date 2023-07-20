@@ -14,6 +14,7 @@ void autorelease(uint64_t);
 -(void)scheduleWithTimer;
 -(void)scheduleWithPerformSelector;
 -(void)scheduleWithPerformSelectorAfterDelay;
+-(void)scheduleWithPerformBlock;
 -(void)triggerDirectly;
 -(BOOL)isTriggered;
 -(uintptr_t)identity;

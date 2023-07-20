@@ -24,8 +24,8 @@ fun allocCollectable(ctor: () -> ULong): ULong = autoreleasepool {
 fun waitTriggered(event: Event) {
     val timeoutMark = TimeSource.Monotonic.markNow() + timeout
 
+    kotlin.native.internal.GC.collect()
     while (true) {
-        kotlin.native.internal.GC.collect()
         if (event.isTriggered()) {
             return
         }
@@ -33,8 +33,9 @@ fun waitTriggered(event: Event) {
     }
 }
 
+// All the tests are run on a secondary (non main) thread in order to prevent `objcDisposeOnMain` hacks from messing things up
 @Test
-fun testAutoreleaseOnSecondaryThread() {
+fun testAutorelease() {
     val event = withWorker {
         execute(TransferMode.SAFE, {}) {
             val event = Event()
@@ -61,7 +62,7 @@ fun testAutoreleaseOnSecondaryThread() {
 }
 
 @Test
-fun testTimerOnSecondaryThread() {
+fun testTimer() {
     val event = Event()
 
     withWorker {
@@ -78,7 +79,7 @@ fun testTimerOnSecondaryThread() {
 }
 
 @Test
-fun testSelectorOnSecondaryThread() {
+fun testSelector() {
     val event = Event()
 
     withWorker {
@@ -95,7 +96,7 @@ fun testSelectorOnSecondaryThread() {
 }
 
 @Test
-fun testSelectorAfterDelayOnSecondaryThread() {
+fun testSelectorAfterDelay() {
     val event = Event()
 
     withWorker {
@@ -111,3 +112,19 @@ fun testSelectorAfterDelayOnSecondaryThread() {
     waitTriggered(event)
 }
 
+@Test
+fun testPerformBlock() {
+    val event = Event()
+
+    withWorker {
+        execute(TransferMode.SAFE, { event }) { event ->
+            allocCollectable {
+                OnDestroyHook {
+                    event.scheduleWithPerformBlock()
+                }.identity()
+            }
+        }
+    }
+
+    waitTriggered(event)
+}
