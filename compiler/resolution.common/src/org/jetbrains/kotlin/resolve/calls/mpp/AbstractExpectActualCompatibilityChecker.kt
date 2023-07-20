@@ -22,11 +22,14 @@ import org.jetbrains.kotlin.utils.addToStdlib.enumSetOf
 import java.util.*
 
 class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
+    private val EMPTY_OK_RESULT_FOR_CHECKER_SKIP =
+        ExpectActualClassifierCompatibilityCheckResult<T>(ExpectActualCompatibility.Compatible, membersMapping = emptyMap())
+
     fun areCompatibleClassifiersAndScopes(
         expectClassSymbol: RegularClassSymbolMarker,
         actualClassLikeSymbol: ClassLikeSymbolMarker,
         context: ExpectActualMatchingContext<T>,
-    ): ExpectActualCompatibility<T> {
+    ): ExpectActualClassifierCompatibilityCheckResult<T> {
         return with(context) {
             areCompatibleClassifiersAndScopes(expectClassSymbol, actualClassLikeSymbol, parentSubstitutor = null)
         }
@@ -67,7 +70,7 @@ class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
         expectClassSymbol: RegularClassSymbolMarker,
         actualClassLikeSymbol: ClassLikeSymbolMarker,
         parentSubstitutor: TypeSubstitutorMarker?
-    ): ExpectActualCompatibility<T> {
+    ): ExpectActualClassifierCompatibilityCheckResult<T> {
         // Can't check FQ names here because nested expected class may be implemented via actual typealias's expansion with the other FQ name
         require(expectClassSymbol.name == actualClassLikeSymbol.name) {
             "This function should be invoked only for declarations with the same name: $expectClassSymbol, $actualClassLikeSymbol"
@@ -76,14 +79,14 @@ class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
         val actualClass = when (actualClassLikeSymbol) {
             is RegularClassSymbolMarker -> actualClassLikeSymbol
             is TypeAliasSymbolMarker -> actualClassLikeSymbol.expandToRegularClass()
-                ?: return ExpectActualCompatibility.Compatible // do not report extra error on erroneous typealias
+                ?: return EMPTY_OK_RESULT_FOR_CHECKER_SKIP // do not report extra error on erroneous typealias
             else -> error("Incorrect actual classifier for $expectClassSymbol: $actualClassLikeSymbol")
         }
 
         val classifiersCompatibility =
             areCompatibleClassifiers(expectClassSymbol, actualClass, parentSubstitutor)
         if (classifiersCompatibility != ExpectActualCompatibility.Compatible) {
-            return classifiersCompatibility
+            return ExpectActualClassifierCompatibilityCheckResult(classifiersCompatibility, membersMapping = emptyMap())
         }
 
         val substitutor = createExpectActualTypeParameterSubstitutor(
@@ -92,15 +95,7 @@ class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
             parentSubstitutor
         )
 
-        // TODO: mapping will be used in subsequent commits
-        val (classScopesCompatibility, _) = areCompatibleClassScopes(expectClassSymbol, actualClass, substitutor)
-        classScopesCompatibility.let {
-            if (it != ExpectActualCompatibility.Compatible) {
-                return it
-            }
-        }
-
-        return ExpectActualCompatibility.Compatible
+        return areCompatibleClassScopes(expectClassSymbol, actualClass, substitutor)
     }
 
     context (ExpectActualMatchingContext<T>)
@@ -202,7 +197,7 @@ class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
         expectClassSymbol: RegularClassSymbolMarker,
         actualClassSymbol: RegularClassSymbolMarker,
         substitutor: TypeSubstitutorMarker,
-    ): Pair<ExpectActualCompatibility<T>, ExpectClassScopeMembersMapping<T>> {
+    ): ExpectActualClassifierCompatibilityCheckResult<T> {
         val unfulfilled = arrayListOf<Pair<T, Map<Incompatible<T>, List<T>>>>()
 
         val expectMembersToPotentialActuals = findPotentialActualsForExpectClassScopeMembers(expectClassSymbol, actualClassSymbol)
@@ -223,14 +218,18 @@ class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
             val aEntries = expectClassSymbol.collectEnumEntryNames()
             val bEntries = actualClassSymbol.collectEnumEntryNames()
 
-            if (!bEntries.containsAll(aEntries)) return Incompatible.EnumEntries to expectClassScopeMembersMapping
+            if (!bEntries.containsAll(aEntries)) {
+                return ExpectActualClassifierCompatibilityCheckResult(Incompatible.EnumEntries, expectClassScopeMembersMapping)
+            }
         }
 
         // TODO: check static scope?
 
-        if (unfulfilled.isEmpty()) return ExpectActualCompatibility.Compatible to expectClassScopeMembersMapping
-
-        return Incompatible.ClassScopes(unfulfilled) to expectClassScopeMembersMapping
+        val compatibility = when(unfulfilled.isEmpty()) {
+            true -> ExpectActualCompatibility.Compatible
+            false -> Incompatible.ClassScopes(unfulfilled)
+        }
+        return ExpectActualClassifierCompatibilityCheckResult(compatibility, expectClassScopeMembersMapping)
     }
 
     context (ExpectActualMatchingContext<T>)
@@ -276,7 +275,7 @@ class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
                         expectMember,
                         actualMember as ClassLikeSymbolMarker,
                         parentSubstitutor
-                    )
+                    ).compatibility
                 }
                 else -> error("Unsupported declaration: $expectMember ($actualMembers)")
             }

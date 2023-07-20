@@ -49,7 +49,7 @@ object ExpectedActualResolver {
                         expected,
                         actual,
                         context
-                    )
+                    ).compatibility
                 }
             }
             else -> null
@@ -117,7 +117,7 @@ object ExpectedActualResolver {
                         expected as ClassDescriptor,
                         actual,
                         context
-                    )
+                    ).compatibility
                 }
             }
             else -> null

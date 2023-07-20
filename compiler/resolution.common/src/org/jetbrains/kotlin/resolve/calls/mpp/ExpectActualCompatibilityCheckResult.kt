@@ -5,8 +5,14 @@
 
 package org.jetbrains.kotlin.resolve.calls.mpp
 
+import org.jetbrains.kotlin.mpp.DeclarationSymbolMarker
 import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualCompatibility
 
 internal typealias SymbolsWithCompatibilities<T> = List<Pair<T, ExpectActualCompatibility<T>>>
 
-internal typealias ExpectClassScopeMembersMapping<T> = Map</* expect member */ T, SymbolsWithCompatibilities<T>>
+internal typealias ExpectClassScopeMembersMapping<T> = Map</* expect member */ out T, SymbolsWithCompatibilities<T>>
+
+data class ExpectActualClassifierCompatibilityCheckResult<out T : DeclarationSymbolMarker>(
+    val compatibility: ExpectActualCompatibility<T>,
+    val membersMapping: ExpectClassScopeMembersMapping<T>,
+)
