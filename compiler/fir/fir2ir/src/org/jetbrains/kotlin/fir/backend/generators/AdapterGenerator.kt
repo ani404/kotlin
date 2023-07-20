@@ -161,17 +161,21 @@ internal class AdapterGenerator(
                 }
             }
 
-            val boundReceiver = boundDispatchReceiver ?: boundExtensionReceiver
+            require(irAdapterFunction.typeParameters.isEmpty()) {
+                "Internal error: function adapter ${irAdapterFunction.symbol} " +
+                        "has unexpected type parameters: ${irAdapterFunction.typeParameters.map { it.symbol }}\n" +
+                        "They should already be used to determine exact return type and value parameters types"
+            }
             val irAdapterRef = IrFunctionReferenceImpl(
-                startOffset, endOffset, type, irAdapterFunction.symbol, irAdapterFunction.typeParameters.size,
+                startOffset, endOffset, type, irAdapterFunction.symbol, typeArgumentsCount = 0,
                 irAdapterFunction.valueParameters.size, null, IrStatementOrigin.ADAPTED_FUNCTION_REFERENCE
-            )
+            ).apply {
+                extensionReceiver = boundDispatchReceiver ?: boundExtensionReceiver
+                reflectionTarget = adaptee.symbol
+            }
             IrBlockImpl(startOffset, endOffset, type, IrStatementOrigin.ADAPTED_FUNCTION_REFERENCE).apply {
                 statements.add(irAdapterFunction)
-                statements.add(irAdapterRef.apply {
-                    extensionReceiver = boundReceiver
-                    reflectionTarget = adaptee.symbol
-                })
+                statements.add(irAdapterRef)
             }
         }
     }
