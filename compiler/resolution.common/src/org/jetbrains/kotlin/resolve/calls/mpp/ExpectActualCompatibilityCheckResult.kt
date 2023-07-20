@@ -8,3 +8,5 @@ package org.jetbrains.kotlin.resolve.calls.mpp
 import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualCompatibility
 
 internal typealias SymbolsWithCompatibilities<T> = List<Pair<T, ExpectActualCompatibility<T>>>
+
+internal typealias ExpectClassScopeMembersMapping<T> = Map</* expect member */ T, SymbolsWithCompatibilities<T>>

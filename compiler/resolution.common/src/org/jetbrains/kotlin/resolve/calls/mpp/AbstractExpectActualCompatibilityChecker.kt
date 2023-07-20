@@ -120,7 +120,9 @@ class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
             return Incompatible.Supertypes
         }
 
-        areCompatibleClassScopes(expectClassSymbol, actualClass, substitutor).let {
+        // TODO: mapping will be used in subsequent commits
+        val (classScopesCompatibility, _) = areCompatibleClassScopes(expectClassSymbol, actualClass, substitutor)
+        classScopesCompatibility.let {
             if (it != ExpectActualCompatibility.Compatible) {
                 return it
             }
@@ -180,12 +182,13 @@ class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
         expectClassSymbol: RegularClassSymbolMarker,
         actualClassSymbol: RegularClassSymbolMarker,
         substitutor: TypeSubstitutorMarker,
-    ): ExpectActualCompatibility<T> {
+    ): Pair<ExpectActualCompatibility<T>, ExpectClassScopeMembersMapping<T>> {
         val unfulfilled = arrayListOf<Pair<T, Map<Incompatible<T>, List<T>>>>()
 
         val expectMembersToPotentialActuals = findPotentialActualsForExpectClassScopeMembers(expectClassSymbol, actualClassSymbol)
+        val expectClassScopeMembersMapping = mutableMapOf<T, SymbolsWithCompatibilities<T>>()
         for ((expectMember, potentialActuals) in expectMembersToPotentialActuals.entries) {
-            matchSingleExpectAgainstPotentialActuals(
+            val actualsWithCompatibility = matchSingleExpectAgainstPotentialActuals(
                 expectMember,
                 potentialActuals,
                 substitutor,
@@ -193,20 +196,21 @@ class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
                 actualClassSymbol,
                 unfulfilled
             )
+            expectClassScopeMembersMapping[expectMember] = actualsWithCompatibility
         }
 
         if (expectClassSymbol.classKind == ClassKind.ENUM_CLASS) {
             val aEntries = expectClassSymbol.collectEnumEntryNames()
             val bEntries = actualClassSymbol.collectEnumEntryNames()
 
-            if (!bEntries.containsAll(aEntries)) return Incompatible.EnumEntries
+            if (!bEntries.containsAll(aEntries)) return Incompatible.EnumEntries to expectClassScopeMembersMapping
         }
 
         // TODO: check static scope?
 
-        if (unfulfilled.isEmpty()) return ExpectActualCompatibility.Compatible
+        if (unfulfilled.isEmpty()) return ExpectActualCompatibility.Compatible to expectClassScopeMembersMapping
 
-        return Incompatible.ClassScopes(unfulfilled)
+        return Incompatible.ClassScopes(unfulfilled) to expectClassScopeMembersMapping
     }
 
     context (ExpectActualMatchingContext<T>)
