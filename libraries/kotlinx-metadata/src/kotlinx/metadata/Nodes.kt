@@ -122,7 +122,7 @@ public class KmClass : KmClassVisitor(), KmDeclarationContainer {
      */
     public val versionRequirements: MutableList<KmVersionRequirement> = ArrayList(0)
 
-    private val extensions: List<KmClassExtension> =
+    internal val extensions: List<KmClassExtension> =
         MetadataExtensions.INSTANCES.map(MetadataExtensions::createClassExtension)
 
     @Deprecated(VISITOR_API_MESSAGE, level = DeprecationLevel.ERROR)
@@ -247,7 +247,7 @@ public class KmPackage : KmPackageVisitor(), KmDeclarationContainer {
      */
     override val typeAliases: MutableList<KmTypeAlias> = ArrayList(0)
 
-    private val extensions: List<KmPackageExtension> =
+    internal val extensions: List<KmPackageExtension> =
         MetadataExtensions.INSTANCES.map(MetadataExtensions::createPackageExtension)
 
     @Deprecated(VISITOR_API_MESSAGE, level = DeprecationLevel.ERROR)
@@ -330,7 +330,7 @@ public class KmConstructor @Deprecated(flagsCtorDeprecated) constructor(
      */
     public val versionRequirements: MutableList<KmVersionRequirement> = ArrayList(0)
 
-    private val extensions: List<KmConstructorExtension> =
+    internal val extensions: List<KmConstructorExtension> =
         MetadataExtensions.INSTANCES.map(MetadataExtensions::createConstructorExtension)
 
     @Deprecated(VISITOR_API_MESSAGE, level = DeprecationLevel.ERROR)
@@ -412,7 +412,7 @@ public class KmFunction @Deprecated(flagsCtorDeprecated) constructor(
     @ExperimentalContracts
     public var contract: KmContract? = null
 
-    private val extensions: List<KmFunctionExtension> =
+    internal val extensions: List<KmFunctionExtension> =
         MetadataExtensions.INSTANCES.map(MetadataExtensions::createFunctionExtension)
 
     @Deprecated(VISITOR_API_MESSAGE, level = DeprecationLevel.ERROR)
@@ -593,7 +593,7 @@ public class KmProperty @Deprecated(flagsCtorDeprecated) constructor(
      */
     public val versionRequirements: MutableList<KmVersionRequirement> = ArrayList(0)
 
-    private val extensions: List<KmPropertyExtension> =
+    internal val extensions: List<KmPropertyExtension> =
         MetadataExtensions.INSTANCES.map(MetadataExtensions::createPropertyExtension)
 
     @Deprecated(VISITOR_API_MESSAGE, level = DeprecationLevel.ERROR)
@@ -686,7 +686,7 @@ public class KmTypeAlias @Deprecated(flagsCtorDeprecated) constructor(
      */
     public val versionRequirements: MutableList<KmVersionRequirement> = ArrayList(0)
 
-    private val extensions: List<KmTypeAliasExtension> =
+    internal val extensions: List<KmTypeAliasExtension> =
         MetadataExtensions.INSTANCES.mapNotNull(MetadataExtensions::createTypeAliasExtension)
 
     @Deprecated(VISITOR_API_MESSAGE, level = DeprecationLevel.ERROR)
@@ -758,7 +758,7 @@ public class KmValueParameter @Deprecated(flagsCtorDeprecated) constructor(
      */
     public var varargElementType: KmType? = null
 
-    private val extensions: List<KmValueParameterExtension> =
+    internal val extensions: List<KmValueParameterExtension> =
         MetadataExtensions.INSTANCES.mapNotNull(MetadataExtensions::createValueParameterExtension)
 
     @Deprecated(VISITOR_API_MESSAGE, level = DeprecationLevel.ERROR)
@@ -813,7 +813,7 @@ public class KmTypeParameter @Deprecated(flagsCtorDeprecated) constructor(
      */
     public val upperBounds: MutableList<KmType> = ArrayList(1)
 
-    private val extensions: List<KmTypeParameterExtension> =
+    internal val extensions: List<KmTypeParameterExtension> =
         MetadataExtensions.INSTANCES.map(MetadataExtensions::createTypeParameterExtension)
 
     @Deprecated(VISITOR_API_MESSAGE, level = DeprecationLevel.ERROR)
@@ -890,7 +890,7 @@ public class KmType @Deprecated(flagsCtorDeprecated) constructor(
      */
     public var flexibleTypeUpperBound: KmFlexibleTypeUpperBound? = null
 
-    private val extensions: List<KmTypeExtension> =
+    internal val extensions: List<KmTypeExtension> =
         MetadataExtensions.INSTANCES.map(MetadataExtensions::createTypeExtension)
 
     @Deprecated(VISITOR_API_MESSAGE, level = DeprecationLevel.ERROR)

@@ -86,7 +86,7 @@ public class KmModuleFragment : KmModuleFragmentVisitor() {
      */
     public val classes: MutableList<KmClass> = ArrayList()
 
-    private val extensions: List<KmModuleFragmentExtension> =
+    internal val extensions: List<KmModuleFragmentExtension> =
         MetadataExtensions.INSTANCES.map(MetadataExtensions::createModuleFragmentExtensions)
 
     @Deprecated(VISITOR_API_MESSAGE, level = DeprecationLevel.ERROR)
@@ -122,7 +122,7 @@ public class KmModuleFragment : KmModuleFragmentVisitor() {
  * When using this class, [visitEnd] must be called exactly once and after calls to all other visit* methods.
  */
 @Deprecated(VISITOR_API_MESSAGE, level = DeprecationLevel.ERROR)
-@Suppress("DEPRECATION")
+@Suppress("DEPRECATION_ERROR")
 public abstract class KmModuleFragmentVisitor @JvmOverloads constructor(private val delegate: KmModuleFragmentVisitor? = null) {
 
     /**

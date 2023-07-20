@@ -119,9 +119,9 @@ class KlibModuleMetadata(
             annotations
         )
         val groupedProtos = groupedFragments.mapValues { (_, fragments) ->
-            fragments.map {
+            fragments.map { mf ->
                 val c = WriteContext(ApproximatingStringTable(), listOf(reverseIndex))
-                KlibModuleFragmentWriter(c.strings as ApproximatingStringTable, c.contextExtensions).also(it::accept).write()
+                KlibModuleFragmentWriter(c.strings as ApproximatingStringTable, c.contextExtensions).also { it.writeModuleFragment(mf) }.write()
             }
         }
         // This context and string table is only required for module-level annotations.

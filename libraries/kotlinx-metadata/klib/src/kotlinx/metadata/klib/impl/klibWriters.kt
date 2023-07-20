@@ -7,6 +7,7 @@
 package kotlinx.metadata.klib.impl
 
 import kotlinx.metadata.internal.*
+import kotlinx.metadata.internal.common.KmModuleFragment
 import kotlinx.metadata.klib.KlibSourceFile
 import org.jetbrains.kotlin.library.metadata.KlibMetadataProtoBuf
 import org.jetbrains.kotlin.metadata.ProtoBuf
@@ -34,7 +35,8 @@ class KlibModuleFragmentWriter(
     fun write(): ProtoBuf.PackageFragment =
         t.build()
 
-    override fun visitEnd() {
+    override fun writeModuleFragment(kmPackageFragment: KmModuleFragment) {
+        super.writeModuleFragment(kmPackageFragment)
 
         // TODO: This should be moved to ModuleFragmentWriter.
         val (strings, qualifiedNames) = (c.strings as ApproximatingStringTable).buildProto()
