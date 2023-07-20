@@ -131,7 +131,7 @@ interface BaseKotlinCompile : KotlinCompileTool {
 }
 
 /**
- * Represents a Kotlin task which compiles given Kotlin sources into JVM class files.
+ * Represents a Kotlin task compiling given Kotlin sources into JVM class files.
  */
 interface KotlinJvmCompile : BaseKotlinCompile,
     KotlinCompileDeprecated<KotlinJvmOptionsDeprecated>,
