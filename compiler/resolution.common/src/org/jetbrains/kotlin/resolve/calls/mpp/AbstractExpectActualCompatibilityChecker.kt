@@ -22,13 +22,13 @@ import org.jetbrains.kotlin.utils.addToStdlib.enumSetOf
 import java.util.*
 
 class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
-    fun areCompatibleClassifiers(
+    fun areCompatibleClassifiersAndScopes(
         expectClassSymbol: RegularClassSymbolMarker,
         actualClassLikeSymbol: ClassLikeSymbolMarker,
         context: ExpectActualMatchingContext<T>,
     ): ExpectActualCompatibility<T> {
         return with(context) {
-            areCompatibleClassifiers(expectClassSymbol, actualClassLikeSymbol, parentSubstitutor = null)
+            areCompatibleClassifiersAndScopes(expectClassSymbol, actualClassLikeSymbol, parentSubstitutor = null)
         }
     }
 
@@ -63,7 +63,7 @@ class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
     }
 
     context(ExpectActualMatchingContext<T>)
-    private fun areCompatibleClassifiers(
+    private fun areCompatibleClassifiersAndScopes(
         expectClassSymbol: RegularClassSymbolMarker,
         actualClassLikeSymbol: ClassLikeSymbolMarker,
         parentSubstitutor: TypeSubstitutorMarker?
@@ -80,6 +80,35 @@ class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
             else -> error("Incorrect actual classifier for $expectClassSymbol: $actualClassLikeSymbol")
         }
 
+        val classifiersCompatibility =
+            areCompatibleClassifiers(expectClassSymbol, actualClass, parentSubstitutor)
+        if (classifiersCompatibility != ExpectActualCompatibility.Compatible) {
+            return classifiersCompatibility
+        }
+
+        val substitutor = createExpectActualTypeParameterSubstitutor(
+            expectClassSymbol.typeParameters,
+            actualClass.typeParameters,
+            parentSubstitutor
+        )
+
+        // TODO: mapping will be used in subsequent commits
+        val (classScopesCompatibility, _) = areCompatibleClassScopes(expectClassSymbol, actualClass, substitutor)
+        classScopesCompatibility.let {
+            if (it != ExpectActualCompatibility.Compatible) {
+                return it
+            }
+        }
+
+        return ExpectActualCompatibility.Compatible
+    }
+
+    context (ExpectActualMatchingContext<T>)
+    private fun areCompatibleClassifiers(
+        expectClassSymbol: RegularClassSymbolMarker,
+        actualClass: RegularClassSymbolMarker,
+        parentSubstitutor: TypeSubstitutorMarker?
+    ): ExpectActualCompatibility<T> {
         if (expectClassSymbol.classKind != actualClass.classKind) return Incompatible.ClassKind
 
         if (!equalBy(expectClassSymbol, actualClass) { listOf(it.isCompanion, it.isInner, it.isInline || it.isValue) }) {
@@ -119,15 +148,6 @@ class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
         if (!areCompatibleSupertypes(expectClassSymbol, actualClass, substitutor)) {
             return Incompatible.Supertypes
         }
-
-        // TODO: mapping will be used in subsequent commits
-        val (classScopesCompatibility, _) = areCompatibleClassScopes(expectClassSymbol, actualClass, substitutor)
-        classScopesCompatibility.let {
-            if (it != ExpectActualCompatibility.Compatible) {
-                return it
-            }
-        }
-
         return ExpectActualCompatibility.Compatible
     }
 
@@ -252,7 +272,7 @@ class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
 
                 is RegularClassSymbolMarker -> {
                     val parentSubstitutor = substitutor?.takeIf { !innerClassesCapturesOuterTypeParameters }
-                    areCompatibleClassifiers(
+                    areCompatibleClassifiersAndScopes(
                         expectMember,
                         actualMember as ClassLikeSymbolMarker,
                         parentSubstitutor

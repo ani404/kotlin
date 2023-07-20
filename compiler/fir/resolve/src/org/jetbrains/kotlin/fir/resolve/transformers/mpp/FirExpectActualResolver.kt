@@ -92,7 +92,7 @@ object FirExpectActualResolver {
                 is FirClassLikeSymbol<*> -> {
                     val expectClassSymbol = useSiteSession.dependenciesSymbolProvider
                         .getClassLikeSymbolByClassId(actualSymbol.classId) as? FirRegularClassSymbol ?: return null
-                    val compatibility = expectActualCompatibilityChecker.areCompatibleClassifiers(expectClassSymbol, actualSymbol, context)
+                    val compatibility = expectActualCompatibilityChecker.areCompatibleClassifiersAndScopes(expectClassSymbol, actualSymbol, context)
                     mapOf(compatibility to listOf(expectClassSymbol))
                 }
                 else -> null

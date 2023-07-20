@@ -45,7 +45,7 @@ object ExpectedActualResolver {
                 context.findClassifiersFromModule(expected.classId, platformModule, moduleVisibilityFilter).filter { actual ->
                     expected != actual && !actual.isExpect && actual.couldHaveASource
                 }.groupBy { actual ->
-                    expectActualCompatibilityChecker.areCompatibleClassifiers(
+                    expectActualCompatibilityChecker.areCompatibleClassifiersAndScopes(
                         expected,
                         actual,
                         context
@@ -113,7 +113,7 @@ object ExpectedActualResolver {
                 context.findClassifiersFromModule(actual.classId, actual.module, moduleFilter).filter { declaration ->
                     actual != declaration && declaration is ClassDescriptor && declaration.isExpect
                 }.groupBy { expected ->
-                    expectActualCompatibilityChecker.areCompatibleClassifiers(
+                    expectActualCompatibilityChecker.areCompatibleClassifiersAndScopes(
                         expected as ClassDescriptor,
                         actual,
                         context
