@@ -11,7 +11,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
 
 /**
- * Enumeration class representing different Kotlin compilation execution strategies in Gradle.
+ * Represents available Kotlin compilation execution strategies in Gradle.
  *
  * @property propertyValue value that should be passed for `kotlin.compiler.execution.strategy` Gradle property to choose the strategy
  */
