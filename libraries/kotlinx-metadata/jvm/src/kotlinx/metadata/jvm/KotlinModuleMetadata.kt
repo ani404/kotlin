@@ -8,7 +8,8 @@
     "DEPRECATION",
     "DEPRECATION_ERROR",
     "INVISIBLE_MEMBER", // InconsistentKotlinMetadataException
-    "INVISIBLE_REFERENCE"
+    "INVISIBLE_REFERENCE",
+    "UNUSED_PARAMETER"
 )
 
 package kotlinx.metadata.jvm
@@ -63,33 +64,36 @@ public class KotlinModuleMetadata private constructor(
     /**
      * A [KmModuleVisitor] that generates the metadata of a Kotlin JVM module file.
      */
-    @Deprecated("Writer API is deprecated as excessive and cumbersome. Please use KotlinModuleMetadata.write(kmModule, metadataVersion)")
-    public class Writer : KmModuleVisitor() {
+    @Deprecated(
+        "Writer API is deprecated as excessive and cumbersome. Please use KotlinModuleMetadata.write(kmModule, metadataVersion)",
+        level = DeprecationLevel.ERROR
+    )
+    public class Writer {
         private val b = JvmModuleProtoBuf.Module.newBuilder()
 
-        override fun visitPackageParts(fqName: String, fileFacades: List<String>, multiFileClassParts: Map<String, String>) {
-            PackageParts(fqName).apply {
-                for (fileFacade in fileFacades) {
-                    addPart(fileFacade, null)
-                }
-                for ((multiFileClassPart, multiFileFacade) in multiFileClassParts) {
-                    addPart(multiFileClassPart, multiFileFacade)
-                }
+        private fun writeModule(kmModule: KmModule) {
+            kmModule.packageParts.forEach { (fqName, packageParts) ->
+                PackageParts(fqName).apply {
+                    for (fileFacade in packageParts.fileFacades) {
+                        addPart(fileFacade, null)
+                    }
+                    for ((multiFileClassPart, multiFileFacade) in packageParts.multiFileClassParts) {
+                        addPart(multiFileClassPart, multiFileFacade)
+                    }
 
-                addTo(b)
+                    addTo(b)
+                }
             }
-        }
 
-        override fun visitAnnotation(annotation: KmAnnotation) {
+            // visitAnnotation
             /*
             // TODO: move StringTableImpl to module 'metadata' and support module annotations here
             b.addAnnotation(ProtoBuf.Annotation.newBuilder().apply {
                 id = annotation.className.name // <-- use StringTableImpl here
             })
             */
-        }
 
-        override fun visitOptionalAnnotationClass(): KmClassVisitor? {
+            // visitOptionalAnnotationClass
             /*
             return object : ClassWriter(TODO() /* use StringTableImpl here */) {
                 override fun visitEnd() {
@@ -97,7 +101,6 @@ public class KotlinModuleMetadata private constructor(
                 }
             }
             */
-            return null
         }
 
         /**
@@ -106,9 +109,12 @@ public class KotlinModuleMetadata private constructor(
          * @param metadataVersion metadata version to be written to the metadata (see [Metadata.metadataVersion]),
          *   [KotlinClassMetadata.COMPATIBLE_METADATA_VERSION] by default
          */
-        @Deprecated("Writer API is deprecated as excessive and cumbersome. Please use KotlinModuleMetadata.write(kmModule, metadataVersion)")
+        @Deprecated(
+            "Writer API is deprecated as excessive and cumbersome. Please use KotlinModuleMetadata.write(kmModule, metadataVersion)",
+            level = DeprecationLevel.ERROR
+        )
         public fun write(metadataVersion: IntArray = COMPATIBLE_METADATA_VERSION): ByteArray {
-            return b.build().serializeToByteArray(JvmMetadataVersion(*metadataVersion), 0)
+            error("This method is no longer implemented. Migrate to KotlinModuleMetadata.write.")
         }
     }
 
@@ -176,7 +182,8 @@ public class KotlinModuleMetadata private constructor(
         @JvmStatic
         @JvmOverloads
         public fun write(kmModule: KmModule, metadataVersion: IntArray = COMPATIBLE_METADATA_VERSION): ByteArray = wrapWriteIntoIAE {
-            Writer().also { kmModule.accept(it) }.write(metadataVersion)
+            val w = Writer().also { it.writeModule(kmModule) }
+            return w.b.build().serializeToByteArray(JvmMetadataVersion(*metadataVersion), 0)
         }
 
         private fun dataFromBytes(bytes: ByteArray): ModuleMapping {
