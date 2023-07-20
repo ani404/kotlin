@@ -53,7 +53,9 @@ import org.jetbrains.kotlin.konan.properties.Properties
 import org.jetbrains.kotlin.konan.properties.propertyList
 import org.jetbrains.kotlin.library.*
 import org.jetbrains.kotlin.library.impl.BuiltInsPlatform
+import org.jetbrains.kotlin.library.impl.IrArrayMemoryReader
 import org.jetbrains.kotlin.library.impl.buildKotlinLibrary
+import org.jetbrains.kotlin.library.impl.toArray
 import org.jetbrains.kotlin.library.metadata.KlibMetadataFactories
 import org.jetbrains.kotlin.library.metadata.KlibMetadataVersion
 import org.jetbrains.kotlin.metadata.ProtoBuf
@@ -67,11 +69,14 @@ import org.jetbrains.kotlin.psi2ir.generators.GeneratorContext
 import org.jetbrains.kotlin.psi2ir.generators.TypeTranslatorImpl
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.BindingContextUtils
+import org.jetbrains.kotlin.serialization.js.ModuleKind
 import org.jetbrains.kotlin.storage.LockBasedStorageManager
 import org.jetbrains.kotlin.storage.StorageManager
 import org.jetbrains.kotlin.util.DummyLogger
 import org.jetbrains.kotlin.util.Logger
 import org.jetbrains.kotlin.utils.DFS
+import org.jetbrains.kotlin.utils.addToStdlib.flatAssociateBy
+import org.jetbrains.kotlin.utils.addToStdlib.flatGroupBy
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 import org.jetbrains.kotlin.utils.memoryOptimizedFilter
 import java.io.File
@@ -627,6 +632,35 @@ private fun String.parseSerializedIrFileFingerprints(): List<SerializedIrFileFin
     return split(FILE_FINGERPRINTS_SEPARATOR).mapNotNull(SerializedIrFileFingerprint::fromString)
 }
 
+private fun ByteArray.asStringList(): List<String> = IrArrayMemoryReader(this).toArray().map(::String)
+
+private fun CompilerConfiguration.assertNoExportedNamesClashes(moduleName: String, files: List<KotlinFileSerializedData>) {
+    if (get(JSConfigurationKeys.MODULE_KIND) != ModuleKind.ES) return
+
+    val allExportedNameClashes = files
+        .flatGroupBy { file -> file.irData.exportedNames.asStringList() }
+        .filterValues { it.size > 1 }
+
+    if (allExportedNameClashes.isEmpty()) return
+
+    val nameClashesString = buildString {
+        allExportedNameClashes.forEach { (name, files) ->
+            appendLine("  * Next files contain declarations with @JsExport and name '$name'")
+            files.forEach { appendLine("    - ${it.irData.path}") }
+            appendLine()
+        }
+    }
+
+    val message = """
+              |There are clashes of declaration names that annotated with @JsExport in module '$moduleName'.
+              |${nameClashesString}
+              |Note, that if the difference is only in letter cases, it also could lead to a clash of the compiled artifacts
+        """.trimMargin()
+
+    irMessageLogger.report(IrMessageLogger.Severity.ERROR, message, null)
+    throw CompilationErrorException(message)
+}
+
 fun serializeModuleIntoKlib(
     moduleName: String,
     configuration: CompilerConfiguration,
@@ -674,7 +708,18 @@ fun serializeModuleIntoKlib(
         incrementalResultsConsumer?.run {
             processPackagePart(ioFile, compiledFile.metadata, empty, empty)
             with(compiledFile.irData) {
-                processIrFile(ioFile, fileData, types, signatures, strings, declarations, bodies, fqName.toByteArray(), debugInfo)
+                processIrFile(
+                    ioFile,
+                    fileData,
+                    types,
+                    signatures,
+                    exportedNames,
+                    strings,
+                    declarations,
+                    bodies,
+                    fqName.toByteArray(),
+                    debugInfo
+                )
             }
         }
     }
@@ -699,7 +744,9 @@ fun serializeModuleIntoKlib(
         processCompiledFileData(ioFile!!, compiledKotlinFile)
     }
 
-    val compiledKotlinFiles = (cleanFiles + additionalFiles)
+    val compiledKotlinFiles = (cleanFiles + additionalFiles).also {
+        configuration.assertNoExportedNamesClashes(moduleName, it)
+    }
 
     val header = serializeKlibHeader(
         configuration.languageVersionSettings, moduleDescriptor,
@@ -842,6 +889,7 @@ fun IncrementalDataProvider.getSerializedData(newSources: List<KtSourceFile>): L
                 f.path.replace('\\', '/'),
                 types,
                 signatures,
+                exportedNames,
                 strings,
                 bodies,
                 declarations,

@@ -1353,6 +1353,7 @@ open class IrFileSerializer(
     open fun backendSpecificExplicitRootExclusion(node: IrAnnotationContainer): Boolean = false
     open fun keepOrderOfProperties(property: IrProperty): Boolean = !property.isConst
     open fun backendSpecificSerializeAllMembers(irClass: IrClass) = false
+    open fun backendSpecificExportedNames(irFile: IrFile): List<String> = emptyList()
 
     open fun memberNeedsSerialization(member: IrDeclaration): Boolean {
         val parent = member.parent
@@ -1454,15 +1455,16 @@ open class IrFileSerializer(
         serializeExpectActualSubstitutionTable(proto)
 
         return SerializedIrFile(
-            proto.build().toByteArray(),
-            file.packageFqName.asString(),
-            file.path,
-            IrMemoryArrayWriter(protoTypeArray.map { it.toByteArray() }).writeIntoMemory(),
-            IrMemoryArrayWriter(protoIdSignatureArray.map { it.toByteArray() }).writeIntoMemory(),
-            IrMemoryStringWriter(protoStringArray).writeIntoMemory(),
-            IrMemoryArrayWriter(protoBodyArray.map { it.toByteArray() }).writeIntoMemory(),
-            IrMemoryDeclarationWriter(topLevelDeclarations).writeIntoMemory(),
-            IrMemoryStringWriter(protoDebugInfoArray).writeIntoMemory()
+            fileData = proto.build().toByteArray(),
+            fqName = file.packageFqName.asString(),
+            path = file.path,
+            types = IrMemoryArrayWriter(protoTypeArray.map { it.toByteArray() }).writeIntoMemory(),
+            signatures = IrMemoryArrayWriter(protoIdSignatureArray.map { it.toByteArray() }).writeIntoMemory(),
+            exportedNames = IrMemoryArrayWriter(backendSpecificExportedNames(file).map { it.toByteArray() }).writeIntoMemory(),
+            strings = IrMemoryStringWriter(protoStringArray).writeIntoMemory(),
+            bodies = IrMemoryArrayWriter(protoBodyArray.map { it.toByteArray() }).writeIntoMemory(),
+            declarations = IrMemoryDeclarationWriter(topLevelDeclarations).writeIntoMemory(),
+            debugInfo = IrMemoryStringWriter(protoDebugInfoArray).writeIntoMemory()
         )
     }
 

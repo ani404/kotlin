@@ -23,6 +23,7 @@ data class IrTranslationResultValue(
     val fileData: ByteArray,
     val types: ByteArray,
     val signatures: ByteArray,
+    val exportedNames: ByteArray,
     val strings: ByteArray,
     val declarations: ByteArray,
     val bodies: ByteArray,
