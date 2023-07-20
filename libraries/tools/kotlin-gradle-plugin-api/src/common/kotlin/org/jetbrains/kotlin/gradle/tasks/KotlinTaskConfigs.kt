@@ -86,7 +86,7 @@ interface KotlinCompileTool : PatternFilterable, Task {
 interface BaseKotlinCompile : KotlinCompileTool {
 
     /**
-     * Allows adding paths to output directories for friend modules whose internals should be visible.
+     * Paths to the output directories of the friend modules whose internal declarations should be visible
      */
     @get:Internal
     val friendPaths: ConfigurableFileCollection
