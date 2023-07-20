@@ -184,19 +184,11 @@ class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
     ): ExpectActualCompatibility<T> {
         val unfulfilled = arrayListOf<Pair<T, Map<Incompatible<T>, List<T>>>>()
 
-        val actualMembersByName = actualClassSymbol.collectAllMembers(isActualDeclaration = true).groupBy { it.name }
-
-        outer@ for (expectMember in expectClassSymbol.collectAllMembers(isActualDeclaration = false)) {
-            if (expectMember is CallableSymbolMarker && expectMember.shouldSkipMatching(expectClassSymbol)) continue
-
-            val actualMembers = actualMembersByName[expectMember.name]?.filter { actualMember ->
-                expectMember is CallableSymbolMarker && actualMember is CallableSymbolMarker ||
-                        expectMember is RegularClassSymbolMarker && actualMember is RegularClassSymbolMarker
-            }.orEmpty()
-
+        val expectMembersToPotentialActuals = findPotentialActualsForExpectClassScopeMembers(expectClassSymbol, actualClassSymbol)
+        for ((expectMember, potentialActuals) in expectMembersToPotentialActuals.entries) {
             matchSingleExpectAgainstPotentialActuals(
                 expectMember,
-                actualMembers,
+                potentialActuals,
                 substitutor,
                 expectClassSymbol,
                 actualClassSymbol,
@@ -216,6 +208,24 @@ class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
         if (unfulfilled.isEmpty()) return ExpectActualCompatibility.Compatible
 
         return Incompatible.ClassScopes(unfulfilled)
+    }
+
+    context (ExpectActualMatchingContext<T>)
+    private fun findPotentialActualsForExpectClassScopeMembers(
+        expectClassSymbol: RegularClassSymbolMarker,
+        actualClassSymbol: RegularClassSymbolMarker,
+    ): Map<T, List<T>> {
+        val actualMembersByName = actualClassSymbol.collectAllMembers(isActualDeclaration = true).groupBy { it.name }
+
+        val expectMembers = expectClassSymbol.collectAllMembers(isActualDeclaration = false)
+            .filterNot { it is CallableSymbolMarker && it.shouldSkipMatching(expectClassSymbol) }
+
+        return expectMembers.associateWith { expectMember ->
+            actualMembersByName[expectMember.name]?.filter { actualMember ->
+                expectMember is CallableSymbolMarker && actualMember is CallableSymbolMarker ||
+                        expectMember is RegularClassSymbolMarker && actualMember is RegularClassSymbolMarker
+            }.orEmpty()
+        }
     }
 
     context(ExpectActualMatchingContext<T>)
