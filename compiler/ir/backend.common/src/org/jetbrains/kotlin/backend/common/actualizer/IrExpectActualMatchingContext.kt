@@ -250,11 +250,11 @@ internal abstract class IrExpectActualMatchingContext(
      * In IR there are no scopes, all declarations are stored inside IrClass itself, so this flag
      *   has no sense in IR context
      */
-    override fun RegularClassSymbolMarker.collectAllMembers(isActualDeclaration: Boolean): List<DeclarationSymbolMarker> {
+    override fun RegularClassSymbolMarker.collectAllMembers(isActualDeclaration: Boolean): List<IrSymbol> {
         return asIr().declarations.filterNot { it is IrAnonymousInitializer }.map { it.symbol }
     }
 
-    override fun RegularClassSymbolMarker.getMembersForExpectClass(name: Name): List<DeclarationSymbolMarker> {
+    override fun RegularClassSymbolMarker.getMembersForExpectClass(name: Name): List<IrSymbol> {
         return asIr().declarations.filter { it.getNameWithAssert() == name }.map { it.symbol }
     }
 

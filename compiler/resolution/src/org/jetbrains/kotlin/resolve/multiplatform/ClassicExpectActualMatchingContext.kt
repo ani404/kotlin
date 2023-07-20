@@ -151,11 +151,11 @@ class ClassicExpectActualMatchingContext(val platformModule: ModuleDescriptor) :
         }
     }
 
-    override fun RegularClassSymbolMarker.collectAllMembers(isActualDeclaration: Boolean): List<DeclarationSymbolMarker> {
+    override fun RegularClassSymbolMarker.collectAllMembers(isActualDeclaration: Boolean): List<MemberDescriptor> {
         return asDescriptor().getMembers(name = null)
     }
 
-    override fun RegularClassSymbolMarker.getMembersForExpectClass(name: Name): List<DeclarationSymbolMarker> {
+    override fun RegularClassSymbolMarker.getMembersForExpectClass(name: Name): List<MemberDescriptor> {
         return asDescriptor().getMembers(name)
     }
 

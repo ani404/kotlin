@@ -14,6 +14,8 @@ import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.utils.addToStdlib.runIf
 
 object ExpectedActualResolver {
+    private val expectActualCompatibilityChecker = AbstractExpectActualCompatibilityChecker<MemberDescriptor>()
+
     fun findActualForExpected(
         expected: MemberDescriptor,
         platformModule: ModuleDescriptor,
@@ -29,7 +31,7 @@ object ExpectedActualResolver {
                             // TODO: support non-source definitions (e.g. from Java)
                             actual.couldHaveASource
                 }.groupBy { actual ->
-                    AbstractExpectActualCompatibilityChecker.areCompatibleCallables(
+                    expectActualCompatibilityChecker.areCompatibleCallables(
                         expected,
                         actual,
                         parentSubstitutor = null,
@@ -43,7 +45,7 @@ object ExpectedActualResolver {
                 context.findClassifiersFromModule(expected.classId, platformModule, moduleVisibilityFilter).filter { actual ->
                     expected != actual && !actual.isExpect && actual.couldHaveASource
                 }.groupBy { actual ->
-                    AbstractExpectActualCompatibilityChecker.areCompatibleClassifiers(
+                    expectActualCompatibilityChecker.areCompatibleClassifiers(
                         expected,
                         actual,
                         context
@@ -97,7 +99,7 @@ object ExpectedActualResolver {
                             }
                             else -> null
                         }
-                    AbstractExpectActualCompatibilityChecker.areCompatibleCallables(
+                    expectActualCompatibilityChecker.areCompatibleCallables(
                         expectDeclaration = declaration,
                         actualDeclaration = actual,
                         parentSubstitutor = substitutor,
@@ -111,7 +113,7 @@ object ExpectedActualResolver {
                 context.findClassifiersFromModule(actual.classId, actual.module, moduleFilter).filter { declaration ->
                     actual != declaration && declaration is ClassDescriptor && declaration.isExpect
                 }.groupBy { expected ->
-                    AbstractExpectActualCompatibilityChecker.areCompatibleClassifiers(
+                    expectActualCompatibilityChecker.areCompatibleClassifiers(
                         expected as ClassDescriptor,
                         actual,
                         context

@@ -104,8 +104,8 @@ interface ExpectActualMatchingContext<T : DeclarationSymbolMarker> : TypeSystemC
         parentSubstitutor: TypeSubstitutorMarker?
     ): TypeSubstitutorMarker
 
-    fun RegularClassSymbolMarker.collectAllMembers(isActualDeclaration: Boolean): List<DeclarationSymbolMarker>
-    fun RegularClassSymbolMarker.getMembersForExpectClass(name: Name): List<DeclarationSymbolMarker>
+    fun RegularClassSymbolMarker.collectAllMembers(isActualDeclaration: Boolean): List<T>
+    fun RegularClassSymbolMarker.getMembersForExpectClass(name: Name): List<T>
 
     fun RegularClassSymbolMarker.collectEnumEntryNames(): List<Name>
 
@@ -155,7 +155,7 @@ interface ExpectActualMatchingContext<T : DeclarationSymbolMarker> : TypeSystemC
 
     fun onMismatchedMembersFromClassScope(
         expectSymbol: DeclarationSymbolMarker,
-        actualSymbolsByIncompatibility: Map<ExpectActualCompatibility.Incompatible<*>, List<DeclarationSymbolMarker>>
+        actualSymbolsByIncompatibility: Map<ExpectActualCompatibility.Incompatible<T>, List<DeclarationSymbolMarker>>
     ) {}
 
     val DeclarationSymbolMarker.annotations: List<AnnotationCallInfo>

@@ -158,6 +158,8 @@ private class ActualDeclarationsCollector {
     }
 }
 
+private val expectActualCompatibilityChecker = AbstractExpectActualCompatibilityChecker<IrSymbol>()
+
 private class ExpectActualLinkCollector(
     private val destination: MutableMap<IrSymbol, IrSymbol>,
     private val classActualizationInfo: ClassActualizationInfo,
@@ -192,7 +194,7 @@ private class ExpectActualLinkCollector(
     }
 
     private fun matchExpectDeclaration(expectSymbol: IrSymbol, actualSymbols: List<IrSymbol>) {
-        AbstractExpectActualCompatibilityChecker.matchSingleExpectTopLevelDeclarationAgainstPotentialActuals(
+        expectActualCompatibilityChecker.matchSingleExpectTopLevelDeclarationAgainstPotentialActuals(
             expectSymbol,
             actualSymbols,
             context
@@ -217,7 +219,7 @@ private class ExpectActualLinkCollector(
 
         override fun onMismatchedMembersFromClassScope(
             expectSymbol: DeclarationSymbolMarker,
-            actualSymbolsByIncompatibility: Map<ExpectActualCompatibility.Incompatible<*>, List<DeclarationSymbolMarker>>,
+            actualSymbolsByIncompatibility: Map<ExpectActualCompatibility.Incompatible<IrSymbol>, List<DeclarationSymbolMarker>>,
         ) {
             require(expectSymbol is IrSymbol)
             if (actualSymbolsByIncompatibility.isEmpty() && !expectSymbol.owner.containsOptionalExpectation()) {

@@ -22,20 +22,18 @@ import org.jetbrains.kotlin.utils.addToStdlib.enumSetOf
 import org.jetbrains.kotlin.utils.keysToMap
 import java.util.*
 
-object AbstractExpectActualCompatibilityChecker {
-    fun <T : DeclarationSymbolMarker> areCompatibleClassifiers(
+class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
+    fun areCompatibleClassifiers(
         expectClassSymbol: RegularClassSymbolMarker,
         actualClassLikeSymbol: ClassLikeSymbolMarker,
         context: ExpectActualMatchingContext<T>,
     ): ExpectActualCompatibility<T> {
-        val result = with(context) {
+        return with(context) {
             areCompatibleClassifiers(expectClassSymbol, actualClassLikeSymbol, parentSubstitutor = null)
         }
-        @Suppress("UNCHECKED_CAST")
-        return result as ExpectActualCompatibility<T>
     }
 
-    fun <T : DeclarationSymbolMarker> areCompatibleCallables(
+    fun areCompatibleCallables(
         expectDeclaration: CallableSymbolMarker,
         actualDeclaration: CallableSymbolMarker,
         parentSubstitutor: TypeSubstitutorMarker?,
@@ -43,16 +41,14 @@ object AbstractExpectActualCompatibilityChecker {
         actualContainingClass: RegularClassSymbolMarker?,
         context: ExpectActualMatchingContext<T>,
     ): ExpectActualCompatibility<T> {
-        val result = with(context) {
+        return with(context) {
             areCompatibleCallables(expectDeclaration, actualDeclaration, parentSubstitutor, expectContainingClass, actualContainingClass)
         }
-        @Suppress("UNCHECKED_CAST")
-        return result as ExpectActualCompatibility<T>
     }
 
-    fun <T : DeclarationSymbolMarker> matchSingleExpectTopLevelDeclarationAgainstPotentialActuals(
-        expectDeclaration: DeclarationSymbolMarker,
-        actualDeclarations: List<DeclarationSymbolMarker>,
+    fun matchSingleExpectTopLevelDeclarationAgainstPotentialActuals(
+        expectDeclaration: T,
+        actualDeclarations: List<T>,
         context: ExpectActualMatchingContext<T>,
     ) {
         with(context) {
@@ -67,13 +63,12 @@ object AbstractExpectActualCompatibilityChecker {
         }
     }
 
-    context(ExpectActualMatchingContext<*>)
-    @Suppress("warnings")
+    context(ExpectActualMatchingContext<T>)
     private fun areCompatibleClassifiers(
         expectClassSymbol: RegularClassSymbolMarker,
         actualClassLikeSymbol: ClassLikeSymbolMarker,
         parentSubstitutor: TypeSubstitutorMarker?
-    ): ExpectActualCompatibility<*> {
+    ): ExpectActualCompatibility<T> {
         // Can't check FQ names here because nested expected class may be implemented via actual typealias's expansion with the other FQ name
         require(expectClassSymbol.name == actualClassLikeSymbol.name) {
             "This function should be invoked only for declarations with the same name: $expectClassSymbol, $actualClassLikeSymbol"
@@ -135,7 +130,7 @@ object AbstractExpectActualCompatibilityChecker {
         return ExpectActualCompatibility.Compatible
     }
 
-    context(ExpectActualMatchingContext<*>)
+    context(ExpectActualMatchingContext<T>)
     private fun areCompatibleSupertypes(
         expectClassSymbol: RegularClassSymbolMarker,
         actualClassSymbol: RegularClassSymbolMarker,
@@ -147,7 +142,7 @@ object AbstractExpectActualCompatibilityChecker {
         }
     }
 
-    context(ExpectActualMatchingContext<*>)
+    context(ExpectActualMatchingContext<T>)
     private fun areCompatibleSupertypesOneByOne(
         expectClassSymbol: RegularClassSymbolMarker,
         actualClassSymbol: RegularClassSymbolMarker,
@@ -165,7 +160,7 @@ object AbstractExpectActualCompatibilityChecker {
         }
     }
 
-    context(ExpectActualMatchingContext<*>)
+    context(ExpectActualMatchingContext<T>)
     private fun areCompatibleSupertypesTransitive(
         expectClassSymbol: RegularClassSymbolMarker,
         actualClassSymbol: RegularClassSymbolMarker,
@@ -181,13 +176,13 @@ object AbstractExpectActualCompatibilityChecker {
         }
     }
 
-    context(ExpectActualMatchingContext<*>)
+    context(ExpectActualMatchingContext<T>)
     private fun areCompatibleClassScopes(
         expectClassSymbol: RegularClassSymbolMarker,
         actualClassSymbol: RegularClassSymbolMarker,
         substitutor: TypeSubstitutorMarker,
-    ): ExpectActualCompatibility<*> {
-        val unfulfilled = arrayListOf<Pair<DeclarationSymbolMarker, Map<Incompatible<*>, List<DeclarationSymbolMarker?>>>>()
+    ): ExpectActualCompatibility<T> {
+        val unfulfilled = arrayListOf<Pair<T, Map<Incompatible<T>, List<T>>>>()
 
         val actualMembersByName = actualClassSymbol.collectAllMembers(isActualDeclaration = true).groupBy { it.name }
 
@@ -223,14 +218,14 @@ object AbstractExpectActualCompatibilityChecker {
         return Incompatible.ClassScopes(unfulfilled)
     }
 
-    context(ExpectActualMatchingContext<*>)
+    context(ExpectActualMatchingContext<T>)
     private fun matchSingleExpectAgainstPotentialActuals(
-        expectMember: DeclarationSymbolMarker,
-        actualMembers: List<DeclarationSymbolMarker>,
+        expectMember: T,
+        actualMembers: List<T>,
         substitutor: TypeSubstitutorMarker?,
         expectClassSymbol: RegularClassSymbolMarker?,
         actualClassSymbol: RegularClassSymbolMarker?,
-        unfulfilled: MutableList<Pair<DeclarationSymbolMarker, Map<Incompatible<*>, List<DeclarationSymbolMarker?>>>>?
+        unfulfilled: MutableList<Pair<T, Map<Incompatible<T>, List<T>>>>?
     ) {
         val mapping = actualMembers.keysToMap { actualMember ->
             when (expectMember) {
@@ -254,7 +249,7 @@ object AbstractExpectActualCompatibilityChecker {
             }
         }
 
-        val incompatibilityMap = mutableMapOf<Incompatible<*>, MutableList<DeclarationSymbolMarker>>()
+        val incompatibilityMap = mutableMapOf<Incompatible<T>, MutableList<T>>()
         for ((actualMember, compatibility) in mapping) {
             when (compatibility) {
                 ExpectActualCompatibility.Compatible -> {
@@ -270,14 +265,14 @@ object AbstractExpectActualCompatibilityChecker {
         onMismatchedMembersFromClassScope(expectMember, incompatibilityMap)
     }
 
-    context(ExpectActualMatchingContext<*>)
+    context(ExpectActualMatchingContext<T>)
     private fun areCompatibleCallables(
         expectDeclaration: CallableSymbolMarker,
         actualDeclaration: CallableSymbolMarker,
         parentSubstitutor: TypeSubstitutorMarker?,
         expectContainingClass: RegularClassSymbolMarker?,
         actualContainingClass: RegularClassSymbolMarker?,
-    ): ExpectActualCompatibility<*> {
+    ): ExpectActualCompatibility<T> {
         require(
             (expectDeclaration is ConstructorSymbolMarker && actualDeclaration is ConstructorSymbolMarker) ||
                     expectDeclaration.callableId.callableName == actualDeclaration.callableId.callableName
@@ -411,7 +406,7 @@ object AbstractExpectActualCompatibilityChecker {
         return ExpectActualCompatibility.Compatible
     }
 
-    context(ExpectActualMatchingContext<*>)
+    context(ExpectActualMatchingContext<T>)
     private fun valueParametersCountCompatible(
         expectDeclaration: CallableSymbolMarker,
         actualDeclaration: CallableSymbolMarker,
@@ -427,7 +422,7 @@ object AbstractExpectActualCompatibilityChecker {
         }
     }
 
-    context(ExpectActualMatchingContext<*>)
+    context(ExpectActualMatchingContext<T>)
     private fun areCompatibleTypeLists(
         expectedTypes: List<KotlinTypeMarker?>,
         actualTypes: List<KotlinTypeMarker?>,
@@ -487,7 +482,7 @@ object AbstractExpectActualCompatibilityChecker {
         }
     }
 
-    context(ExpectActualMatchingContext<*>)
+    context(ExpectActualMatchingContext<T>)
     private fun areCompatibleClassVisibilities(
         expectClassSymbol: RegularClassSymbolMarker,
         actualClassSymbol: RegularClassSymbolMarker,
@@ -500,12 +495,12 @@ object AbstractExpectActualCompatibilityChecker {
         return result != null && result > 0
     }
 
-    context(ExpectActualMatchingContext<*>)
+    context(ExpectActualMatchingContext<T>)
     private fun areCompatibleTypeParameters(
         expectTypeParameterSymbols: List<TypeParameterSymbolMarker>,
         actualTypeParameterSymbols: List<TypeParameterSymbolMarker>,
         substitutor: TypeSubstitutorMarker,
-    ): ExpectActualCompatibility<*> {
+    ): ExpectActualCompatibility<T> {
         for (i in expectTypeParameterSymbols.indices) {
             val expectBounds = expectTypeParameterSymbols[i].bounds
             val actualBounds = actualTypeParameterSymbols[i].bounds
@@ -533,11 +528,11 @@ object AbstractExpectActualCompatibilityChecker {
         return ExpectActualCompatibility.Compatible
     }
 
-    context(ExpectActualMatchingContext<*>)
+    context(ExpectActualMatchingContext<T>)
     private fun areCompatibleFunctions(
         expectFunction: CallableSymbolMarker,
         actualFunction: CallableSymbolMarker,
-    ): ExpectActualCompatibility<*> {
+    ): ExpectActualCompatibility<T> {
         if (!equalBy(expectFunction, actualFunction) { f -> f.isSuspend }) {
             return Incompatible.FunctionModifiersDifferent
         }
@@ -553,11 +548,11 @@ object AbstractExpectActualCompatibilityChecker {
         return ExpectActualCompatibility.Compatible
     }
 
-    context(ExpectActualMatchingContext<*>)
+    context(ExpectActualMatchingContext<T>)
     private fun areCompatibleProperties(
         expected: PropertySymbolMarker,
         actual: PropertySymbolMarker,
-    ): ExpectActualCompatibility<*> {
+    ): ExpectActualCompatibility<T> {
         return when {
             !equalBy(expected, actual) { p -> p.isVar } -> Incompatible.PropertyKind
             !equalBy(expected, actual) { p -> p.isLateinit } -> Incompatible.PropertyLateinitModifier
@@ -567,7 +562,7 @@ object AbstractExpectActualCompatibilityChecker {
         }
     }
 
-    context(ExpectActualMatchingContext<*>)
+    context(ExpectActualMatchingContext<T>)
     private fun arePropertySettersWithCompatibleVisibilities(
         expected: PropertySymbolMarker,
         actual: PropertySymbolMarker,
@@ -579,7 +574,7 @@ object AbstractExpectActualCompatibilityChecker {
 
     // ---------------------------------------- Utils ----------------------------------------
 
-    context(ExpectActualMatchingContext<*>)
+    context(ExpectActualMatchingContext<T>)
     private fun List<ValueParameterSymbolMarker>.toTypeList(substitutor: TypeSubstitutorMarker): List<KotlinTypeMarker> {
         return this.map { substitutor.safeSubstitute(it.returnType) }
     }
@@ -595,7 +590,7 @@ object AbstractExpectActualCompatibilityChecker {
     private inline fun <T, K> equalBy(first: T, second: T, selector: (T) -> K): Boolean =
         selector(first) == selector(second)
 
-    context(ExpectActualMatchingContext<*>)
+    context(ExpectActualMatchingContext<T>)
     private val DeclarationSymbolMarker.name: Name
         get() = when (this) {
             is ConstructorSymbolMarker -> SpecialNames.INIT

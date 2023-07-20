@@ -21,6 +21,8 @@ import org.jetbrains.kotlin.resolve.calls.mpp.AbstractExpectActualCompatibilityC
 import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualCompatibility
 
 object FirExpectActualResolver {
+    private val expectActualCompatibilityChecker = AbstractExpectActualCompatibilityChecker<FirBasedSymbol<*>>()
+
     fun findExpectForActual(
         actualSymbol: FirBasedSymbol<*>,
         useSiteSession: FirSession,
@@ -71,7 +73,7 @@ object FirExpectActualResolver {
                     candidates.filter { expectSymbol ->
                         actualSymbol != expectSymbol && expectSymbol.isExpect
                     }.groupBy { expectDeclaration ->
-                        AbstractExpectActualCompatibilityChecker.areCompatibleCallables(
+                        expectActualCompatibilityChecker.areCompatibleCallables(
                             expectDeclaration,
                             actualSymbol as CallableSymbolMarker,
                             parentSubstitutor,
@@ -90,7 +92,7 @@ object FirExpectActualResolver {
                 is FirClassLikeSymbol<*> -> {
                     val expectClassSymbol = useSiteSession.dependenciesSymbolProvider
                         .getClassLikeSymbolByClassId(actualSymbol.classId) as? FirRegularClassSymbol ?: return null
-                    val compatibility = AbstractExpectActualCompatibilityChecker.areCompatibleClassifiers(expectClassSymbol, actualSymbol, context)
+                    val compatibility = expectActualCompatibilityChecker.areCompatibleClassifiers(expectClassSymbol, actualSymbol, context)
                     mapOf(compatibility to listOf(expectClassSymbol))
                 }
                 else -> null

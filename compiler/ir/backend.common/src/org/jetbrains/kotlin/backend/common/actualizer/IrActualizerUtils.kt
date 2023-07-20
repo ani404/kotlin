@@ -25,6 +25,8 @@ import org.jetbrains.kotlin.resolve.multiplatform.OptionalAnnotationUtil
 import org.jetbrains.kotlin.utils.addToStdlib.runIf
 import org.jetbrains.kotlin.utils.addToStdlib.shouldNotBeCalled
 
+private val expectActualCompatibilityChecker = AbstractExpectActualCompatibilityChecker<IrSymbol>()
+
 internal fun collectActualCallablesMatchingToSpecificExpect(
     expectSymbol: IrSymbol,
     actualSymbols: List<IrSymbol>,
@@ -43,7 +45,7 @@ internal fun collectActualCallablesMatchingToSpecificExpect(
             matchingActuals += actualSymbol
         }
     }
-    AbstractExpectActualCompatibilityChecker.matchSingleExpectTopLevelDeclarationAgainstPotentialActuals(
+    expectActualCompatibilityChecker.matchSingleExpectTopLevelDeclarationAgainstPotentialActuals(
         expectSymbol,
         actualSymbols,
         context
