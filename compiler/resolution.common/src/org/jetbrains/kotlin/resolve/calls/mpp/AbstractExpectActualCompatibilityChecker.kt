@@ -19,7 +19,6 @@ import org.jetbrains.kotlin.types.model.TypeSubstitutorMarker
 import org.jetbrains.kotlin.utils.SmartList
 import org.jetbrains.kotlin.utils.addToStdlib.enumMapOf
 import org.jetbrains.kotlin.utils.addToStdlib.enumSetOf
-import org.jetbrains.kotlin.utils.keysToMap
 import java.util.*
 
 class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
@@ -236,9 +235,9 @@ class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
         expectClassSymbol: RegularClassSymbolMarker?,
         actualClassSymbol: RegularClassSymbolMarker?,
         unfulfilled: MutableList<Pair<T, Map<Incompatible<T>, List<T>>>>?
-    ) {
-        val mapping = actualMembers.keysToMap { actualMember ->
-            when (expectMember) {
+    ): SymbolsWithCompatibilities<T> {
+        val mapping = actualMembers.map { actualMember ->
+            val compatibility = when (expectMember) {
                 is CallableSymbolMarker -> areCompatibleCallables(
                     expectMember,
                     actualMember as CallableSymbolMarker,
@@ -257,6 +256,7 @@ class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
                 }
                 else -> error("Unsupported declaration: $expectMember ($actualMembers)")
             }
+            actualMember to compatibility
         }
 
         val incompatibilityMap = mutableMapOf<Incompatible<T>, MutableList<T>>()
@@ -264,7 +264,7 @@ class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
             when (compatibility) {
                 ExpectActualCompatibility.Compatible -> {
                     onMatchedMembers(expectMember, actualMember)
-                    return
+                    return mapping
                 }
 
                 is Incompatible -> incompatibilityMap.getOrPut(compatibility) { SmartList() }.add(actualMember)
@@ -273,6 +273,7 @@ class AbstractExpectActualCompatibilityChecker<T : DeclarationSymbolMarker> {
 
         unfulfilled?.add(expectMember to incompatibilityMap)
         onMismatchedMembersFromClassScope(expectMember, incompatibilityMap)
+        return mapping
     }
 
     context(ExpectActualMatchingContext<T>)
