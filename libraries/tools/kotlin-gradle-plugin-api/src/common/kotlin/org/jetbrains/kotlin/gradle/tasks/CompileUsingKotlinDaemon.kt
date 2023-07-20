@@ -58,7 +58,7 @@ enum class KotlinCompilerExecutionStrategy(
 }
 
 /**
- * Represent a Kotlin task which is using Kotlin daemon to run compilation.
+ * Represents a Kotlin task which is using Kotlin daemon to run compilation.
  */
 interface CompileUsingKotlinDaemon : Task {
     /**
