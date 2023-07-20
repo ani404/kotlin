@@ -56,7 +56,7 @@ internal class LLDiagnosticParameterChecker(testServices: TestServices) : FirAna
         is KtPsiDiagnosticWithParameters3<*, *, *> -> listOf(a, b, c)
         is KtPsiDiagnosticWithParameters4<*, *, *, *> -> listOf(a, b, c, d)
         is KtPsiSimpleDiagnostic -> emptyList()
-        else -> error("Unexpected diagnostic $this")
+        else -> error("Unexpected diagnostic ${this::class}")
     }
 
     override fun processAfterAllModules(someAssertionWasFailed: Boolean) {}
