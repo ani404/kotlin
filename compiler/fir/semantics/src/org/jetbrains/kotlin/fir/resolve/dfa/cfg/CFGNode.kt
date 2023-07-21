@@ -691,6 +691,9 @@ class CallableReferenceNode(
 }
 
 class GetClassCallNode(owner: ControlFlowGraph, override val fir: FirGetClassCall, level: Int) : CFGNode<FirGetClassCall>(owner, level) {
+    override val canThrow: Boolean
+        get() = true
+
     override fun <R, D> accept(visitor: ControlFlowGraphVisitor<R, D>, data: D): R {
         return visitor.visitGetClassCallNode(this, data)
     }

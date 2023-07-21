@@ -1,5 +1,7 @@
 // !SKIP_TXT
 
+import kotlin.reflect.KClass
+
 fun exc(flag: Boolean) {
     if (flag) throw RuntimeException()
 }
@@ -17,5 +19,17 @@ fun test(flag: Boolean) {
         // all bad - could come here from either call
         <!DEBUG_INFO_SMARTCAST!>x<!>.length
         x.<!UNRESOLVED_REFERENCE!>inc<!>()
+    }
+}
+
+fun testGetClassThrows() {
+    var x: KClass<String>? = String::class
+    x as KClass<String>
+    try {
+        <!UNUSED_VALUE!>x =<!> null
+        x = String::class
+    } catch (e: Throwable) {
+        // bad - get class call can throw
+        <!DEBUG_INFO_SMARTCAST!>x<!>.simpleName
     }
 }
