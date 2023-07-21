@@ -6,7 +6,6 @@
 package org.jetbrains.kotlin.backend.konan.lower
 
 import org.jetbrains.kotlin.backend.common.BodyLoweringPass
-import org.jetbrains.kotlin.backend.common.ir.Symbols
 import org.jetbrains.kotlin.backend.common.lower.at
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.backend.konan.Context
@@ -55,7 +54,7 @@ internal class PreInlineLowering(val context: Context) : BodyLoweringPass {
                         require(expression.type.isUnit())
                         IrCompositeImpl(expression.startOffset, expression.endOffset, expression.type)
                     }
-                    Symbols.isTypeOfIntrinsic(expression.symbol) -> {
+                    context.ir.symbols.isTypeOfIntrinsic(expression.symbol) -> {
                         with (KTypeGenerator(context, irFile, expression, needExactTypeParameters = true)) {
                             data.at(expression).irKType(expression.getTypeArgument(0)!!, leaveReifiedForLater = true)
                         }

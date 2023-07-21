@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.backend.common.checkDeclarationParents
 import org.jetbrains.kotlin.backend.common.lower.*
 import org.jetbrains.kotlin.backend.common.lower.inline.FunctionInlining
 import org.jetbrains.kotlin.backend.common.lower.inline.InlineFunctionResolver
+import org.jetbrains.kotlin.backend.common.lower.inline.NonReifiedTypeParameterRemappingMode
 import org.jetbrains.kotlin.backend.common.lower.loops.forLoopsPhase
 import org.jetbrains.kotlin.backend.common.phaser.*
 import org.jetbrains.kotlin.backend.jvm.ir.constantValue
@@ -307,7 +308,8 @@ internal val functionInliningPhase = makeIrModulePhase(
             context, JvmInlineFunctionResolver(), context.innerClassesSupport,
             alwaysCreateTemporaryVariablesForArguments = true,
             regenerateInlinedAnonymousObjects = true,
-            inlineArgumentsWithTheirOriginalTypeAndOffset = true
+            inlineArgumentsWithTheirOriginalTypeAndOffset = true,
+            defaultNonReifiedTypeParameterRemappingMode = NonReifiedTypeParameterRemappingMode.ERASE
         )
     },
     name = "FunctionInliningPhase",
@@ -388,10 +390,10 @@ private val jvmFilePhases = listOf(
     // makePatchParentsPhase(),
 
     enumWhenPhase,
-    singletonReferencesPhase,
 
     assertionPhase,
     returnableBlocksPhase,
+    singletonReferencesPhase,
     sharedVariablesPhase,
     localDeclarationsPhase,
     // makePatchParentsPhase(),

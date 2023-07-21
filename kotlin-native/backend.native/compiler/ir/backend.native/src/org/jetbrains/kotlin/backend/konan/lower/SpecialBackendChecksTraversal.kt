@@ -6,7 +6,6 @@
 package org.jetbrains.kotlin.backend.konan.lower
 
 import org.jetbrains.kotlin.backend.common.FileLoweringPass
-import org.jetbrains.kotlin.backend.common.ir.Symbols
 import org.jetbrains.kotlin.backend.common.lower.Closure
 import org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator
 import org.jetbrains.kotlin.backend.common.peek
@@ -16,11 +15,14 @@ import org.jetbrains.kotlin.backend.konan.*
 import org.jetbrains.kotlin.backend.konan.cgen.*
 import org.jetbrains.kotlin.backend.konan.descriptors.allOverriddenFunctions
 import org.jetbrains.kotlin.backend.konan.driver.PhaseContext
-import org.jetbrains.kotlin.backend.konan.ir.*
+import org.jetbrains.kotlin.backend.konan.ir.KonanSymbols
 import org.jetbrains.kotlin.backend.konan.ir.getSuperClassNotAny
+import org.jetbrains.kotlin.backend.konan.ir.isObjCObjectType
 import org.jetbrains.kotlin.backend.konan.llvm.IntrinsicType
 import org.jetbrains.kotlin.backend.konan.llvm.tryGetIntrinsicType
-import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.descriptors.ClassKind
+import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
+import org.jetbrains.kotlin.descriptors.isClass
 import org.jetbrains.kotlin.ir.IrBuiltIns
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
@@ -488,7 +490,7 @@ private class BackendChecker(
                             reportError(it, "incorrect value for binary data: $value")
                     }
                 }
-                Symbols.isTypeOfIntrinsic(callee.symbol) ->
+                symbols.isTypeOfIntrinsic(callee.symbol) ->
                     checkIrKType(expression, expression.getTypeArgument(0)!!)
             }
         }

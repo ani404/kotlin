@@ -1143,6 +1143,9 @@ class JvmSymbols(
         val typeUseTarget = buildEnumEntry(elementTypeEnum, "TYPE_USE")
     }
 
+    override fun IrFunction.isTopLevelInPackage(packageName: FqName) =
+        parent.isFacadeClass && getPackageFragment().packageFqName == packageName
+
     companion object {
         const val INTRINSICS_CLASS_NAME = "kotlin/jvm/internal/Intrinsics"
 

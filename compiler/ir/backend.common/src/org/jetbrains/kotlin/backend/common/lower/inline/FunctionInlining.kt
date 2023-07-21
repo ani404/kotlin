@@ -6,7 +6,10 @@
 package org.jetbrains.kotlin.backend.common.lower.inline
 
 
-import org.jetbrains.kotlin.backend.common.*
+import org.jetbrains.kotlin.backend.common.BodyLoweringPass
+import org.jetbrains.kotlin.backend.common.CommonBackendContext
+import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
+import org.jetbrains.kotlin.backend.common.ScopeWithIr
 import org.jetbrains.kotlin.backend.common.ir.Symbols
 import org.jetbrains.kotlin.backend.common.ir.isPure
 import org.jetbrains.kotlin.backend.common.lower.InnerClassesSupport
@@ -87,7 +90,9 @@ class FunctionInlining(
     private val regenerateInlinedAnonymousObjects: Boolean = false,
     private val inlineArgumentsWithTheirOriginalTypeAndOffset: Boolean = false,
     private val allowExternalInlining: Boolean = false,
-    private val useTypeParameterUpperBound: Boolean = false
+    private val useTypeParameterUpperBound: Boolean = false,
+    private val defaultNonReifiedTypeParameterRemappingMode: NonReifiedTypeParameterRemappingMode
+    = NonReifiedTypeParameterRemappingMode.SUBSTITUTE,
 ) : IrElementTransformerVoidWithContext(), BodyLoweringPass {
     private var containerScope: ScopeWithIr? = null
 
@@ -113,7 +118,7 @@ class FunctionInlining(
             return expression
         if (Symbols.isLateinitIsInitializedPropertyGetter(callee.symbol))
             return expression
-        if (Symbols.isTypeOfIntrinsic(callee.symbol))
+        if (context.ir.symbols.isTypeOfIntrinsic(callee.symbol))
             return expression
 
         val actualCallee = inlineFunctionResolver.getFunctionDeclaration(callee.symbol)
@@ -170,7 +175,7 @@ class FunctionInlining(
                 (0 until callSite.typeArgumentsCount).associate {
                     typeParameters[it].symbol to callSite.getTypeArgument(it)
                 }
-            DeepCopyIrTreeWithSymbolsForInliner(typeArguments, parent)
+            DeepCopyIrTreeWithSymbolsForInliner(context, typeArguments, parent, defaultNonReifiedTypeParameterRemappingMode)
         }
 
         val substituteMap = mutableMapOf<IrValueParameter, IrExpression>()
@@ -912,4 +917,8 @@ class InlinerExpressionLocationHint(val inlineAtSymbol: IrSymbol) : IrStatementO
 
     private val functionNameOrDefaultToString: String
         get() = (inlineAtSymbol as? IrFunction)?.name?.asString() ?: inlineAtSymbol.toString()
+}
+
+enum class NonReifiedTypeParameterRemappingMode {
+    LEAVE_AS_IS, SUBSTITUTE, ERASE
 }
