@@ -9,13 +9,3 @@
 void retain(uint64_t);
 void release(uint64_t);
 void autorelease(uint64_t);
-
-@interface Event: NSObject
--(void)scheduleWithTimer;
--(void)scheduleWithPerformSelector;
--(void)scheduleWithPerformSelectorAfterDelay;
--(void)scheduleWithPerformBlock;
--(void)triggerDirectly;
--(BOOL)isTriggered;
--(uintptr_t)identity;
-@end

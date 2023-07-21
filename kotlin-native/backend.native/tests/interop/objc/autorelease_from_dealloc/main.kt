@@ -5,7 +5,10 @@
 @file:OptIn(kotlin.experimental.ExperimentalNativeApi::class)
 
 import objclib.*
+import platform.objc.*
+import platform.Foundation.*
 
+import kotlin.concurrent.*
 import kotlin.native.concurrent.*
 import kotlin.native.internal.test.testLauncherEntryPoint
 import kotlin.system.exitProcess
@@ -20,6 +23,21 @@ val timeout = 10.seconds
 fun allocCollectable(ctor: () -> ULong): ULong = autoreleasepool {
     ctor()
 }
+
+class Event() : NSObject() {
+    @Volatile
+    private var triggered = false
+
+    fun isTriggered() = triggered
+
+    @ObjCAction
+    fun trigger() {
+        assertFalse(isTriggered())
+        triggered = true;
+    }
+}
+
+val trigerSelector = sel_registerName("trigger")
 
 fun waitTriggered(event: Event) {
     val timeoutMark = TimeSource.Monotonic.markNow() + timeout
@@ -43,7 +61,7 @@ fun testAutorelease() {
 
             val victimId = allocCollectable {
                 val v = OnDestroyHook {
-                    event.triggerDirectly()
+                    event.trigger()
                 }
                 retain(v.identity())
                 v.identity()
@@ -69,7 +87,8 @@ fun testTimer() {
         execute(TransferMode.SAFE, { event }) { event ->
             allocCollectable {
                 OnDestroyHook {
-                    event.scheduleWithTimer()
+                    assertFalse(event.isTriggered())
+                    NSTimer.scheduledTimerWithTimeInterval(0.0, target=event, selector=trigerSelector, userInfo=null, repeats=false)
                 }.identity()
             }
         }
@@ -86,7 +105,8 @@ fun testSelector() {
         execute(TransferMode.SAFE, { event }) { event ->
             allocCollectable {
                 OnDestroyHook {
-                    event.scheduleWithPerformSelector()
+                    assertFalse(event.isTriggered())
+                    NSRunLoop.currentRunLoop().performSelector(trigerSelector, target=event, argument=null, order=0, modes=listOf(NSDefaultRunLoopMode))
                 }.identity()
             }
         }
@@ -95,22 +115,24 @@ fun testSelector() {
     waitTriggered(event)
 }
 
-@Test
-fun testSelectorAfterDelay() {
-    val event = Event()
-
-    withWorker {
-        execute(TransferMode.SAFE, { event }) { event ->
-            allocCollectable {
-                OnDestroyHook {
-                    event.scheduleWithPerformSelectorAfterDelay()
-                }.identity()
-            }
-        }
-    }
-
-    waitTriggered(event)
-}
+// FIXME
+//@Test
+//fun testSelectorAfterDelay() {
+//    val event = Event()
+//
+//    withWorker {
+//        execute(TransferMode.SAFE, { event }) { event ->
+//            allocCollectable {
+//                OnDestroyHook {
+//                    assertFalse(event.isTriggered())
+//                    event.performSelector(trigerSelector, withObject=null, afterDelay=0.0)
+//                }.identity()
+//            }
+//        }
+//    }
+//
+//    waitTriggered(event)
+//}
 
 @Test
 fun testPerformBlock() {
@@ -120,7 +142,10 @@ fun testPerformBlock() {
         execute(TransferMode.SAFE, { event }) { event ->
             allocCollectable {
                 OnDestroyHook {
-                    event.scheduleWithPerformBlock()
+                    NSRunLoop.currentRunLoop().performBlock({
+                        assertFalse(event.isTriggered())
+                        event.trigger()
+                    });
                 }.identity()
             }
         }

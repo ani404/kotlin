@@ -93,19 +93,16 @@ public:
     }
 
 private:
-    int64_t processSingle(int64_t previousEpoch) {
-        std::unique_lock lock(finalizerQueueMutex_);
-        finalizerQueueCondVar_.wait(lock, [this, &previousEpoch] {
-            return !FinalizerQueueTraits::isEmpty(finalizerQueue_) || finalizerQueueEpoch_ != previousEpoch || shutdownFlag_;
-        });
-        if (FinalizerQueueTraits::isEmpty(finalizerQueue_) && finalizerQueueEpoch_ == previousEpoch) {
-            newTasksAllowed_ = false;
+    // should be called under the finalizerQueueMutex_
+    bool shouldShutdown(int64_t lastProcessedEpoch) noexcept {
+        bool shouldShutdown = FinalizerQueueTraits::isEmpty(finalizerQueue_) && finalizerQueueEpoch_ == lastProcessedEpoch;
+        if (shouldShutdown) {
             RuntimeAssert(shutdownFlag_, "Nothing to do, but no shutdownFlag_ is set on wakeup");
-            return 0;
         }
-        auto queue = std::move(finalizerQueue_);
-        int64_t currentEpoch = finalizerQueueEpoch_;
-        lock.unlock();
+        return shouldShutdown;
+    }
+
+    void processSingle(FinalizerQueue& queue, int64_t currentEpoch) noexcept {
         if (!FinalizerQueueTraits::isEmpty(queue)) {
 #if KONAN_OBJC_INTEROP
             konan::AutoreleasePool autoreleasePool;
@@ -114,7 +111,6 @@ private:
             FinalizerQueueTraits::process(std::move(queue));
         }
         epochDoneCallback_(currentEpoch);
-        return currentEpoch;
     }
 
 #if KONAN_OBJC_INTEROP
@@ -126,10 +122,7 @@ private:
                         0, this, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
                         [](void* info) {
                             auto& self = *reinterpret_cast<ProcessingLoop*>(info);
-                            self.finishedEpoch_ = self.owner_.processSingle(self.finishedEpoch_);
-                            if (self.finishedEpoch_ == 0) {
-                                CFRunLoopStop(self.runLoop_.load(std::memory_order_relaxed));
-                            }
+                            self.handleNewFinalizers();
                         }},
                 runLoopSource_(CFRunLoopSourceCreate(nullptr, 0, &sourceContext_)) {}
 
@@ -160,6 +153,22 @@ private:
             CFRunLoopRemoveSource(CFRunLoopGetCurrent(), runLoopSource_, mode);
         }
     private:
+        void handleNewFinalizers() {
+            std::unique_lock lock(owner_.finalizerQueueMutex_);
+            if (FinalizerQueueTraits::isEmpty(owner_.finalizerQueue_) && owner_.finalizerQueueEpoch_ == finishedEpoch_) {
+                owner_.newTasksAllowed_ = false;
+                RuntimeAssert(owner_.shutdownFlag_, "Nothing to do, but no shutdownFlag_ is set on wakeup");
+                CFRunLoopStop(runLoop_.load(std::memory_order_acquire));
+                return;
+            }
+            auto queue = std::move(owner_.finalizerQueue_);
+            int64_t currentEpoch = owner_.finalizerQueueEpoch_;
+            lock.unlock();
+
+            owner_.processSingle(queue, currentEpoch);
+            finishedEpoch_ = currentEpoch;
+        }
+
         FinalizerProcessor& owner_;
         int64_t finishedEpoch_ = 0;
         CFRunLoopSourceContext sourceContext_;
@@ -176,14 +185,25 @@ private:
         }
 
         void body() {
+            int64_t finishedEpoch = 0;
             while (true) {
-                finishedEpoch_ = owner_.processSingle(finishedEpoch_);
-                if (finishedEpoch_ == 0) break;
+                std::unique_lock lock(owner_.finalizerQueueMutex_);
+                owner_.finalizerQueueCondVar_.wait(lock, [this, &finishedEpoch] {
+                    return !FinalizerQueueTraits::isEmpty(owner_.finalizerQueue_) || owner_.finalizerQueueEpoch_ != finishedEpoch || owner_.shutdownFlag_;
+                });
+                if (owner_.shouldShutdown(finishedEpoch)) {
+                    owner_.newTasksAllowed_ = false;
+                    break;
+                }
+                auto queue = std::move(owner_.finalizerQueue_);
+                auto currentEpoch = owner_.finalizerQueueEpoch_;
+                lock.unlock();
+                owner_.processSingle(queue, currentEpoch);
+                finishedEpoch = currentEpoch;
             }
         }
     private:
         FinalizerProcessor& owner_;
-        int64_t finishedEpoch_ = 0;
     };
 #endif
 
