@@ -21,7 +21,7 @@ import org.jetbrains.kotlin.serialization.deserialization.builtins.BuiltInSerial
 internal class KtModuleProviderImpl(
     private val platform: TargetPlatform,
     private val project: Project,
-    internal val mainModules: List<KtModule>,
+    override val allKtModules: List<KtModule>,
 ) : KtStaticProjectStructureProvider() {
     private val ktNotUnderContentRootModuleWithoutPsiFile by lazy {
         KtNotUnderContentRootModuleImpl(
@@ -57,22 +57,20 @@ internal class KtModuleProviderImpl(
             return builtinsModule
         }
 
-        return mainModules.first { module ->
+        return allKtModules.first { module ->
             containingFileAsVirtualFile in module.contentScope
         }
     }
 
     internal val binaryModules: List<KtBinaryModule> by lazy {
-        mainModules
+        allKtModules
             .flatMap { it.allDirectDependencies() }
             .filterIsInstance<KtBinaryModule>()
     }
 
-    override val allKtModules: List<KtModule> = mainModules
-
     override val allSourceFiles: List<PsiFileSystemItem> by lazy {
         buildList {
-            val files = mainModules.mapNotNull { (it as? KtSourceModuleImpl)?.sourceRoots }.flatten()
+            val files = allKtModules.mapNotNull { (it as? KtSourceModuleImpl)?.sourceRoots }.flatten()
             addAll(files)
             addAll(findJvmRootsForJavaFiles(files.filterIsInstance<PsiJavaFile>()))
         }
