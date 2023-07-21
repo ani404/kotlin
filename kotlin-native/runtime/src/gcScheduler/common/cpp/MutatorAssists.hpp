@@ -32,11 +32,11 @@ namespace kotlin::gcScheduler::internal {
  * If the current GC epoch is greater than `epoch`, the mutators should ignore
  * the request to assist.
  *
- * Otherwise:
- * * the mutators must wait in the native state until the GC thread calls
- *   `completeEpoch(epoch)` for epoch >= `epoch`.
- * * the GC thread shall call `completeEpoch(epoch)` once it is done with the epoch,
- *   and it shall wait for all mutators assisting `epoch` (or lower) to continue.
+ * Otherwise the mutators must wait in the native state 
+ * until the GC thread calls `completeEpoch(epoch)` for epoch >= `epoch`.
+ *
+ * The GC thread shall call `completeEpoch(epoch)` once it is done with the epoch,
+ * and it shall wait for all mutators assisting `epoch` (or lower) to continue.
  */
 class MutatorAssists : private Pinned {
 public:
