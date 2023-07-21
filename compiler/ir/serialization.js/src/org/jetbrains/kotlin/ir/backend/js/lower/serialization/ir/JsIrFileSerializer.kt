@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.ir.backend.js.lower.serialization.ir
 
+import org.jetbrains.kotlin.backend.common.ir.isExpect
 import org.jetbrains.kotlin.backend.common.serialization.CompatibilityMode
 import org.jetbrains.kotlin.backend.common.serialization.DeclarationTable
 import org.jetbrains.kotlin.backend.common.serialization.IrFileSerializer
@@ -19,6 +20,7 @@ import org.jetbrains.kotlin.ir.symbols.IrSymbol
 import org.jetbrains.kotlin.ir.util.IrMessageLogger
 import org.jetbrains.kotlin.ir.util.getAnnotation
 import org.jetbrains.kotlin.ir.util.hasAnnotation
+import org.jetbrains.kotlin.ir.util.isEffectivelyExternal
 import org.jetbrains.kotlin.name.FqName
 
 class JsIrFileSerializer(
@@ -67,6 +69,7 @@ class JsIrFileSerializer(
         return irFile.declarations.asSequence()
             .filterIsInstance<IrDeclarationWithName>()
             .filter { if (isFileExported) !it.isExportIgnoreDeclaration() else it.isExportedDeclaration() }
+            .filter { !it.isEffectivelyExternal() && !it.isExpect }
             .map { it.exportedName }
             .toList()
     }

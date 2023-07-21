@@ -359,6 +359,19 @@ class Kotlin2JsIrGradlePluginIT : AbstractKotlin2JsGradlePluginIT(true) {
         }
     }
 
+    @DisplayName("klib compilation with the declarations name clash")
+    @GradleTest
+    fun testProjectWithExportedNamesClash(gradleVersion: GradleVersion) {
+        project("kotlin-js-invalid-project-with-exported-clash", gradleVersion) {
+            build("compileKotlinJs") {
+                assertOutputContains("""
+                   |There are clashes of declaration names that annotated with @JsExport in module 'kotlin-js-invalid-project-with-exported-clash'.
+                   |  * Next files contain declarations with @JsExport and name 'best'
+                """.trimMargin())
+            }
+        }
+    }
+
     @DisplayName("per-file with the  declarations validation")
     @GradleTest
     fun testPerFileProjectWithResultFilesClash(gradleVersion: GradleVersion) {

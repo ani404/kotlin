@@ -635,8 +635,6 @@ private fun String.parseSerializedIrFileFingerprints(): List<SerializedIrFileFin
 private fun ByteArray.asStringList(): List<String> = IrArrayMemoryReader(this).toArray().map(::String)
 
 private fun CompilerConfiguration.assertNoExportedNamesClashes(moduleName: String, files: List<KotlinFileSerializedData>) {
-    if (get(JSConfigurationKeys.MODULE_KIND) != ModuleKind.ES) return
-
     val allExportedNameClashes = files
         .flatGroupBy { file -> file.irData.exportedNames.asStringList() }
         .filterValues { it.size > 1 }
@@ -647,18 +645,16 @@ private fun CompilerConfiguration.assertNoExportedNamesClashes(moduleName: Strin
         allExportedNameClashes.forEach { (name, files) ->
             appendLine("  * Next files contain declarations with @JsExport and name '$name'")
             files.forEach { appendLine("    - ${it.irData.path}") }
-            appendLine()
         }
     }
 
     val message = """
               |There are clashes of declaration names that annotated with @JsExport in module '$moduleName'.
               |${nameClashesString}
-              |Note, that if the difference is only in letter cases, it also could lead to a clash of the compiled artifacts
+              |Note, that this clash could affect the generated JS code in case of ES module kind usage
         """.trimMargin()
 
-    irMessageLogger.report(IrMessageLogger.Severity.ERROR, message, null)
-    throw CompilationErrorException(message)
+    irMessageLogger.report(IrMessageLogger.Severity.WARNING, message, null)
 }
 
 fun serializeModuleIntoKlib(
@@ -745,7 +741,9 @@ fun serializeModuleIntoKlib(
     }
 
     val compiledKotlinFiles = (cleanFiles + additionalFiles).also {
-        configuration.assertNoExportedNamesClashes(moduleName, it)
+        if (builtInsPlatform == BuiltInsPlatform.JS) {
+            configuration.assertNoExportedNamesClashes(moduleName, it)
+        }
     }
 
     val header = serializeKlibHeader(
