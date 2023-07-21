@@ -21,6 +21,7 @@ import org.jetbrains.kotlin.library.MetadataLibrary
 import org.jetbrains.kotlin.library.metadata.*
 import org.jetbrains.kotlin.library.metadata.resolver.KotlinResolvedLibrary
 import org.jetbrains.kotlin.metadata.ProtoBuf
+import org.jetbrains.kotlin.metadata.deserialization.Flags
 import org.jetbrains.kotlin.metadata.deserialization.NameResolver
 import org.jetbrains.kotlin.metadata.deserialization.NameResolverImpl
 import org.jetbrains.kotlin.name.ClassId
@@ -103,13 +104,14 @@ abstract class MetadataLibraryBasedSymbolProvider<L : MetadataLibrary>(
 
     @OptIn(SymbolInternals::class)
     override fun extractClassMetadata(classId: ClassId, parentContext: FirDeserializationContext?): ClassMetadataFindResult? {
+        var savedExpectClassResult: ClassMetadataFindResult? = null
         forEachFragmentInPackage(classId.packageFqName) { resolvedLibrary, fragment, nameResolver ->
             val finder = KlibMetadataClassDataFinder(fragment, nameResolver)
             val classProto = finder.findClassData(classId)?.classProto ?: return@forEachFragmentInPackage
 
             val moduleData = moduleData(resolvedLibrary) ?: return null
 
-            return ClassMetadataFindResult.NoMetadata { symbol ->
+            val result = ClassMetadataFindResult.NoMetadata { symbol ->
                 val source = createDeserializedContainerSource(
                     resolvedLibrary,
                     classId.packageFqName
@@ -132,9 +134,15 @@ abstract class MetadataLibraryBasedSymbolProvider<L : MetadataLibrary>(
                 )
                 symbol.fir.isNewPlaceForBodyGeneration = isNewPlaceForBodyGeneration(classProto)
             }
+
+            if (Flags.IS_EXPECT_CLASS.get(classProto.flags)) {
+                savedExpectClassResult = result
+            } else {
+                return result
+            }
         }
 
-        return null
+        return savedExpectClassResult
     }
 
     private inline fun forEachFragmentInPackage(
