@@ -9,7 +9,6 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.resolve.calls.mpp.AbstractExpectActualCompatibilityChecker
 import org.jetbrains.kotlin.resolve.descriptorUtil.classId
 import org.jetbrains.kotlin.resolve.descriptorUtil.module
-import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualCompatibility.Compatible
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.utils.addToStdlib.runIf
 
@@ -20,7 +19,7 @@ object ExpectedActualResolver {
         expected: MemberDescriptor,
         platformModule: ModuleDescriptor,
         moduleVisibilityFilter: ModuleFilter = allModulesProvidingActualsFor(expected.module, platformModule),
-    ): Map<ExpectActualCompatibility<MemberDescriptor>, List<MemberDescriptor>>? {
+    ): SymbolsWithCompatibilities<MemberDescriptor>? {
         val context = ClassicExpectActualMatchingContext(platformModule)
         return when (expected) {
             is CallableMemberDescriptor -> {
@@ -30,26 +29,26 @@ object ExpectedActualResolver {
                             //       This way behavior differs between fast and PSI-based Java class reading mode
                             // TODO: support non-source definitions (e.g. from Java)
                             actual.couldHaveASource
-                }.groupBy { actual ->
-                    expectActualCompatibilityChecker.areCompatibleCallables(
+                }.map { actual ->
+                    actual to expectActualCompatibilityChecker.areCompatibleCallables(
                         expected,
                         actual,
                         parentSubstitutor = null,
                         expectContainingClass = null,
                         actualContainingClass = null,
                         context
-                    ).compatibility
+                    )
                 }
             }
             is ClassDescriptor -> {
                 context.findClassifiersFromModule(expected.classId, platformModule, moduleVisibilityFilter).filter { actual ->
                     expected != actual && !actual.isExpect && actual.couldHaveASource
-                }.groupBy { actual ->
-                    expectActualCompatibilityChecker.areCompatibleClassifiersAndScopes(
+                }.map { actual ->
+                    actual to expectActualCompatibilityChecker.areCompatibleClassifiersAndScopes(
                         expected,
                         actual,
                         context
-                    ).compatibility
+                    )
                 }
             }
             else -> null
@@ -59,7 +58,7 @@ object ExpectedActualResolver {
     fun findExpectedForActual(
         actual: MemberDescriptor,
         moduleFilter: (ModuleDescriptor) -> Boolean = allModulesProvidingExpectsFor(actual.module)
-    ): Map<ExpectActualCompatibility<MemberDescriptor>, List<MemberDescriptor>>? {
+    ): SymbolsWithCompatibilities<MemberDescriptor>? {
         val context = ClassicExpectActualMatchingContext(actual.module)
         return when (actual) {
             is CallableMemberDescriptor -> {
@@ -68,7 +67,7 @@ object ExpectedActualResolver {
                     is ClassifierDescriptorWithTypeParameters -> {
                         // TODO: replace with 'singleOrNull' as soon as multi-module diagnostic tests are refactored
                         val expectedClass =
-                            findExpectedForActual(container, moduleFilter)?.values?.firstOrNull()?.firstOrNull() as? ClassDescriptor
+                            findExpectedForActual(container, moduleFilter)?.firstOrNull()?.first as? ClassDescriptor
                         with(context) {
                             expectedClass?.getMembersForExpectClass(actual.name)?.filterIsInstance<CallableMemberDescriptor>().orEmpty()
                         }
@@ -79,7 +78,7 @@ object ExpectedActualResolver {
 
                 candidates.filter { declaration ->
                     actual != declaration && declaration.kind != CallableMemberDescriptor.Kind.FAKE_OVERRIDE && declaration.isExpect
-                }.groupBy { declaration ->
+                }.map { declaration ->
                     // TODO: optimize by caching this per actual-expected class pair, do not create a new substitutor for each actual member
                     var expectedClass: ClassDescriptor? = null
                     var actualClass: ClassDescriptor? = null
@@ -99,25 +98,25 @@ object ExpectedActualResolver {
                             }
                             else -> null
                         }
-                    expectActualCompatibilityChecker.areCompatibleCallables(
+                    declaration to expectActualCompatibilityChecker.areCompatibleCallables(
                         expectDeclaration = declaration,
                         actualDeclaration = actual,
                         parentSubstitutor = substitutor,
                         expectContainingClass = expectedClass,
                         actualContainingClass = actualClass,
                         context
-                    ).compatibility
+                    )
                 }
             }
             is ClassifierDescriptorWithTypeParameters -> {
                 context.findClassifiersFromModule(actual.classId, actual.module, moduleFilter).filter { declaration ->
                     actual != declaration && declaration is ClassDescriptor && declaration.isExpect
-                }.groupBy { expected ->
-                    expectActualCompatibilityChecker.areCompatibleClassifiersAndScopes(
+                }.map { expected ->
+                    expected to expectActualCompatibilityChecker.areCompatibleClassifiersAndScopes(
                         expected as ClassDescriptor,
                         actual,
                         context
-                    ).compatibility
+                    )
                 }
             }
             else -> null
@@ -167,22 +166,25 @@ object ExpectedActualResolver {
 fun MemberDescriptor.findCompatibleActualsForExpected(
     platformModule: ModuleDescriptor, moduleFilter: ModuleFilter = allModulesProvidingActualsFor(module, platformModule)
 ): List<MemberDescriptor> =
-    ExpectedActualResolver.findActualForExpected(this, platformModule, moduleFilter)?.get(Compatible).orEmpty()
+    ExpectedActualResolver.findActualForExpected(this, platformModule, moduleFilter).orEmpty().getCompatibleSymbols()
 
+@Suppress("unused") // Used from IDE Plugin
 @JvmOverloads
 fun MemberDescriptor.findAnyActualsForExpected(
     platformModule: ModuleDescriptor, moduleFilter: ModuleFilter = allModulesProvidingActualsFor(module, platformModule)
 ): List<MemberDescriptor> {
-    val actualsGroupedByCompatibility = ExpectedActualResolver.findActualForExpected(this, platformModule, moduleFilter)
-    return actualsGroupedByCompatibility?.get(Compatible)
-        ?: actualsGroupedByCompatibility?.values?.flatten()
-        ?: emptyList()
+    val actualsWithCompatibilities = ExpectedActualResolver.findActualForExpected(this, platformModule, moduleFilter).orEmpty()
+    val compatibleSymbols = actualsWithCompatibilities.getCompatibleSymbols()
+    if (compatibleSymbols.isNotEmpty()) {
+        return compatibleSymbols
+    }
+    return actualsWithCompatibilities.map { it.first }
 }
 
 fun MemberDescriptor.findCompatibleExpectsForActual(
     moduleFilter: ModuleFilter = allModulesProvidingExpectsFor(module)
 ): List<MemberDescriptor> =
-    ExpectedActualResolver.findExpectedForActual(this, moduleFilter)?.get(Compatible).orEmpty()
+    ExpectedActualResolver.findExpectedForActual(this, moduleFilter)?.getCompatibleSymbols().orEmpty()
 
 fun DeclarationDescriptor.findExpects(): List<MemberDescriptor> {
     if (this !is MemberDescriptor) return emptyList()
@@ -198,3 +200,7 @@ fun DeclarationDescriptor.findActuals(inModule: ModuleDescriptor): List<MemberDe
 val DeclarationDescriptorWithSource.couldHaveASource: Boolean
     get() = this.source.containingFile != SourceFile.NO_SOURCE_FILE ||
             this is DeserializedDescriptor
+
+private fun SymbolsWithCompatibilities<MemberDescriptor>.getCompatibleSymbols(): List<MemberDescriptor> {
+    return filter { (_, result) -> result.compatibility.compatible }.map { (symbol, _) -> symbol }
+}

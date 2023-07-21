@@ -29,8 +29,8 @@ object ExpectActualInTheSameModuleChecker : DeclarationChecker {
         if (descriptor.containingDeclaration !is PackageFragmentDescriptor) return
         val module = descriptor.module
         val actuals = ExpectedActualResolver.findActualForExpected(descriptor, module)
-            ?.filter { (compatibility, _) -> compatibility.isCompatibleOrWeakCompatible }
-            ?.flatMap { (_, members) -> members }
+            ?.filter { (_, result) -> result.compatibility.isCompatibleOrWeakCompatible }
+            ?.map { (member, _) -> member }
             ?.takeIf(List<MemberDescriptor>::isNotEmpty) ?: return
 
         // There are 4 cases:

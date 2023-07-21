@@ -12,12 +12,12 @@ import org.jetbrains.kotlin.analysis.api.descriptors.symbols.descriptorBased.bas
 import org.jetbrains.kotlin.analysis.api.descriptors.symbols.descriptorBased.base.toKtSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KtDeclarationSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.psiSafe
-import org.jetbrains.kotlin.utils.exceptions.checkWithAttachment
 import org.jetbrains.kotlin.descriptors.MemberDescriptor
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.psiUtil.hasActualModifier
-import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualCompatibility
 import org.jetbrains.kotlin.resolve.multiplatform.ExpectedActualResolver
+import org.jetbrains.kotlin.resolve.multiplatform.compatible
+import org.jetbrains.kotlin.utils.exceptions.checkWithAttachment
 
 internal class KtFe10MultiplatformInfoProvider(
     override val analysisSession: KtFe10AnalysisSession
@@ -29,8 +29,11 @@ internal class KtFe10MultiplatformInfoProvider(
         val expectedCompatibilityMap =
             ExpectedActualResolver.findExpectedForActual(memberDescriptor) ?: return null
 
-        val expectsForActual = (expectedCompatibilityMap[ExpectActualCompatibility.Compatible]
-            ?: expectedCompatibilityMap.values.flatten())
+        val expectsForActualWithCompatibilities = expectedCompatibilityMap
+            .filter { (_, result) -> result.compatibility.compatible }
+            .takeUnless { it.isEmpty() }
+            ?: expectedCompatibilityMap
+        val expectsForActual = expectsForActualWithCompatibilities.map { it.first }
         check(expectsForActual.size <= 1) { "expected as maximum one `expect` for the actual" }
         checkWithAttachment(expectsForActual.size <= 1, message = { "expected as maximum one `expect` for the actual" }) {
             withEntry("actual", memberDescriptor.toString())

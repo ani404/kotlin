@@ -118,8 +118,8 @@ class ExpectedActualDeclarationChecker(
         trace: BindingTrace,
     ) {
         val atLeastWeaklyCompatibleActuals = actuals
-            .filterKeys { compatibility -> compatibility.isCompatibleOrWeakCompatible }
-            .values.flatten()
+            .filter { it.isCompatibleOrWeakCompatible }
+            .map { (member, _) -> member }
 
         // Eagerly return here: We won't find a duplicate in any module path in this case
         if (atLeastWeaklyCompatibleActuals.size <= 1) return
@@ -175,18 +175,16 @@ class ExpectedActualDeclarationChecker(
 
         // Only strong incompatibilities, or error won't be reported on actual: report NO_ACTUAL_FOR_EXPECT here
         if (actuals.allStrongIncompatibilities() ||
-            Compatible !in actuals && expectDescriptor.hasNoActualWithDiagnostic(actuals)
+            !actuals.hasCompatible && expectDescriptor.hasNoActualWithDiagnostic(actuals)
         ) {
-            assert(actuals.keys.all { it is Incompatible })
-            @Suppress("UNCHECKED_CAST")
-            val incompatibility = actuals as Map<Incompatible<MemberDescriptor>, Collection<MemberDescriptor>>
-            trace.report(Errors.NO_ACTUAL_FOR_EXPECT.on(reportOn, expectDescriptor, module, incompatibility))
+            val incompatibilities = actuals.toIncompatibilityMap()
+            trace.report(Errors.NO_ACTUAL_FOR_EXPECT.on(reportOn, expectDescriptor, module, incompatibilities))
             return
         }
 
         // Here we have exactly one compatible actual and/or some weakly incompatible. In either case, we don't report anything on expect...
         val actualMembers = actuals.asSequence()
-            .filter { it.key.isCompatibleOrWeakCompatible }.flatMap { it.value.asSequence() }
+            .filter { it.isCompatibleOrWeakCompatible }.map { (member, _) -> member }
 
         // ...except diagnostics regarding missing actual keyword, because in that case we won't start looking for the actual at all
         if (checkActualModifier) {
@@ -235,11 +233,11 @@ class ExpectedActualDeclarationChecker(
     }
 
     private fun MemberDescriptor.hasNoActualWithDiagnostic(
-        compatibility: Map<ExpectActualCompatibility<MemberDescriptor>, List<MemberDescriptor>>
+        compatibility: ActualsMap
     ): Boolean {
-        return compatibility.values.flatMapTo(hashSetOf()) { it }.all { actual ->
+        return compatibility.map { (member, _) -> member }.all { actual ->
             val expectedOnes = ExpectedActualResolver.findExpectedForActual(actual, onlyFromThisModule(module))
-            expectedOnes != null && Compatible in expectedOnes.keys
+            expectedOnes != null && expectedOnes.hasCompatible
         }
     }
 
@@ -273,7 +271,7 @@ class ExpectedActualDeclarationChecker(
         // For top-level declaration missing actual error reported in Actual checker
         if (checkActualModifier
             && descriptor.containingDeclaration !is PackageFragmentDescriptor
-            && compatibility.any { it.key.isCompatibleOrWeakCompatible }
+            && compatibility.any { it.isCompatibleOrWeakCompatible }
         ) {
             reportMissingActualModifier(descriptor, reportOn, trace)
         }
@@ -286,7 +284,7 @@ class ExpectedActualDeclarationChecker(
 
         // 'firstOrNull' is needed because in diagnostic tests, common sources appear twice, so the same class is duplicated
         // TODO: replace with 'singleOrNull' as soon as multi-module diagnostic tests are refactored
-        val singleIncompatibility = compatibility.keys.firstOrNull()
+        val singleIncompatibility = compatibility.firstOrNull()?.second?.compatibility
         if (singleIncompatibility is Incompatible.ClassScopes) {
             assert(descriptor is ClassDescriptor || descriptor is TypeAliasDescriptor) {
                 "Incompatible.ClassScopes is only possible for a class or a typealias: $descriptor"
@@ -303,10 +301,10 @@ class ExpectedActualDeclarationChecker(
                 val actualMember = incompatibility.values.singleOrNull()?.singleOrNull()
                 return actualMember != null &&
                         actualMember.isExplicitActualDeclaration() &&
-                        !incompatibility.allStrongIncompatibilities() &&
+                        !incompatibility.keys.all { it.isStrongIncompatibility } &&
                         ExpectedActualResolver.findExpectedForActual(
                             actualMember, onlyFromThisModule(expectedMember.module)
-                        )?.values?.singleOrNull()?.singleOrNull() == expectedMember
+                        )?.singleOrNull()?.first == expectedMember
             }
 
             val nonTrivialUnfulfilled = singleIncompatibility.unfulfilled.filterNot(::hasSingleActualSuspect)
@@ -321,13 +319,11 @@ class ExpectedActualDeclarationChecker(
                     )
                 )
             }
-        } else if (Compatible !in compatibility) {
-            assert(compatibility.keys.all { it is Incompatible })
-            @Suppress("UNCHECKED_CAST")
-            val incompatibility = compatibility as Map<Incompatible<MemberDescriptor>, Collection<MemberDescriptor>>
+        } else if (!compatibility.hasCompatible) {
+            val incompatibility = compatibility.toIncompatibilityMap()
             trace.report(Errors.ACTUAL_WITHOUT_EXPECT.on(reportOn, descriptor, incompatibility))
         } else {
-            val expected = compatibility[Compatible]!!.first()
+            val expected = compatibility.first { (_, result) -> result.compatibility.compatible }.first
             if (expected is ClassDescriptor && expected.kind == ClassKind.ANNOTATION_CLASS) {
                 val actualConstructor =
                     (descriptor as? ClassDescriptor)?.constructors?.singleOrNull()
@@ -340,7 +336,8 @@ class ExpectedActualDeclarationChecker(
             }
         }
         // We want to report errors even if a candidate is incompatible, but it's single
-        val expectSingleCandidate = (compatibility[Compatible] ?: compatibility.values.singleOrNull())?.singleOrNull()
+        val expectSingleCandidate = compatibility.singleOrNull { (_, result) -> result.compatibility.compatible }?.first
+            ?: compatibility.singleOrNull()?.first
         if (expectSingleCandidate != null) {
             checkIfExpectHasDefaultArgumentsAndActualizedWithTypealias(expectSingleCandidate, reportOn, trace)
             checkAnnotationsMatch(expectSingleCandidate, descriptor, reportOn, trace)
@@ -348,18 +345,14 @@ class ExpectedActualDeclarationChecker(
     }
 
     private fun checkAmbiguousExpects(
-        compatibility: Map<ExpectActualCompatibility<MemberDescriptor>, List<MemberDescriptor>>,
+        compatibility: SymbolsWithCompatibilities<MemberDescriptor>,
         trace: BindingTrace,
         reportOn: KtNamedDeclaration,
         descriptor: MemberDescriptor
     ) {
         val filesWithAtLeastWeaklyCompatibleExpects = compatibility.asSequence()
-            .filter { (compatibility, _) ->
-                compatibility.isCompatibleOrWeakCompatible
-            }
-            .map { (_, members) -> members }
-            .flatten()
-            .map { it.module }
+            .filter { it.isCompatibleOrWeakCompatible }
+            .map { (member, _) -> member.module }
             .sortedBy { it.name.asString() }
             .toList()
 
@@ -464,11 +457,20 @@ class ExpectedActualDeclarationChecker(
         )
     }
 
-    companion object {
-        fun Map<out ExpectActualCompatibility<MemberDescriptor>, Collection<MemberDescriptor>>.allStrongIncompatibilities(): Boolean =
-            this.keys.all { it.isStrongIncompatibility }
+    private companion object {
+        fun SymbolsWithCompatibilities<MemberDescriptor>.allStrongIncompatibilities(): Boolean =
+            this.all { (_, result) -> result.compatibility.isStrongIncompatibility }
 
+        fun SymbolsWithCompatibilities<MemberDescriptor>.toIncompatibilityMap(): Map<Incompatible<MemberDescriptor>, List<MemberDescriptor>> {
+            assert(all { (_, result) -> result.compatibility is Incompatible })
+            @Suppress("UNCHECKED_CAST")
+            return groupBy(keySelector = { (_, result) -> result.compatibility }, valueTransform = { (member, _) -> member })
+                    as Map<Incompatible<MemberDescriptor>, List<MemberDescriptor>>
+        }
+
+        val Pair<*, ExpectActualCompatibilityCheckResult<*>>.isCompatibleOrWeakCompatible: Boolean
+            get() = second.compatibility.isCompatibleOrWeakCompatible
     }
 }
 
-private typealias ActualsMap = Map<ExpectActualCompatibility<MemberDescriptor>, List<MemberDescriptor>>
+private typealias ActualsMap = SymbolsWithCompatibilities<MemberDescriptor>
