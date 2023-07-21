@@ -22,7 +22,7 @@ sealed class ResolutionMode(val forceFullCompletion: Boolean) {
         /**
          * Forces array literals to be transformed to arrayOf calls.
          */
-        data object TransformingArrayLiterals : ContextDependent()
+        class TransformingArrayLiterals(val expectedTypeRef: FirResolvedTypeRef?) : ContextDependent()
     }
 
     data object ContextIndependent : ResolutionMode(forceFullCompletion = true)
@@ -100,6 +100,7 @@ sealed class ResolutionMode(val forceFullCompletion: Boolean) {
 
 fun ResolutionMode.expectedType(components: BodyResolveComponents): FirTypeRef? = when (this) {
     is ResolutionMode.WithExpectedType -> expectedTypeRef.takeIf { !this.fromCast }
+    is ResolutionMode.ContextDependent.TransformingArrayLiterals -> expectedTypeRef
     is ResolutionMode.ContextIndependent,
     is ResolutionMode.AssignmentLValue,
     is ResolutionMode.ReceiverResolution -> components.noExpectedType
