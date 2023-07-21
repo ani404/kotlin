@@ -37,7 +37,6 @@ import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.source.KotlinSourceElement
 import org.jetbrains.kotlin.resolve.source.PsiSourceFile
 import org.jetbrains.kotlin.types.KotlinType
-import org.jetbrains.kotlin.utils.addToStdlib.cast
 import java.io.File
 
 class ExpectedActualDeclarationChecker(
@@ -119,7 +118,7 @@ class ExpectedActualDeclarationChecker(
         trace: BindingTrace,
     ) {
         val atLeastWeaklyCompatibleActuals = actuals
-            .filterKeys { compatibility -> compatibility.isCompatibleOrWeakCompatible() }
+            .filterKeys { compatibility -> compatibility.isCompatibleOrWeakCompatible }
             .values.flatten()
 
         // Eagerly return here: We won't find a duplicate in any module path in this case
@@ -187,7 +186,7 @@ class ExpectedActualDeclarationChecker(
 
         // Here we have exactly one compatible actual and/or some weakly incompatible. In either case, we don't report anything on expect...
         val actualMembers = actuals.asSequence()
-            .filter { it.key.isCompatibleOrWeakCompatible() }.flatMap { it.value.asSequence() }
+            .filter { it.key.isCompatibleOrWeakCompatible }.flatMap { it.value.asSequence() }
 
         // ...except diagnostics regarding missing actual keyword, because in that case we won't start looking for the actual at all
         if (checkActualModifier) {
@@ -274,7 +273,7 @@ class ExpectedActualDeclarationChecker(
         // For top-level declaration missing actual error reported in Actual checker
         if (checkActualModifier
             && descriptor.containingDeclaration !is PackageFragmentDescriptor
-            && compatibility.any { it.key.isCompatibleOrWeakCompatible() }
+            && compatibility.any { it.key.isCompatibleOrWeakCompatible }
         ) {
             reportMissingActualModifier(descriptor, reportOn, trace)
         }
@@ -356,7 +355,7 @@ class ExpectedActualDeclarationChecker(
     ) {
         val filesWithAtLeastWeaklyCompatibleExpects = compatibility.asSequence()
             .filter { (compatibility, _) ->
-                compatibility.isCompatibleOrWeakCompatible()
+                compatibility.isCompatibleOrWeakCompatible
             }
             .map { (_, members) -> members }
             .flatten()
@@ -467,11 +466,8 @@ class ExpectedActualDeclarationChecker(
 
     companion object {
         fun Map<out ExpectActualCompatibility<MemberDescriptor>, Collection<MemberDescriptor>>.allStrongIncompatibilities(): Boolean =
-            this.keys.all { it is Incompatible && it.kind == IncompatibilityKind.STRONG }
+            this.keys.all { it.isStrongIncompatibility }
 
-        internal fun ExpectActualCompatibility<MemberDescriptor>.isCompatibleOrWeakCompatible() =
-            this is Compatible ||
-                    this is Incompatible && kind == IncompatibilityKind.WEAK
     }
 }
 

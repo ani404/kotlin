@@ -37,6 +37,8 @@ import org.jetbrains.kotlin.resolve.calls.mpp.AbstractExpectActualAnnotationMatc
 import org.jetbrains.kotlin.resolve.checkers.OptInNames
 import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualCompatibility
 import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualCompatibility.*
+import org.jetbrains.kotlin.resolve.multiplatform.isCompatibleOrWeakCompatible
+import org.jetbrains.kotlin.resolve.multiplatform.isStrongIncompatibility
 
 @Suppress("DuplicatedCode")
 object FirExpectActualDeclarationChecker : FirBasicDeclarationChecker() {
@@ -154,10 +156,9 @@ object FirExpectActualDeclarationChecker : FirBasicDeclarationChecker() {
                 ): Boolean {
                     val (expectedMember, incompatibility) = expectedWithIncompatibility
                     val actualMember = incompatibility.values.singleOrNull()?.singleOrNull()
-                    @OptIn(SymbolInternals::class)
                     return actualMember != null &&
                             !incompatibility.allStrongIncompatibilities() &&
-                            actualMember.fir.expectForActual?.values?.singleOrNull()?.singleOrNull() == expectedMember
+                            actualMember.getSingleExpectForActualOrNull() == expectedMember
                 }
 
                 val nonTrivialUnfulfilled = singleIncompatibility.unfulfilled.filterNot(::hasSingleActualSuspect)
@@ -203,7 +204,7 @@ object FirExpectActualDeclarationChecker : FirBasicDeclarationChecker() {
     ) {
         val filesWithAtLeastWeaklyCompatibleExpects = compatibility.asSequence()
             .filter { (compatibility, _) ->
-                compatibility.isCompatibleOrWeakCompatible()
+                compatibility.isCompatibleOrWeakCompatible
             }
             .map { (_, members) -> members }
             .flatten()
@@ -267,12 +268,7 @@ object FirExpectActualDeclarationChecker : FirBasicDeclarationChecker() {
     }
 
     fun Map<out ExpectActualCompatibility<*>, *>.allStrongIncompatibilities(): Boolean {
-        return keys.all { it is Incompatible && it.kind == IncompatibilityKind.STRONG }
-    }
-
-    private fun ExpectActualCompatibility<FirBasedSymbol<*>>.isCompatibleOrWeakCompatible(): Boolean {
-        return this is Compatible ||
-                this is Incompatible && kind == IncompatibilityKind.WEAK
+        return keys.all { it.isStrongIncompatibility }
     }
 
     // we don't require `actual` modifier on

@@ -106,3 +106,10 @@ fun ExpectActualCompatibility<*>.isIncompatible(): Boolean {
     }
     return !compatible
 }
+
+val ExpectActualCompatibility<*>.isStrongIncompatibility: Boolean
+    get() = this is ExpectActualCompatibility.Incompatible && kind == ExpectActualCompatibility.IncompatibilityKind.STRONG
+
+val ExpectActualCompatibility<*>.isCompatibleOrWeakCompatible: Boolean
+    get() = this is ExpectActualCompatibility.Compatible ||
+            this is ExpectActualCompatibility.Incompatible && kind == ExpectActualCompatibility.IncompatibilityKind.WEAK
