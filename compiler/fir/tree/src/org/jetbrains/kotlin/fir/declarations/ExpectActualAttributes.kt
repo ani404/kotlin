@@ -9,11 +9,11 @@ import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
 import org.jetbrains.kotlin.fir.symbols.SymbolInternals
 import org.jetbrains.kotlin.fir.symbols.impl.FirFunctionSymbol
 import org.jetbrains.kotlin.fir.symbols.lazyResolveToPhase
-import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualCompatibility
+import org.jetbrains.kotlin.resolve.multiplatform.SymbolsWithCompatibilities
 
 private object ExpectForActualAttributeKey : FirDeclarationDataKey()
 
-typealias ExpectForActualData = Map<ExpectActualCompatibility<FirBasedSymbol<*>>, List<FirBasedSymbol<*>>>
+typealias ExpectForActualData = SymbolsWithCompatibilities<FirBasedSymbol<*>>
 
 @SymbolInternals
 var FirDeclaration.expectForActual: ExpectForActualData? by FirDeclarationDataRegistry.data(ExpectForActualAttributeKey)
@@ -22,7 +22,7 @@ fun FirFunctionSymbol<*>.getSingleExpectForActualOrNull(): FirFunctionSymbol<*>?
     (this as FirBasedSymbol<*>).getSingleExpectForActualOrNull() as? FirFunctionSymbol<*>
 
 fun FirBasedSymbol<*>.getSingleExpectForActualOrNull(): FirBasedSymbol<*>? {
-    return expectForActual?.values?.singleOrNull()?.singleOrNull()
+    return expectForActual?.singleOrNull()?.first
 }
 
 val FirBasedSymbol<*>.expectForActual: ExpectForActualData?

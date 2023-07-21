@@ -94,7 +94,7 @@ open class FirExpectActualMatcherTransformer(
             session,
             scopeSession,
             expectActualMatchingContext,
-        ) ?: mapOf()
+        ) ?: emptyList()
         memberDeclaration.expectForActual = expectForActualData
     }
 

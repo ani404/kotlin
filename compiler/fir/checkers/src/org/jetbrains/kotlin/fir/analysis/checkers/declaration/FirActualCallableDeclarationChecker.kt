@@ -66,7 +66,7 @@ object FirActualCallableDeclarationChecker : FirCallableDeclarationChecker() {
                 callableDeclaration.source,
                 FirErrors.ACTUAL_WITHOUT_EXPECT,
                 actualFunctionSymbol,
-                actualFunctionSymbol.expectForActual as Map<ExpectActualCompatibility<FirBasedSymbol<*>>, Collection<FirBasedSymbol<*>>>,
+                actualFunctionSymbol.expectForActual!!,
                 context
             )
         }

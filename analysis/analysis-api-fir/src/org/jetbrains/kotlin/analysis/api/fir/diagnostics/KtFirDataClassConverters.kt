@@ -3418,12 +3418,8 @@ internal val KT_DIAGNOSTIC_CONVERTER = KtDiagnosticConverterBuilder.buildConvert
         NoActualForExpectImpl(
             firSymbolBuilder.buildSymbol(firDiagnostic.a),
             firDiagnostic.b,
-            firDiagnostic.c.mapKeys { (expectActualCompatibility, _) ->
-                expectActualCompatibility
-            }.mapValues { (_, collection) -> 
-                collection.map { firBasedSymbol ->
-                                    firSymbolBuilder.buildSymbol(firBasedSymbol)
-                                }
+            firDiagnostic.c.map { pair ->
+                firSymbolBuilder.buildSymbol(pair.first) to pair.second
             },
             firDiagnostic as KtPsiDiagnostic,
             token,
@@ -3432,12 +3428,8 @@ internal val KT_DIAGNOSTIC_CONVERTER = KtDiagnosticConverterBuilder.buildConvert
     add(FirErrors.ACTUAL_WITHOUT_EXPECT) { firDiagnostic ->
         ActualWithoutExpectImpl(
             firSymbolBuilder.buildSymbol(firDiagnostic.a),
-            firDiagnostic.b.mapKeys { (expectActualCompatibility, _) ->
-                expectActualCompatibility
-            }.mapValues { (_, collection) -> 
-                collection.map { firBasedSymbol ->
-                                    firSymbolBuilder.buildSymbol(firBasedSymbol)
-                                }
+            firDiagnostic.b.map { pair ->
+                firSymbolBuilder.buildSymbol(pair.first) to pair.second
             },
             firDiagnostic as KtPsiDiagnostic,
             token,

@@ -19,6 +19,7 @@ import org.jetbrains.kotlin.descriptors.Visibility
 import org.jetbrains.kotlin.diagnostics.WhenMissingCase
 import org.jetbrains.kotlin.fir.FirModuleData
 import org.jetbrains.kotlin.fir.checkers.generator.diagnostics.model.*
+import org.jetbrains.kotlin.fir.declarations.ExpectForActualData
 import org.jetbrains.kotlin.fir.declarations.FirFunction
 import org.jetbrains.kotlin.fir.expressions.FirExpression
 import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
@@ -1148,12 +1149,12 @@ object DIAGNOSTICS_LIST : DiagnosticList("FirErrors") {
         val NO_ACTUAL_FOR_EXPECT by error<KtNamedDeclaration>(PositioningStrategy.INCOMPATIBLE_DECLARATION) {
             parameter<Symbol>("declaration")
             parameter<FirModuleData>("module")
-            parameter<Map<ExpectActualCompatibility<Symbol>, Collection<Symbol>>>("compatibility")
+            parameter<ExpectForActualData>("compatibility")
         }
 
         val ACTUAL_WITHOUT_EXPECT by error<KtNamedDeclaration>(PositioningStrategy.DECLARATION_NAME_ONLY) {
             parameter<Symbol>("declaration")
-            parameter<Map<ExpectActualCompatibility<Symbol>, Collection<Symbol>>>("compatibility")
+            parameter<ExpectForActualData>("compatibility")
         }
 
         val AMBIGUOUS_ACTUALS by error<KtNamedDeclaration>(PositioningStrategy.INCOMPATIBLE_DECLARATION) {

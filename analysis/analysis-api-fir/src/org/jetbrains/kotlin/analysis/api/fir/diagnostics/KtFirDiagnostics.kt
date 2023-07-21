@@ -80,8 +80,8 @@ import org.jetbrains.kotlin.psi.KtWhenEntry
 import org.jetbrains.kotlin.psi.KtWhenExpression
 import org.jetbrains.kotlin.resolve.ForbiddenNamedArgumentsTarget
 import org.jetbrains.kotlin.resolve.deprecation.DeprecationInfo
-import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualCompatibility
 import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualCompatibility.Incompatible
+import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualCompatibilityCheckResult
 import org.jetbrains.kotlin.types.Variance
 
 /*
@@ -2404,13 +2404,13 @@ sealed interface KtFirDiagnostic<PSI : PsiElement> : KtDiagnosticWithPsi<PSI> {
         override val diagnosticClass get() = NoActualForExpect::class
         val declaration: KtSymbol
         val module: FirModuleData
-        val compatibility: Map<ExpectActualCompatibility<FirBasedSymbol<*>>, List<KtSymbol>>
+        val compatibility: List<Pair<KtSymbol, ExpectActualCompatibilityCheckResult<FirBasedSymbol<*>>>>
     }
 
     interface ActualWithoutExpect : KtFirDiagnostic<KtNamedDeclaration> {
         override val diagnosticClass get() = ActualWithoutExpect::class
         val declaration: KtSymbol
-        val compatibility: Map<ExpectActualCompatibility<FirBasedSymbol<*>>, List<KtSymbol>>
+        val compatibility: List<Pair<KtSymbol, ExpectActualCompatibilityCheckResult<FirBasedSymbol<*>>>>
     }
 
     interface AmbiguousActuals : KtFirDiagnostic<KtNamedDeclaration> {

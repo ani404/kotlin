@@ -103,8 +103,8 @@ import org.jetbrains.kotlin.psi.KtWhenEntry
 import org.jetbrains.kotlin.psi.KtWhenExpression
 import org.jetbrains.kotlin.resolve.ForbiddenNamedArgumentsTarget
 import org.jetbrains.kotlin.resolve.deprecation.DeprecationInfo
-import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualCompatibility
 import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualCompatibility.Incompatible
+import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualCompatibilityCheckResult
 import org.jetbrains.kotlin.types.Variance
 
 /*
@@ -619,8 +619,8 @@ object FirErrors {
     val DEFAULT_ARGUMENTS_IN_EXPECT_WITH_ACTUAL_TYPEALIAS by error2<KtTypeAlias, FirClassSymbol<*>, Collection<FirCallableSymbol<*>>>()
     val ACTUAL_ANNOTATION_CONFLICTING_DEFAULT_ARGUMENT_VALUE by error1<PsiElement, FirVariableSymbol<*>>()
     val EXPECTED_FUNCTION_SOURCE_WITH_DEFAULT_ARGUMENTS_NOT_FOUND by error0<PsiElement>()
-    val NO_ACTUAL_FOR_EXPECT by error3<KtNamedDeclaration, FirBasedSymbol<*>, FirModuleData, Map<ExpectActualCompatibility<FirBasedSymbol<*>>, Collection<FirBasedSymbol<*>>>>(SourceElementPositioningStrategies.INCOMPATIBLE_DECLARATION)
-    val ACTUAL_WITHOUT_EXPECT by error2<KtNamedDeclaration, FirBasedSymbol<*>, Map<ExpectActualCompatibility<FirBasedSymbol<*>>, Collection<FirBasedSymbol<*>>>>(SourceElementPositioningStrategies.DECLARATION_NAME_ONLY)
+    val NO_ACTUAL_FOR_EXPECT by error3<KtNamedDeclaration, FirBasedSymbol<*>, FirModuleData, List<Pair<FirBasedSymbol<*>, ExpectActualCompatibilityCheckResult<FirBasedSymbol<*>>>>>(SourceElementPositioningStrategies.INCOMPATIBLE_DECLARATION)
+    val ACTUAL_WITHOUT_EXPECT by error2<KtNamedDeclaration, FirBasedSymbol<*>, List<Pair<FirBasedSymbol<*>, ExpectActualCompatibilityCheckResult<FirBasedSymbol<*>>>>>(SourceElementPositioningStrategies.DECLARATION_NAME_ONLY)
     val AMBIGUOUS_ACTUALS by error2<KtNamedDeclaration, FirBasedSymbol<*>, Collection<FirBasedSymbol<*>>>(SourceElementPositioningStrategies.INCOMPATIBLE_DECLARATION)
     val AMBIGUOUS_EXPECTS by error2<KtNamedDeclaration, FirBasedSymbol<*>, Collection<FirModuleData>>(SourceElementPositioningStrategies.INCOMPATIBLE_DECLARATION)
     val NO_ACTUAL_CLASS_MEMBER_FOR_EXPECTED_CLASS by error2<KtNamedDeclaration, FirBasedSymbol<*>, List<Pair<FirBasedSymbol<*>, Map<Incompatible<FirBasedSymbol<*>>, Collection<FirBasedSymbol<*>>>>>>(SourceElementPositioningStrategies.ACTUAL_DECLARATION_NAME)

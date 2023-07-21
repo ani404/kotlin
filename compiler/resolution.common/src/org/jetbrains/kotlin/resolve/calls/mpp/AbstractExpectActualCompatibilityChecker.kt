@@ -12,6 +12,9 @@ import org.jetbrains.kotlin.descriptors.Visibility
 import org.jetbrains.kotlin.mpp.*
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.name.SpecialNames
+import org.jetbrains.kotlin.resolve.multiplatform.SymbolsWithCompatibilities
+import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualCallableCompatibilityCheckResult
+import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualClassifierCompatibilityCheckResult
 import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualCompatibility
 import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualCompatibility.Incompatible
 import org.jetbrains.kotlin.types.model.KotlinTypeMarker

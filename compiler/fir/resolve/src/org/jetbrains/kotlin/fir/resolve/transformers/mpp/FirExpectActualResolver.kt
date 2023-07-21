@@ -7,18 +7,22 @@ package org.jetbrains.kotlin.fir.resolve.transformers.mpp
 
 import org.jetbrains.kotlin.fir.FirExpectActualMatchingContext
 import org.jetbrains.kotlin.fir.FirSession
-import org.jetbrains.kotlin.fir.declarations.*
-import org.jetbrains.kotlin.fir.resolve.*
+import org.jetbrains.kotlin.fir.declarations.ExpectForActualData
+import org.jetbrains.kotlin.fir.declarations.fullyExpandedClass
+import org.jetbrains.kotlin.fir.resolve.ScopeSession
 import org.jetbrains.kotlin.fir.resolve.providers.dependenciesSymbolProvider
 import org.jetbrains.kotlin.fir.resolve.providers.symbolProvider
 import org.jetbrains.kotlin.fir.resolve.substitution.ConeSubstitutor
 import org.jetbrains.kotlin.fir.scopes.impl.FirPackageMemberScope
 import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
-import org.jetbrains.kotlin.fir.symbols.impl.*
-import org.jetbrains.kotlin.fir.types.*
+import org.jetbrains.kotlin.fir.symbols.impl.FirCallableSymbol
+import org.jetbrains.kotlin.fir.symbols.impl.FirClassLikeSymbol
+import org.jetbrains.kotlin.fir.symbols.impl.FirConstructorSymbol
+import org.jetbrains.kotlin.fir.symbols.impl.FirRegularClassSymbol
+import org.jetbrains.kotlin.fir.types.createExpectActualTypeParameterSubstitutor
 import org.jetbrains.kotlin.mpp.CallableSymbolMarker
 import org.jetbrains.kotlin.resolve.calls.mpp.AbstractExpectActualCompatibilityChecker
-import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualCompatibility
+import org.jetbrains.kotlin.resolve.multiplatform.compatible
 
 object FirExpectActualResolver {
     private val expectActualCompatibilityChecker = AbstractExpectActualCompatibilityChecker<FirBasedSymbol<*>>()
@@ -72,32 +76,33 @@ object FirExpectActualResolver {
                     }
                     candidates.filter { expectSymbol ->
                         actualSymbol != expectSymbol && expectSymbol.isExpect
-                    }.groupBy { expectDeclaration ->
-                        expectActualCompatibilityChecker.areCompatibleCallables(
+                    }.map { expectDeclaration ->
+                        expectDeclaration to expectActualCompatibilityChecker.areCompatibleCallables(
                             expectDeclaration,
                             actualSymbol as CallableSymbolMarker,
                             parentSubstitutor,
                             expectContainingClass,
                             actualContainingClass,
                             context
-                        ).compatibility
-                    }.let {
+                        )
+                    }.let { actualsWithCompatibilities ->
                         // If there is a compatible entry, return a map only containing it
-                        when (val compatibleSymbols = it[ExpectActualCompatibility.Compatible]) {
-                            null -> it
-                            else -> mapOf<ExpectActualCompatibility<FirBasedSymbol<*>>, _>(ExpectActualCompatibility.Compatible to compatibleSymbols)
+                        val compatibleSymbols = actualsWithCompatibilities.filter { (_, result) -> result.compatibility.compatible }
+                        when (compatibleSymbols.isEmpty()) {
+                            true -> actualsWithCompatibilities
+                            false -> compatibleSymbols
                         }
                     }
                 }
                 is FirClassLikeSymbol<*> -> {
                     val expectClassSymbol = useSiteSession.dependenciesSymbolProvider
                         .getClassLikeSymbolByClassId(actualSymbol.classId) as? FirRegularClassSymbol ?: return null
-                    val compatibility = expectActualCompatibilityChecker.areCompatibleClassifiersAndScopes(
+                    val result = expectActualCompatibilityChecker.areCompatibleClassifiersAndScopes(
                         expectClassSymbol,
                         actualSymbol,
                         context
-                    ).compatibility
-                    mapOf(compatibility to listOf(expectClassSymbol))
+                    )
+                    listOf(expectClassSymbol to result)
                 }
                 else -> null
             }

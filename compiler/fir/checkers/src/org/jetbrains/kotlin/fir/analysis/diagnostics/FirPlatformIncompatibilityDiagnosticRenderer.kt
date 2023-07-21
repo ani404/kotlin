@@ -17,21 +17,23 @@
 package org.jetbrains.kotlin.fir.analysis.diagnostics
 
 import org.jetbrains.kotlin.diagnostics.rendering.ContextIndependentParameterRenderer
+import org.jetbrains.kotlin.fir.declarations.ExpectForActualData
 import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
 import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualCompatibility
 import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualCompatibility.Incompatible
 
 class FirPlatformIncompatibilityDiagnosticRenderer(
     private val mode: MultiplatformDiagnosticRenderingMode
-) : ContextIndependentParameterRenderer<Map<ExpectActualCompatibility<FirBasedSymbol<*>>, Collection<FirBasedSymbol<*>>>> {
+) : ContextIndependentParameterRenderer<ExpectForActualData> {
     override fun render(
-        obj: Map<ExpectActualCompatibility<FirBasedSymbol<*>>, Collection<FirBasedSymbol<*>>>,
+        obj: ExpectForActualData,
     ): String {
         if (obj.isEmpty()) return ""
 
+        val compatibilityToSymbolsMap = obj.groupBy(keySelector = { it.second.compatibility }, valueTransform = { it.first })
         return buildString {
             mode.newLine(this)
-            renderIncompatibilityInformation(obj, "", mode)
+            renderIncompatibilityInformation(compatibilityToSymbolsMap, "", mode)
         }
     }
 
