@@ -7,7 +7,7 @@ package org.jetbrains.kotlin.backend.jvm.lower
 
 import org.jetbrains.kotlin.backend.common.FileLoweringPass
 import org.jetbrains.kotlin.backend.jvm.JvmBackendContext
-import org.jetbrains.kotlin.backend.jvm.JvmSymbols
+import org.jetbrains.kotlin.backend.jvm.ir.getAttributeOwnerBeforeInline
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.expressions.IrClassReference
 import org.jetbrains.kotlin.ir.expressions.IrExpression
@@ -24,40 +24,38 @@ internal class InlinedClassReferencesBoxingLowering(val context: JvmBackendConte
     }
 
     override fun visitClassReference(expression: IrClassReference): IrExpression {
-        return super.visitClassReference(expression).apply {
-            val wasTypeParameterClassRefBeforeInline = generateSequence(expression) {
-                val originalBeforeInline = it.originalBeforeInline ?: return@generateSequence null
-                require(originalBeforeInline is IrClassReference) {
-                    "Original for class reference ${it.render()} has another type: ${originalBeforeInline.render()}"
-                }
-                originalBeforeInline
-            }.any { it.classType.classifierOrNull is IrTypeParameterSymbol }
+        val transformedReference = super.visitClassReference(expression)
 
-            if (wasTypeParameterClassRefBeforeInline && expression.classType.isPrimitiveType()) {
-                require(this is IrClassReference) { "Class reference should preserve its type after transformation" }
-                val boxedPrimitive = classType.boxPrimitive(context.ir.symbols)
-                classType = boxedPrimitive
-                val classReferenceType = type
-                require(classReferenceType is IrSimpleType && classReferenceType.isKClass()) {
-                    "Type of the type reference is expected to be KClass"
-                }
-                type = classReferenceType.buildSimpleType {
-                    arguments = listOf(boxedPrimitive)
-                }
+        require(transformedReference is IrClassReference) { "Class reference should preserve its type after transformation" }
+
+        val wasTypeParameterClassRefBeforeInline =
+            (expression.getAttributeOwnerBeforeInline() as? IrClassReference)?.classType?.classifierOrNull is IrTypeParameterSymbol
+
+        if (wasTypeParameterClassRefBeforeInline && transformedReference.classType.isPrimitiveType()) {
+            val boxedPrimitive = transformedReference.classType.boxPrimitive()
+            transformedReference.classType = boxedPrimitive
+            val classReferenceType = transformedReference.type
+            require(classReferenceType is IrSimpleType && classReferenceType.isKClass()) {
+                "Type of the type reference is expected to be KClass"
             }
-
+            transformedReference.type = classReferenceType.buildSimpleType {
+                arguments = listOf(boxedPrimitive)
+            }
         }
+        return transformedReference
     }
 
-    private fun IrType.boxPrimitive(symbols: JvmSymbols) = when {
-        isBoolean() -> symbols.javaLangBool.owner.defaultType
-        isByte() -> symbols.javaLangByte.owner.defaultType
-        isShort() -> symbols.javaLangShort.owner.defaultType
-        isChar() -> symbols.javaLangChar.owner.defaultType
-        isInt() -> symbols.javaLangInteger.owner.defaultType
-        isFloat() -> symbols.javaLangFloat.owner.defaultType
-        isLong() -> symbols.javaLangLong.owner.defaultType
-        isDouble() -> symbols.javaLangDouble.owner.defaultType
-        else -> throw IllegalArgumentException("Primitive type expected, got ${render()} instead")
+    private fun IrType.boxPrimitive() = with(context.ir.symbols) {
+        when {
+            isBoolean() -> javaLangBool.owner.defaultType
+            isByte() -> javaLangByte.owner.defaultType
+            isShort() -> javaLangShort.owner.defaultType
+            isChar() -> javaLangChar.owner.defaultType
+            isInt() -> javaLangInteger.owner.defaultType
+            isFloat() -> javaLangFloat.owner.defaultType
+            isLong() -> javaLangLong.owner.defaultType
+            isDouble() -> javaLangDouble.owner.defaultType
+            else -> throw IllegalArgumentException("Primitive type expected, got ${render()} instead")
+        }
     }
 }

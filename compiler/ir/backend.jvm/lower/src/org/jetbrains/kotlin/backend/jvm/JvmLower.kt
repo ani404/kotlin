@@ -333,8 +333,8 @@ private val inlinedClassReferencesBoxingPhase = makeIrModulePhase(
         InlinedClassReferencesBoxingLowering(context)
     },
     name = "InlinedClassReferencesBoxingLowering",
-    description = "Box inlined primitive class references",
-    prerequisite = setOf(functionInliningPhase)
+    description = "Replace inlined primitive types in class references with boxed versions",
+    prerequisite = setOf(functionInliningPhase, markNecessaryInlinedClassesAsRegenerated)
 )
 
 private val constEvaluationPhase = makeIrModulePhase<JvmBackendContext>(
@@ -496,10 +496,10 @@ private fun buildJvmLoweringPhases(
                 repeatedAnnotationPhase then
 
                 functionInliningPhase then
-                inlinedClassReferencesBoxingPhase then
                 apiVersionIsAtLeastEvaluationPhase then
                 createSeparateCallForInlinedLambdas then
                 markNecessaryInlinedClassesAsRegenerated then
+                inlinedClassReferencesBoxingPhase then
 
                 buildLoweringsPhase(phases) then
                 generateMultifileFacadesPhase then
