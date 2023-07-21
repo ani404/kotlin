@@ -12,7 +12,6 @@ import org.jetbrains.kotlin.builtins.UnsignedType
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.types.*
-import org.jetbrains.kotlin.ir.util.allParameters
 import org.jetbrains.kotlin.ir.util.explicitParameters
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
@@ -26,21 +25,17 @@ import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
  *
  */
 class IrBasedSwiftGenerator(private val moduleName: String) : IrElementVisitorVoid {
+    val declarations = mutableListOf<Swift.Declaration>()
 
-    private val initRuntimeIfNeededSpec = FunctionSpec.abstractBuilder("initRuntimeIfNeeded")
-            // FIXME: _silgen_name only work for as long as swiftcc matches ccc. Switch to c brindging instead.
-            .addAttribute("_silgen_name", "\"Kotlin_initRuntimeIfNeeded\"")
-            .addModifiers(Modifier.PRIVATE)
-            .build()
+    private val initRuntimeIfNeededSpec = declarations.add {
+        function(
+                "initRuntimeIfNeeded",
+                attributes = listOf(attribute("_silgen_name", "Kotlin_initRuntimeIfNeeded".literal)),
+                visibility = Swift.Declaration.Visibility.PRIVATE,
+        ).declare()
+    }
 
-    val functions = mutableListOf<FunctionSpec>(initRuntimeIfNeededSpec)
-
-    fun build(): FileSpec =
-        FileSpec.builder(moduleName, moduleName).apply {
-            functions.forEach { topLevelFunction ->
-                addFunction(topLevelFunction)
-            }
-        }.build()
+    fun build(): String = Swift.File(listOf(Swift.Import.Module("Foundation")), declarations).render()
 
     override fun visitElement(element: IrElement) {
         element.acceptChildrenVoid(this)
@@ -54,37 +49,29 @@ class IrBasedSwiftGenerator(private val moduleName: String) : IrElementVisitorVo
         val name = declaration.name.identifier
         val symbolName = with(KonanBinaryInterface) { declaration.symbolName }
 
-        val returnTypeSpec = mapType(declaration.returnType) ?: return
-        val parametersSpec = declaration.explicitParameters.map {
-            ParameterSpec.builder(it.name.asString(), mapType(it.type) ?: return).build()
+        declarations.add {
+            val returnType = mapType(declaration.returnType) ?: return
+            val parameters = declaration.explicitParameters.map { parameter(it.name.asString(), type = mapType(it.type) ?: return) }
+
+            val forwardDeclaration = function(
+                    "${name}_bridge",
+                    parameters = parameters,
+                    type = returnType,
+                    attributes = listOf(attribute("_silgen_name", symbolName.literal))
+            ).declare()
+
+            function(
+                    name,
+                    parameters = parameters,
+                    type = returnType,
+                    visibility = Swift.Declaration.Visibility.PUBLIC
+            ) {
+                initRuntimeIfNeededSpec.name.variable.call().state()
+                `return`(forwardDeclaration.name.variable.call(declaration.explicitParameters.map {
+                    it.name.asString() of it.name.asString().variable
+                }))
+            }.declare()
         }
-
-        val forwardDeclarationSpec = FunctionSpec.abstractBuilder("${name}_bridge")
-                // FIXME: _silgen_name only work for as long as swiftcc matches ccc. Switch to c brindging instead.
-                .addAttribute("_silgen_name", "\"${symbolName}\"")
-                .addModifiers(Modifier.PRIVATE)
-                .returns(returnTypeSpec)
-                .apply {
-                    for (parameter in parametersSpec) {
-                        addParameter(parameter)
-                    }
-                }
-                .build()
-
-        val shimFunctionSpec = FunctionSpec.builder(name)
-                .addModifiers(Modifier.PUBLIC)
-                .returns(returnTypeSpec)
-                .apply {
-                    for (parameter in parametersSpec) {
-                        addParameter(parameter)
-                    }
-                }
-                .addStatement("${initRuntimeIfNeededSpec.name}()")
-                .addStatement("return ${forwardDeclarationSpec.name}(${parametersSpec.map { "${it.parameterName}: ${it.parameterName}" }.joinToString()})")
-                .build()
-
-        functions += forwardDeclarationSpec
-        functions += shimFunctionSpec
     }
 
     private fun isSupported(declaration: IrFunction): Boolean {
@@ -97,7 +84,7 @@ class IrBasedSwiftGenerator(private val moduleName: String) : IrElementVisitorVo
                 && !declaration.isInline
     }
 
-    private fun mapType(declaration: IrType): TypeName? {
+    private fun mapType(declaration: IrType): Swift.Type? {
         val swiftPrimitiveTypeName: String? = declaration.getPrimitiveType().takeUnless { declaration.isNullable() }?.let {
             when (it) {
                 PrimitiveType.BYTE -> "Int8"
@@ -122,6 +109,6 @@ class IrBasedSwiftGenerator(private val moduleName: String) : IrElementVisitorVo
             println("Failed to bridge ${declaration.classFqName}")
         }
 
-        return swiftPrimitiveTypeName?.let { DeclaredTypeName.typeName("Swift.$it") }
+        return swiftPrimitiveTypeName?.let { Swift.Type.Nominal("Swift.$it") }
     }
 }
