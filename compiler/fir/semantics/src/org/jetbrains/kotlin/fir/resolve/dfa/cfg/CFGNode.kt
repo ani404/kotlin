@@ -175,8 +175,10 @@ val CFGNode<*>.previousDfaNodes: Sequence<Pair<Edge, CFGNode<*>>>
         .map { edgeFrom(it) to it }
         .filter { (edge, _) -> if (isDead) edge.kind.usedInDeadDfa else edge.kind.usedInDfa }
 val CFGNode<*>.previousLiveNodes: Sequence<CFGNode<*>>
-    get() = previousNodes.asSequence()
-        .mapNotNull { it.takeIf { this.isDead || !it.isDead } }
+    get() = when  {
+        this.isDead -> previousNodes.asSequence()
+        else -> previousNodes.asSequence().mapNotNull { it.takeIf { !it.isDead } }
+    }
 
 interface EnterNodeMarker
 interface ExitNodeMarker
