@@ -1631,28 +1631,28 @@ open class FirExpressionsResolveTransformer(transformer: FirAbstractBodyResolveT
         )
     }
 
-    override fun transformArrayOfCall(arrayOfCall: FirArrayOfCall, data: ResolutionMode): FirStatement =
-        whileAnalysing(session, arrayOfCall) {
+    override fun transformArrayLiteral(arrayLiteral: FirArrayLiteral, data: ResolutionMode): FirStatement =
+        whileAnalysing(session, arrayLiteral) {
             if (data is ResolutionMode.ContextDependent.Default) {
                 // Argument for primitive array parameter in annotation call or argument in non-annotation call (unsupported).
-                arrayOfCall.transformChildren(transformer, data)
-                arrayOfCall
+                arrayLiteral.transformChildren(transformer, data)
+                arrayLiteral
             } else if (
                 data is ResolutionMode.WithExpectedType && !data.expectedTypeRef.coneType.isPrimitiveOrUnsignedArray ||
                 data is ResolutionMode.ContextDependent.TransformingArrayLiterals
             ) {
                 // Default value of array parameter (Array<T> or primitive array such as IntArray, FloatArray, ...)
                 // or argument for array parameter in annotation call.
-                arrayOfCall.transformChildren(transformer, ResolutionMode.ContextDependent)
-                val call = components.syntheticCallGenerator.generateSyntheticArrayOfCall(arrayOfCall, data.expectedType, resolutionContext)
+                arrayLiteral.transformChildren(transformer, ResolutionMode.ContextDependent)
+                val call = components.syntheticCallGenerator.generateSyntheticArrayOfCall(arrayLiteral, data.expectedType, resolutionContext)
                 callCompleter.completeCall(call, data)
                 arrayOfCallTransformer.transformFunctionCall(call, session)
             } else {
                 // Default value of primitive array parameter or other unsupported usage.
-                val syntheticIdCall = components.syntheticCallGenerator.generateSyntheticIdCall(arrayOfCall, resolutionContext)
-                arrayOfCall.transformChildren(transformer, ResolutionMode.ContextDependent)
+                val syntheticIdCall = components.syntheticCallGenerator.generateSyntheticIdCall(arrayLiteral, resolutionContext)
+                arrayLiteral.transformChildren(transformer, ResolutionMode.ContextDependent)
                 callCompleter.completeCall(syntheticIdCall, data)
-                arrayOfCall
+                arrayLiteral
             }
         }
 

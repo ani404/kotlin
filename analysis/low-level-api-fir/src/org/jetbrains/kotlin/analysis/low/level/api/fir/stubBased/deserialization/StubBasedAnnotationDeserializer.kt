@@ -117,7 +117,7 @@ class StubBasedAnnotationDeserializer(
                     }
                 )
             }
-            is ArrayValue -> buildArrayOfCall {
+            is ArrayValue -> buildArrayLiteral {
                 source = KtRealPsiSourceElement(sourceElement)
                 argumentList = buildArgumentList {
                     value.value.mapTo(arguments) { resolveValue(sourceElement, it) }
