@@ -354,8 +354,8 @@ class CallableReferenceLowering(private val context: CommonBackendContext) : Bod
 
             if (hasReceiver) {
                 if (!boundReceiver) {
-                    if (callee.dispatchReceiverParameter != null) irCall.dispatchReceiver = getValue(valueParameters[i++])
                     if (callee.extensionReceiverParameter != null) irCall.extensionReceiver = getValue(valueParameters[i++])
+                    if (callee.dispatchReceiverParameter != null) irCall.dispatchReceiver = getValue(valueParameters[i++])
                 } else {
                     val boundReceiverField = boundReceiverField
                     if (boundReceiverField != null) {
