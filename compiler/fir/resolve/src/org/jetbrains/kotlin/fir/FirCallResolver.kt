@@ -179,7 +179,52 @@ class FirCallResolver(
         var (reducedCandidates, newApplicability) = reduceCandidates(result, explicitReceiver, resolutionContext)
         reducedCandidates = overloadByLambdaReturnTypeResolver.reduceCandidates(qualifiedAccess, reducedCandidates, reducedCandidates)
 
+        if ((newApplicability ?: result.currentApplicability) == CandidateApplicability.K2_VISIBILITY_ERROR &&
+            info.containingFile.name == "fragment.kt") {
+            val best: Candidate? = chooseCandidateForCodeFragment(reducedCandidates)
+            if (best != null) {
+                best.removeVisibilityError()
+                reducedCandidates = mutableSetOf(best)
+                newApplicability = best.applicability
+            }
+        }
+
         return ResolutionResult(info, newApplicability ?: result.currentApplicability, reducedCandidates)
+    }
+
+    private fun chooseCandidateForCodeFragment(reducedCandidates: Set<Candidate>): Candidate? {
+        val visibilityErrorCandidates = reducedCandidates.filter { c ->
+            c.currentApplicability == CandidateApplicability.K2_VISIBILITY_ERROR
+        }
+        visibilityErrorCandidates.singleOrNull()?.let {
+            return it
+        }
+        var curType: ConeKotlinType? = null
+        var best: Candidate? = null
+        for (c in visibilityErrorCandidates) {
+            val coneType = (c.symbol.fir as? FirSimpleFunction)?.dispatchReceiverType
+            if (coneType == null) {
+                best = null
+                break
+            }
+            if (curType != null) {
+                if (curType == coneType) {
+                    best = null
+                    break
+                }
+                if (coneType.isSubtypeOf(curType, session)) {
+                    curType = coneType
+                    best = c
+                } else if (!curType.isSubtypeOf(coneType, session)) {
+                    best = null
+                    break
+                }
+            } else {
+                curType = coneType
+                best = c
+            }
+        }
+        return best
     }
 
     /**

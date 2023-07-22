@@ -103,6 +103,17 @@ class Candidate(
         }
     }
 
+    fun removeVisibilityError() {
+        val old = _diagnostics.toMutableList()
+        _diagnostics.clear()
+        currentApplicability = CandidateApplicability.RESOLVED
+        for (diagnostic in old) {
+            if (diagnostic.applicability != CandidateApplicability.K2_VISIBILITY_ERROR) {
+                addDiagnostic(diagnostic)
+            }
+        }
+    }
+
     val isSuccessful: Boolean
         get() = currentApplicability.isSuccess && (!systemInitialized || !system.hasContradiction)
 

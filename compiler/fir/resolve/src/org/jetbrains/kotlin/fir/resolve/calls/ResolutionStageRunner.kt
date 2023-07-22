@@ -35,7 +35,7 @@ class ResolutionStageRunner {
 
         while (!finished) {
             sink.continuation!!.resume(Unit)
-            if (!candidate.isSuccessful) {
+            if (!candidate.isSuccessful && (context.bodyResolveContext.file.name != "fragment.kt" || candidate.applicability != CandidateApplicability.K2_VISIBILITY_ERROR)) {
                 break
             }
         }
