@@ -283,7 +283,7 @@ public object GC {
      * If true, the GC will pause Kotlin threads when Kotlin heap overflows [targetHeapBytes]
      * and will resume them only after current GC is done.
      *
-     * Default: true, unless [autoTune] is false or [maxHeapBytes] is less than [Long.MAX_VALUE].
+     * Default: true, unless [autotune] is false or [maxHeapBytes] is less than [Long.MAX_VALUE].
      */
     var mutatorAssists: Boolean
         get() = getMutatorAssists()
