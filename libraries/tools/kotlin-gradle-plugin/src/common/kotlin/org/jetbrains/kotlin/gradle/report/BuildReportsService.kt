@@ -13,12 +13,12 @@ import org.jetbrains.kotlin.build.report.statistics.HttpReportService
 import org.jetbrains.kotlin.build.report.statistics.file.FileReportService
 import org.jetbrains.kotlin.build.report.statistics.formatSize
 import org.jetbrains.kotlin.build.report.statistics.BuildFinishStatisticsData
-import org.jetbrains.kotlin.build.report.statistics.CompileStatisticsData
 import org.jetbrains.kotlin.build.report.statistics.BuildStartParameters
 import org.jetbrains.kotlin.build.report.statistics.StatTag
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.report.data.BuildExecutionData
 import org.jetbrains.kotlin.gradle.report.data.BuildOperationRecord
+import org.jetbrains.kotlin.gradle.report.data.GradleCompileStatisticsData
 import org.jetbrains.kotlin.utils.addToStdlib.measureTimeMillisWithResult
 import java.io.File
 import java.net.InetAddress
@@ -230,7 +230,7 @@ class BuildReportsService {
         }
     }
 
-    private fun addBuildScanReport(data: CompileStatisticsData, customValuesLimit: Int, buildScan: BuildScanExtensionHolder) {
+    private fun addBuildScanReport(data: GradleCompileStatisticsData, customValuesLimit: Int, buildScan: BuildScanExtensionHolder) {
         val elapsedTime = measureTimeMillis {
             tags.addAll(data.tags)
             if (customValues < customValuesLimit) {
@@ -254,7 +254,7 @@ class BuildReportsService {
 
     private fun addBuildScanValue(
         buildScan: BuildScanExtensionHolder,
-        data: CompileStatisticsData,
+        data: GradleCompileStatisticsData,
         customValue: String
     ) {
         buildScan.buildScan.value(data.taskName, customValue)
@@ -289,7 +289,7 @@ class BuildReportsService {
         }
     }
 
-    private fun readableString(data: CompileStatisticsData): List<String> {
+    private fun readableString(data: GradleCompileStatisticsData): List<String> {
         val readableString = StringBuilder()
         if (data.nonIncrementalAttributes.isEmpty()) {
             readableString.append("Incremental build; ")

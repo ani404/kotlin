@@ -20,6 +20,7 @@ import io.ktor.util.collections.*
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.build.report.statistics.*
 import org.jetbrains.kotlin.gradle.report.BuildReportType
+import org.jetbrains.kotlin.gradle.report.data.GradleCompileStatisticsData
 import org.jetbrains.kotlin.gradle.testbase.*
 import org.junit.jupiter.api.DisplayName
 import java.io.IOException
@@ -129,11 +130,11 @@ class BuildStatisticsWithKtorIT : KGPBaseTest() {
             }
         }
 
-        fun validateTaskData(port: Int, validate: (CompileStatisticsData) -> Unit) {
+        fun validateTaskData(port: Int, validate: (GradleCompileStatisticsData) -> Unit) {
             validateCall(port) { jsonObject ->
                 val type = jsonObject["type"].asString
                 assertEquals(BuildDataType.TASK_DATA, BuildDataType.valueOf(type))
-                val taskData = Gson().fromJson(jsonObject, CompileStatisticsData::class.java)
+                val taskData = Gson().fromJson(jsonObject, GradleCompileStatisticsData::class.java)
                 validate(taskData)
             }
         }
@@ -165,7 +166,7 @@ class BuildStatisticsWithKtorIT : KGPBaseTest() {
     private fun simpleTestHttpReport(
         gradleVersion: GradleVersion,
         additionalProjectSetup: (TestProject) -> Unit = {},
-        compileTaskAssertions: (CompileStatisticsData) -> Unit,
+        compileTaskAssertions: (GradleCompileStatisticsData) -> Unit,
     ) {
         runWithKtorService { port ->
             project("incrementalMultiproject", gradleVersion) {

@@ -12,8 +12,6 @@ import org.jetbrains.kotlin.gradle.testbase.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
-import kotlin.test.assertNotNull
-
 @DisplayName("Configuration cache")
 class ConfigurationCacheIT : AbstractConfigurationCacheIT() {
 
@@ -215,11 +213,11 @@ class ConfigurationCacheIT : AbstractConfigurationCacheIT() {
     fun testBuildScanReportSmokeTestForConfigurationCache(gradleVersion: GradleVersion) {
         project("simpleProject", gradleVersion) {
             val buildOptions = defaultBuildOptions.copy(buildReport = listOf(BuildReportType.BUILD_SCAN), logLevel = LogLevel.DEBUG)
-            build("clean", "assemble", "-Pkotlin.build.report.build_scan.custom_values_limit=0", "--scan", buildOptions = buildOptions) {
+            build("clean", "assemble", "-Pkotlin.build.report.build_scan.custom_values_limit=0", enableBuildScan = true, buildOptions = buildOptions) {
                 assertOutputContains("Can't add any more custom values into build scan")
             }
 
-            build("clean", "assemble", "-Pkotlin.build.report.build_scan.custom_values_limit=0", "--scan", buildOptions = buildOptions) {
+            build("clean", "assemble", "-Pkotlin.build.report.build_scan.custom_values_limit=0", enableBuildScan = true, buildOptions = buildOptions) {
                 assertOutputContains("Can't add any more custom values into build scan")
             }
         }

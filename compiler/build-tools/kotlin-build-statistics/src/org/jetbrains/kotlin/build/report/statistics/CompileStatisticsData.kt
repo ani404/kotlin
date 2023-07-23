@@ -5,44 +5,42 @@
 
 package org.jetbrains.kotlin.build.report.statistics
 
-import org.jetbrains.kotlin.build.report.metrics.BuildAttribute
-import org.jetbrains.kotlin.build.report.metrics.BuildPerformanceMetric
-import org.jetbrains.kotlin.build.report.metrics.BuildTime
+import org.jetbrains.kotlin.build.report.metrics.*
 import java.text.SimpleDateFormat
 import java.util.*
 
 //Sensitive data. This object is used directly for statistic via http
-private val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").also { it.timeZone = TimeZone.getTimeZone("UTC")}
-data class CompileStatisticsData(
-    val version: Int = 3,
-    val projectName: String?,
-    val label: String?,
-    val taskName: String,
-    val taskResult: String?,
-    val startTimeMs: Long,
-    val durationMs: Long,
-    val tags: Set<StatTag>,
-    val changes: List<String>,
-    val buildUuid: String = "Unset",
-    val kotlinVersion: String,
-    val kotlinLanguageVersion: String?,
-    val hostName: String? = "Unset",
-    val finishTime: Long,
-    val timestamp: String = formatter.format(finishTime),
-    val compilerArguments: List<String>,
-    val nonIncrementalAttributes: Set<BuildAttribute>,
-    //TODO think about it,time in milliseconds
-    val buildTimesMetrics: Map<out BuildTime, Long>,
-    val performanceMetrics: Map<out BuildPerformanceMetric, Long>,
-    val gcTimeMetrics: Map<String, Long>?,
-    val gcCountMetrics: Map<String, Long>?,
-    val type: String = BuildDataType.TASK_DATA.name,
-    val fromKotlinPlugin: Boolean?,
-    val compiledSources: List<String> = emptyList(),
-    val skipMessage: String?,
-    val icLogLines: List<String>,
-)
+private val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").also { it.timeZone = TimeZone.getTimeZone("UTC") }
 
+abstract class CompileStatisticsData<B : BuildTime, P : BuildPerformanceMetric>(
+    open val version: Int = 4,
+    open val projectName: String?,
+    open val label: String?,
+    open val taskName: String,
+    open val taskResult: String?,
+    open val startTimeMs: Long,
+    open val durationMs: Long,
+    open val tags: Set<StatTag>,
+    open val changes: List<String>,
+    open val buildUuid: String = "Unset",
+    open val kotlinVersion: String,
+    open val kotlinLanguageVersion: String?,
+    open val hostName: String? = "Unset",
+    open val finishTime: Long,
+    open val timestamp: String = formatter.format(finishTime),
+    open val compilerArguments: List<String>,
+    open val nonIncrementalAttributes: Set<BuildAttribute>,
+    //TODO think about it,time in milliseconds
+    open val buildTimesMetrics: Map<B, Long>,
+    open val performanceMetrics: Map<P, Long>,
+    open val gcTimeMetrics: Map<String, Long>?,
+    open val gcCountMetrics: Map<String, Long>?,
+    open val type: String = BuildDataType.TASK_DATA.name,
+    open val fromKotlinPlugin: Boolean?,
+    open val compiledSources: List<String> = emptyList(),
+    open val skipMessage: String?,
+    open val icLogLines: List<String>,
+)
 
 enum class StatTag(val readableString: String) {
     ABI_SNAPSHOT("ABI Snapshot"),
@@ -86,7 +84,7 @@ data class BuildFinishStatisticsData(
     val timestamp: String = formatter.format(finishTime),
     val hostName: String? = "Unset",
     val tags: Set<StatTag>,
-    val gitBranch: String = "Unset"
+    val gitBranch: String = "Unset",
 )
 
 
