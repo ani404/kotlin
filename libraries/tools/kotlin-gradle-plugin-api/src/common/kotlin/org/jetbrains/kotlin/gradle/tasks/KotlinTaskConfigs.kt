@@ -328,7 +328,11 @@ interface BaseKapt : Task,
     val includeCompileClasspath: Property<Boolean>
 
     /**
-     * Java source compatibility for the produced class files and Java source code.
+     * Java source compatibility in the form of Java language level for the produced class files and Java source code.
+     *
+     * Check `javac` `-source` command line option
+     * [description](https://docs.oracle.com/javase/7/docs/technotes/tools/windows/javac.html#options)
+     * of possible values for Java language level.
      *
      * @see [org.gradle.api.tasks.compile.AbstractCompile.setSourceCompatibility]
      */
