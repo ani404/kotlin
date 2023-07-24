@@ -287,7 +287,7 @@ class GenerationState private constructor(
     val stableTypeOf = languageVersionSettings.apiVersion >= ApiVersion.KOTLIN_1_6
 
     val samWrapperClasses: SamWrapperClasses = SamWrapperClasses(this)
-    val globalInlineContext: GlobalInlineContext = GlobalInlineContext(diagnostics)
+    val globalInlineContext: GlobalInlineContext = GlobalInlineContext()
     val mappingsClassesForWhenByEnum: MappingsClassesForWhenByEnum = MappingsClassesForWhenByEnum(this)
     val jvmRuntimeTypes: JvmRuntimeTypes = JvmRuntimeTypes(
         module, languageVersionSettings, generateOptimizedCallableReferenceSuperClasses

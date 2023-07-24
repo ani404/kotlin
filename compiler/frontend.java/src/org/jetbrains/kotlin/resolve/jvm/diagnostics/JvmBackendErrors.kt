@@ -6,11 +6,12 @@
 package org.jetbrains.kotlin.resolve.jvm.diagnostics
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.diagnostics.*
 import org.jetbrains.kotlin.diagnostics.SourceElementPositioningStrategies.DECLARATION_SIGNATURE_OR_DEFAULT
 import org.jetbrains.kotlin.diagnostics.rendering.*
+import org.jetbrains.kotlin.diagnostics.rendering.CommonRenderers.NAME
 import org.jetbrains.kotlin.diagnostics.rendering.CommonRenderers.STRING
+import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.MemberComparator
 import org.jetbrains.kotlin.utils.join
 
@@ -33,6 +34,8 @@ object JvmBackendErrors {
 
     val EXCEPTION_IN_CONST_VAL_INITIALIZER by error1<PsiElement, String>()
     val EXCEPTION_IN_CONST_EXPRESSION by warning1<PsiElement, String>()
+
+    val INLINE_CALL_CYCLE by error1<PsiElement, Name>()
 
     init {
         RootDiagnosticRendererFactory.registerFactory(KtDefaultJvmErrorMessages)
@@ -70,5 +73,7 @@ object KtDefaultJvmErrorMessages : BaseDiagnosticRendererFactory() {
 
         map.put(JvmBackendErrors.EXCEPTION_IN_CONST_VAL_INITIALIZER, "Cannot evaluate constant expression: {0}", STRING)
         map.put(JvmBackendErrors.EXCEPTION_IN_CONST_EXPRESSION, "Constant expression will throw an exception at runtime: {0}", STRING)
+
+        map.put(JvmBackendErrors.INLINE_CALL_CYCLE, "The ''{0}'' invocation is a part of inline cycle", NAME)
     }
 }
