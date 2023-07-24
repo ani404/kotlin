@@ -8,9 +8,10 @@ import org.gradle.work.NormalizeLineEndings
 import java.io.File
 
 /**
- * A task to incrementally copy a set of files.
+ * A task to incrementally sync a set of files between directories.
  *
- * Incremental copy support greatly reduces task execution time on subsequent builds when a set of files to be copied is large.
+ * Incremental sync support greatly reduces task execution time on subsequent builds when a set of files to be synced is large,
+ * but actually only a small amount of them is changed.
  */
 interface IncrementalSyncTask : Task {
 
