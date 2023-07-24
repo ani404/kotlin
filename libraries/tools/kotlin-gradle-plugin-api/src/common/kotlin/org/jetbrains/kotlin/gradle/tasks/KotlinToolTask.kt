@@ -11,8 +11,7 @@ import org.gradle.api.tasks.Nested
 import org.jetbrains.kotlin.gradle.dsl.KotlinCommonCompilerToolOptions
 
 /**
- * Represents a Kotlin task which performs further processing of compiled code via additional Kotlin tools
- * using given [toolOptions].
+ * Represents a Kotlin task performing further processing of compiled code via additional Kotlin tools using configurable [toolOptions].
  *
  * Check [KotlinCommonCompilerToolOptions] inheritors (excluding [KotlinCommonCompilerToolOptions]) for possible available for configuration
  * tool options.
