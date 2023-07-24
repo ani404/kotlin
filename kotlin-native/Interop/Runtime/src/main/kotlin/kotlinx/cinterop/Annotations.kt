@@ -44,7 +44,7 @@ public annotation class BetaInteropApi
  * Foreign API includes all operations and classifiers that are required for operating with
  * unmanaged and foreign memory, including but not limited to such declarations as [CPointer], [CPointed], [StableRef], and `Pinned`.
  * It also includes API of those C and Objective-C libraries that are not available in Kotlin by default
- * (like platform.posix.* or platform.Foundation.*), but explicitly configured in the build.
+ * (like `platform.posix.*` or `platform.Foundation.*`), but explicitly configured in the build.
  *
  * Such API is considered experimental and has the following known limitations and caveats:
  * - It is either undocumented or lacks extensive and sound description.
