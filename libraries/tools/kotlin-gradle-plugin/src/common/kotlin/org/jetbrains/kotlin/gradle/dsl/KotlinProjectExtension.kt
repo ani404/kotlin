@@ -230,6 +230,9 @@ abstract class KotlinJsProjectExtension(project: Project) :
 
     private val targetSetObservers = mutableListOf<(KotlinJsTargetDsl?) -> Unit>()
 
+    @Deprecated("Because only IR compiler is left, no more necessary to know about compiler type in properties")
+    override val compilerTypeFromProperties: KotlinJsCompilerType? = null
+
     // target is public property
     // Users can write kotlin.target and it should work
     // So call of target should init default configuration
