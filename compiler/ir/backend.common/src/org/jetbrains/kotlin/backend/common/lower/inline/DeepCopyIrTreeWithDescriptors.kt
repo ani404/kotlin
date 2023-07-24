@@ -85,7 +85,7 @@ internal class DeepCopyIrTreeWithSymbolsForInliner(
             val classifier = type.classifier
             val substitutedType = typeArguments?.get(classifier)
 
-            if (leaveNonReifiedAsIs && (classifier as? IrTypeParameterSymbol)?.owner?.isReified == false) {
+            if (leaveNonReifiedAsIs && classifier is IrTypeParameterSymbol && !classifier.owner.isReified) {
                 return type
             }
 
