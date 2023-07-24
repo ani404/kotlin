@@ -170,8 +170,8 @@ internal class DeepCopyIrTreeWithSymbolsForInliner(
 
         override fun visitCall(expression: IrCall): IrCall {
             if (!context.ir.symbols.isTypeOfIntrinsic(expression.symbol)) return super.visitCall(expression)
-            // We should nor erase neither substitute `typeOf` type parameters so reflection is able to create proper KTypeParameter for it.
-            // See KT-60175, KT-30279
+            // We should neither erase nor substitute non-reified type parameters in the `typeOf` call so that reflection is able
+            // to create a proper KTypeParameter for it. See KT-60175, KT-30279.
             return IrCallImpl(
                 expression.startOffset, expression.endOffset,
                 expression.type,
