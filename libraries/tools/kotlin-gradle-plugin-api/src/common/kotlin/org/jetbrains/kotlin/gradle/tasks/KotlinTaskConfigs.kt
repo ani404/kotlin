@@ -328,7 +328,7 @@ interface BaseKapt : Task,
     val includeCompileClasspath: Property<Boolean>
 
     /**
-     * Configures Java source compatibility for the produced class files and Java source code.
+     * Java source compatibility for the produced class files and Java source code.
      *
      * @see [org.gradle.api.tasks.compile.AbstractCompile.setSourceCompatibility]
      */
