@@ -102,7 +102,7 @@ private:
         return shouldShutdown;
     }
 
-    void processSingle(FinalizerQueue& queue, int64_t currentEpoch) noexcept {
+    void processSingle(FinalizerQueue&& queue, int64_t currentEpoch) noexcept {
         if (!FinalizerQueueTraits::isEmpty(queue)) {
 #if KONAN_OBJC_INTEROP
             konan::AutoreleasePool autoreleasePool;
@@ -155,9 +155,8 @@ private:
     private:
         void handleNewFinalizers() {
             std::unique_lock lock(owner_.finalizerQueueMutex_);
-            if (FinalizerQueueTraits::isEmpty(owner_.finalizerQueue_) && owner_.finalizerQueueEpoch_ == finishedEpoch_) {
+            if (owner_.shouldShutdown(finishedEpoch_)) {
                 owner_.newTasksAllowed_ = false;
-                RuntimeAssert(owner_.shutdownFlag_, "Nothing to do, but no shutdownFlag_ is set on wakeup");
                 CFRunLoopStop(runLoop_.load(std::memory_order_acquire));
                 return;
             }
@@ -165,7 +164,7 @@ private:
             int64_t currentEpoch = owner_.finalizerQueueEpoch_;
             lock.unlock();
 
-            owner_.processSingle(queue, currentEpoch);
+            owner_.processSingle(std::move(queue), currentEpoch);
             finishedEpoch_ = currentEpoch;
         }
 
@@ -198,7 +197,7 @@ private:
                 auto queue = std::move(owner_.finalizerQueue_);
                 auto currentEpoch = owner_.finalizerQueueEpoch_;
                 lock.unlock();
-                owner_.processSingle(queue, currentEpoch);
+                owner_.processSingle(std::move(queue), currentEpoch);
                 finishedEpoch = currentEpoch;
             }
         }

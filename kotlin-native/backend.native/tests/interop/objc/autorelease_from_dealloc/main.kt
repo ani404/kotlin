@@ -115,25 +115,6 @@ fun testSelector() {
     waitTriggered(event)
 }
 
-// FIXME
-//@Test
-//fun testSelectorAfterDelay() {
-//    val event = Event()
-//
-//    withWorker {
-//        execute(TransferMode.SAFE, { event }) { event ->
-//            allocCollectable {
-//                OnDestroyHook {
-//                    assertFalse(event.isTriggered())
-//                    event.performSelector(trigerSelector, withObject=null, afterDelay=0.0)
-//                }.identity()
-//            }
-//        }
-//    }
-//
-//    waitTriggered(event)
-//}
-
 @Test
 fun testPerformBlock() {
     val event = Event()

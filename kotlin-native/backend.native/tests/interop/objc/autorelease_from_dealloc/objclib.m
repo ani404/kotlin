@@ -1,7 +1,7 @@
 #include "objclib.h"
 
 @implementation OnDestroyHook {
-    void (^onDestroy_)(uintptr_t);
+    void (^_onDestroy)(uintptr_t);
 }
 
 -(uintptr_t)identity {
@@ -10,14 +10,14 @@
 
 -(instancetype)init:(void (^)(uintptr_t))onDestroy {
     if (self = [super init]) {
-        [onDestroy retain];
-        onDestroy_ = onDestroy;
+        _onDestroy = [onDestroy retain];
     }
     return self;
 }
 
 -(void)dealloc {
-    onDestroy_([self identity]);
+    _onDestroy([self identity]);
+    [_onDestroy release];
     [super dealloc];
 }
 

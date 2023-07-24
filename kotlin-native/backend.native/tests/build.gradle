@@ -4933,9 +4933,7 @@ if (PlatformInfo.isAppleTarget(project)) {
     }
 
     interopTest("interop_objc_autorelease_from_dealloc") {
-        // Test depends on macOS-specific AppKit
-        enabled = (project.testTarget == 'macos_x64' || project.testTarget == 'macos_arm64' || project.testTarget == null)
-                && !isNoopGC // requires some GC
+        enabled = !isNoopGC // requires some GC
         source = 'interop/objc/autorelease_from_dealloc/main.kt'
         interop = "objc_autorelease_from_dealloc"
         flags = ["-tr"]
@@ -4946,12 +4944,12 @@ if (PlatformInfo.isAppleTarget(project)) {
                 args "$projectDir/interop/objc/autorelease_from_dealloc/objclib.m"
                 args "-lobjc", '-fno-objc-arc'
                 args '-fPIC', '-shared', '-o', "$buildDir/libobjc_autorelease_from_dealloc.dylib"
-                args '-framework', 'AppKit'
             }
             if (UtilsKt.isSimulatorTarget(project, project.target)) {
                 UtilsKt.codesign(project, "$buildDir/libobjc_autorelease_from_dealloc.dylib")
             }
         }
+        UtilsKt.dependsOnPlatformLibs(it)
     }
 
     interopTest("interop_objCAction") {
