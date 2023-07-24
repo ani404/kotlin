@@ -11,7 +11,7 @@ import org.gradle.api.tasks.Nested
 import org.jetbrains.kotlin.gradle.dsl.KotlinCommonCompilerOptions
 
 /**
- * Represents a Kotlin task which performs compilation using given [compilerOptions].
+ * Represents a Kotlin task performing compilation using configurable [compilerOptions].
  *
  * Check [KotlinCommonCompilerOptions] and inheritors for possible available for configuration compiler options.
  *
