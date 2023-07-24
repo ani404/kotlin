@@ -14,21 +14,25 @@
 namespace kotlin {
 
 // `std::condition_variable_any` implemented via spinning on atomics.
-// Additionally it uses `kotlin::steady_clock` for `wait_for`.
 class ConditionVariableSpin : private Pinned {
 public:
+    // Notify all threads waiting for `this.
+    // Exactly the same as `notify_all`. Providing this method to be fully compatible
+    // with `std::condition_variable_any`.
     void notify_one() noexcept {
         // Conditional variable does not protect the data: a mutex must be
         // used to protect it, so we don't need synchronization.
         epoch_.fetch_add(1, std::memory_order_relaxed);
     }
 
+    // Notify all threads waiting for `this.
     void notify_all() noexcept {
         // Conditional variable does not protect the data: a mutex must be
         // used to protect it, so we don't need synchronization.
         epoch_.fetch_add(1, std::memory_order_relaxed);
     }
 
+    // Wait until next call to `notify_*`.
     template <typename Lock>
     void wait(Lock& lock) {
         auto currentEpoch = epoch_.load(std::memory_order_relaxed);
@@ -40,6 +44,9 @@ public:
         lock.lock();
     }
 
+    // Waits until `stopWaiting()` starts returning true. Any change
+    // that leads to `stopWaiting()` must be followed by `notify_*` for
+    // this `wait` to stop waiting.
     template <typename Lock, typename Predicate>
     void wait(Lock& lock, Predicate stopWaiting) {
         while (!stopWaiting()) {
