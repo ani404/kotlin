@@ -76,7 +76,7 @@ public:
     }
 
     void onGCFinish(int64_t epoch, size_t aliveBytes) noexcept {
-        heapGrowthController_.onGCFinish(aliveBytes);
+        heapGrowthController_.updateBoundaries(aliveBytes);
         // Must wait for all mutators to be released. GC thread cannot continue.
         // This is the contract between GC and mutators. With regular native state
         // each mutator must check that GC is not doing something. Here GC must check

@@ -18,8 +18,11 @@ namespace kotlin::gcScheduler::internal {
 class HeapGrowthController {
 public:
     enum class MemoryBoundary {
+        // Memory usage is low.
         kNone,
+        // Memory usage is high, GC should be triggered.
         kTrigger,
+        // Memory usage is critical, GC is running behind the mutators. Mutators should pause.
         kTarget,
     };
 
@@ -40,7 +43,7 @@ public:
     }
 
     // Called by the GC thread.
-    void onGCFinish(size_t aliveBytes) noexcept {
+    void updateBoundaries(size_t aliveBytes) noexcept {
         if (config_.autoTune.load()) {
             double targetHeapBytes = static_cast<double>(aliveBytes) / config_.targetHeapUtilization;
             if (!std::isfinite(targetHeapBytes)) {

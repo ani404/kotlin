@@ -55,19 +55,19 @@ TEST(HeapGrowthControllerTest, NoTune) {
     EXPECT_THAT(controller.targetHeapBytes(), 10);
     EXPECT_THAT(controller.triggerHeapBytes(), 7);
 
-    controller.onGCFinish(0);
+    controller.updateBoundaries(0);
     EXPECT_THAT(controller.targetHeapBytes(), 10);
     EXPECT_THAT(controller.triggerHeapBytes(), 7);
 
-    controller.onGCFinish(10);
+    controller.updateBoundaries(10);
     EXPECT_THAT(controller.targetHeapBytes(), 10);
     EXPECT_THAT(controller.triggerHeapBytes(), 7);
 
-    controller.onGCFinish(10000);
+    controller.updateBoundaries(10000);
     EXPECT_THAT(controller.targetHeapBytes(), 10);
     EXPECT_THAT(controller.triggerHeapBytes(), 7);
 
-    controller.onGCFinish(std::numeric_limits<uint32_t>::max());
+    controller.updateBoundaries(std::numeric_limits<uint32_t>::max());
     EXPECT_THAT(controller.targetHeapBytes(), 10);
     EXPECT_THAT(controller.triggerHeapBytes(), 7);
 }
@@ -85,23 +85,23 @@ TEST(HeapGrowthControllerTest, Tune) {
     EXPECT_THAT(controller.targetHeapBytes(), 100);
     EXPECT_THAT(controller.triggerHeapBytes(), 70);
 
-    controller.onGCFinish(0);
+    controller.updateBoundaries(0);
     EXPECT_THAT(controller.targetHeapBytes(), 10);
     EXPECT_THAT(controller.triggerHeapBytes(), 7);
 
-    controller.onGCFinish(10);
+    controller.updateBoundaries(10);
     EXPECT_THAT(controller.targetHeapBytes(), 20);
     EXPECT_THAT(controller.triggerHeapBytes(), 14);
 
-    controller.onGCFinish(100);
+    controller.updateBoundaries(100);
     EXPECT_THAT(controller.targetHeapBytes(), 200);
     EXPECT_THAT(controller.triggerHeapBytes(), 140);
 
-    controller.onGCFinish(10000);
+    controller.updateBoundaries(10000);
     EXPECT_THAT(controller.targetHeapBytes(), 1000);
     EXPECT_THAT(controller.triggerHeapBytes(), 700);
 
-    controller.onGCFinish(std::numeric_limits<uint32_t>::max());
+    controller.updateBoundaries(std::numeric_limits<uint32_t>::max());
     EXPECT_THAT(controller.targetHeapBytes(), 1000);
     EXPECT_THAT(controller.triggerHeapBytes(), 700);
 }
