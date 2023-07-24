@@ -66,7 +66,7 @@ public:
         MutatorAssists& owner_;
         mm::ThreadData& thread_;
         // Contains epoch * 2. The lower bit is 1, if completed waiting.
-        std::atomic<Epoch> startedWaiting_ = 1;
+        std::atomic<int64_t> startedWaiting_ = 1;
     };
 
     // Request all `kRunnable` mutators to start assisting GC for epoch `epoch`.
