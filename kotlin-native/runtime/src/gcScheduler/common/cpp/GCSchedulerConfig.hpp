@@ -54,6 +54,13 @@ struct GCSchedulerConfig {
             case MutatorAssists::kEnable:
                 return true;
             case MutatorAssists::kDefault:
+                // If after a GC epoch the alive set is more than maximum `targetHeapBytes`, the next GC will be
+                // scheduled instantly and when the assists are turned on, the mutators would be immediately paused.
+                // This will look like the program has hanged.
+                // So, by default, disable assisting if `targetHeapBytes` has a non-infinite limit
+                // (either `autoTune == false`, so `targetHeapBytes` is fixed; or `maxHeapBytes`
+                // is lower than infinity).
+                // TODO: Figure out what to do with OOMs.
                 return autoTune.load() && maxHeapBytes.load() == std::numeric_limits<int64_t>::max();
         }
     }
