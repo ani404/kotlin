@@ -433,11 +433,11 @@ extern "C" void Kotlin_native_internal_GC_setHeapTriggerCoefficient(ObjHeader*, 
     mm::GlobalData::Instance().gcScheduler().config().heapTriggerCoefficient = value;
 }
 
-extern "C" KBoolean Kotlin_native_internal_GC_getMutatorAssists(ObjHeader*) {
+extern "C" KBoolean Kotlin_native_internal_GC_getPauseOnTargetHeapOverflow(ObjHeader*) {
     return mm::GlobalData::Instance().gcScheduler().config().mutatorAssists();
 }
 
-extern "C" void Kotlin_native_internal_GC_setMutatorAssists(ObjHeader*, KBoolean value) {
+extern "C" void Kotlin_native_internal_GC_setPauseOnTargetHeapOverflow(ObjHeader*, KBoolean value) {
     mm::GlobalData::Instance().gcScheduler().config().setMutatorAssists(value);
 }
 

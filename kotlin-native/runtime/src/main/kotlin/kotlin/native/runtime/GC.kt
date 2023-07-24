@@ -285,9 +285,9 @@ public object GC {
      *
      * Default: true, unless [autotune] is false or [maxHeapBytes] is less than [Long.MAX_VALUE].
      */
-    var mutatorAssists: Boolean
-        get() = getMutatorAssists()
-        set(value) = setMutatorAssists(value)
+    var pauseOnTargetHeapOverflow: Boolean
+        get() = getPauseOnTargetHeapOverflow()
+        set(value) = setPauseOnTargetHeapOverflow(value)
 
     /**
      * Deprecated and unused. Always returns null.
@@ -387,9 +387,9 @@ public object GC {
     @GCUnsafeCall("Kotlin_native_internal_GC_setHeapTriggerCoefficient")
     private external fun setHeapTriggerCoefficient(value: Double)
 
-    @GCUnsafeCall("Kotlin_native_internal_GC_getMutatorAssists")
-    private external fun getMutatorAssists(): Boolean
+    @GCUnsafeCall("Kotlin_native_internal_GC_getPauseOnTargetHeapOverflow")
+    private external fun getPauseOnTargetHeapOverflow(): Boolean
 
-    @GCUnsafeCall("Kotlin_native_internal_GC_setMutatorAssists")
-    private external fun setMutatorAssists(value: Boolean)
+    @GCUnsafeCall("Kotlin_native_internal_GC_setPauseOnTargetHeapOverflow")
+    private external fun setPauseOnTargetHeapOverflow(value: Boolean)
 }
