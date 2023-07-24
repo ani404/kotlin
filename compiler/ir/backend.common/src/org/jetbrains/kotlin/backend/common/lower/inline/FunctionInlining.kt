@@ -47,18 +47,10 @@ interface InlineFunctionResolver {
     fun getFunctionSymbol(irFunction: IrFunction): IrFunctionSymbol
 }
 
-fun IrFunction.isTopLevelInPackage(name: String, packageName: String): Boolean {
-    if (name != this.name.asString()) return false
-
-    val containingDeclaration = parent as? IrPackageFragment ?: return false
-    val packageFqName = containingDeclaration.packageFqName.asString()
-    return packageName == packageFqName
-}
-
 fun IrFunction.isBuiltInSuspendCoroutineUninterceptedOrReturn(): Boolean =
     isTopLevelInPackage(
         "suspendCoroutineUninterceptedOrReturn",
-        StandardNames.COROUTINES_INTRINSICS_PACKAGE_FQ_NAME.asString()
+        StandardNames.COROUTINES_INTRINSICS_PACKAGE_FQ_NAME
     )
 
 open class DefaultInlineFunctionResolver(open val context: CommonBackendContext) : InlineFunctionResolver {

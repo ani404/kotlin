@@ -4323,6 +4323,12 @@ public class FirJsCodegenInlineTestGenerated extends AbstractFirJsCodegenInlineT
         }
 
         @Test
+        @TestMetadata("blockReturnsNullableUnit.kt")
+        public void testBlockReturnsNullableUnit() throws Exception {
+            runTest("compiler/testData/codegen/boxInline/special/blockReturnsNullableUnit.kt");
+        }
+
+        @Test
         @TestMetadata("identityCheck.kt")
         public void testIdentityCheck() throws Exception {
             runTest("compiler/testData/codegen/boxInline/special/identityCheck.kt");

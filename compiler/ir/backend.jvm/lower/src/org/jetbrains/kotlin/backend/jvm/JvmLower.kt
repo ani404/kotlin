@@ -271,6 +271,14 @@ private val returnableBlocksPhase = makeIrFilePhase(
     prerequisite = setOf(arrayConstructorPhase, assertionPhase, directInvokeLowering)
 )
 
+private val singletonReferencesPhase = makeIrFilePhase(
+    ::SingletonReferencesLowering,
+    name = "SingletonReferences",
+    description = "Handle singleton references",
+    // ReturnableBlock lowering may produce references to the `Unit` object
+    prerequisite = setOf(returnableBlocksPhase)
+)
+
 private val syntheticAccessorPhase = makeIrFilePhase(
     ::SyntheticAccessorLowering,
     name = "SyntheticAccessor",
