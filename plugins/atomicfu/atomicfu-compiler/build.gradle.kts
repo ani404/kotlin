@@ -42,7 +42,7 @@ val atomicfuNativeKlib by configurations.creating {
         attribute(Usage.USAGE_ATTRIBUTE, objects.named(KotlinUsages.KOTLIN_API))
         attribute(KotlinPlatformType.attribute, KotlinPlatformType.native)
         // todo: don't add platform specific attribute
-        attribute(org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget.konanTargetAttribute, org.jetbrains.kotlin.konan.target.KonanTarget.MACOS_X64.toString())
+        attribute(KotlinNativeTarget.konanTargetAttribute, org.jetbrains.kotlin.konan.target.KonanTarget.MACOS_X64.toString())
     }
 }
 
@@ -165,8 +165,6 @@ projectTest(jUnitMode = JUnitMode.JUnit5) {
 
 publish()
 standardPublicJars()
-
-// val myInfrastructureTest = nativeTest("myInfrastructureTest", "infrastructure")
 
 val nativeBoxTest = nativeTest(
     taskName = "nativeBoxTest",
