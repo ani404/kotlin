@@ -87,13 +87,15 @@ interface BaseKotlinCompile : KotlinCompileTool {
     val friendPaths: ConfigurableFileCollection
 
     /**
-     * Allows adding Kotlin compiler plugins artifacts (usually jar files) to participate in the compilation process.
+     * Kotlin compiler plugins artifacts
+     * (accepted by [JVM classpath](https://docs.oracle.com/javase/8/docs/technotes/tools/windows/classpath.html))
+     * participating in the compilation process.
      */
     @get:Classpath
     val pluginClasspath: ConfigurableFileCollection
 
     /**
-     * Allows adding configuration for Kotlin compiler plugin added into [pluginClasspath] using [CompilerPluginConfig].
+     * Configuration for Kotlin compiler plugin added into [pluginClasspath] using [CompilerPluginConfig].
      */
     @get:Nested
     val pluginOptions: ListProperty<CompilerPluginConfig>
