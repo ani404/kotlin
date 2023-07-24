@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.analysis.low.level.api.fir.sessions
 
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.ModificationTracker
 import org.jetbrains.kotlin.analysis.project.structure.KtModule
@@ -15,7 +14,6 @@ import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.PrivateSessionConstructor
 import org.jetbrains.kotlin.fir.resolve.ScopeSession
 import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
-import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicLong
 
 @OptIn(PrivateSessionConstructor::class)
@@ -62,19 +60,6 @@ abstract class LLFirSession(
             return count.incrementAndGet()
         }
     }
-}
-
-private fun LLFirSession.invalidateInWriteAction() {
-    if (!isValid) return
-
-    LLFirSessionInvalidationService.getInstance(project).invalidate(ktModule)
-}
-
-private fun WeakReference<LLFirSession>.invalidateIfAlive() = ApplicationManager.getApplication().runWriteAction {
-    val session = get() ?: return@runWriteAction
-    if (session.project.isDisposed) return@runWriteAction
-
-    session.invalidateInWriteAction()
 }
 
 abstract class LLFirModuleSession(
