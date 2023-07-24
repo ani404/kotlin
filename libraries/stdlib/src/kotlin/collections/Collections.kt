@@ -482,8 +482,7 @@ internal fun throwIndexOverflow() { throw ArithmeticException("Index overflow ha
 internal fun throwCountOverflow() { throw ArithmeticException("Count overflow has happened.") }
 
 
-@PublishedApi
-internal fun copyToArrayImpl(collection: Collection<*>): Array<Any?> {
+internal fun collectionToArray(collection: Collection<*>): Array<Any?> {
     if (collection.isEmpty()) return emptyArray<Any?>()
 
     val destination = arrayOfNulls<Any>(collection.size)
@@ -497,8 +496,7 @@ internal fun copyToArrayImpl(collection: Collection<*>): Array<Any?> {
     return destination
 }
 
-@PublishedApi
-internal fun <T> copyToArrayImpl(collection: Collection<*>, array: Array<T>): Array<T> {
+internal fun <T> collectionToArray(collection: Collection<*>, array: Array<T>): Array<T> {
     if (collection.isEmpty()) return terminateCollectionToArray(0, array)
 
     val destination = if (array.size < collection.size) {

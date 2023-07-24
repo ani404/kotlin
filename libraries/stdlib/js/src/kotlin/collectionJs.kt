@@ -35,6 +35,12 @@ internal fun <T> copyToArray(collection: Collection<T>): Array<T> {
         copyToArrayImpl(collection).unsafeCast<Array<T>>()
 }
 
+@JsName("copyToArrayImpl")
+internal actual fun copyToArrayImpl(collection: Collection<*>): Array<Any?> = collectionToArray(collection)
+
+@JsName("copyToExistingArrayImpl")
+internal actual fun <T> copyToArrayImpl(collection: Collection<*>, array: Array<T>): Array<T> = collectionToArray(collection, array)
+
 internal actual fun <T> terminateCollectionToArray(collectionSize: Int, array: Array<T>): Array<T> = array
 
 /**
