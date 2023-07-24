@@ -104,7 +104,7 @@ abstract class KaptTask @Inject constructor(
 
     @get:Internal
     override val metrics: Property<BuildMetricsReporter<GradleBuildTime, GradleBuildPerformanceMetric>> = objectFactory
-        .property(BuildMetricsReporterImpl())
+        .property(BuildMetricsReporterImpl<GradleBuildTime, GradleBuildPerformanceMetric>())
 
     @get:Input
     abstract val verbose: Property<Boolean>
