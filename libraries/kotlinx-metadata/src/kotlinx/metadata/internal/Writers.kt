@@ -7,11 +7,8 @@ package kotlinx.metadata.internal
 
 import kotlinx.metadata.*
 import kotlinx.metadata.internal.common.KmModuleFragment
-import kotlinx.metadata.internal.common.KmModuleFragmentExtensionVisitor
-import kotlinx.metadata.internal.common.KmModuleFragmentVisitor
-import kotlinx.metadata.internal.extensions.KmExtension
 import kotlinx.metadata.internal.extensions.MetadataExtensions
-import kotlinx.metadata.internal.extensions.applySingleExtension
+import kotlinx.metadata.internal.extensions.matchExtensions
 import org.jetbrains.kotlin.metadata.ProtoBuf
 import org.jetbrains.kotlin.metadata.deserialization.VersionRequirement
 import org.jetbrains.kotlin.metadata.serialization.MutableVersionRequirementTable
@@ -327,9 +324,7 @@ public open class ClassWriter(stringTable: StringTable, contextExtensions: List<
         t.addAllContextReceiverType(kmClass.contextReceiverTypes.map { c.writeType(it).build() })
 
         t.addAllVersionRequirement(kmClass.versionRequirements.map { c.writeVersionRequirement(it) })
-        kmClass.extensions.writeExtensions {
-            writeClassExtensions(it, t, c)
-        }
+        kmClass.extensions.matchExtensions { writeClassExtensions(it, t, c) }
 
         c.versionRequirements.serialize()?.let {
             t.versionRequirementTable = it
@@ -345,7 +340,7 @@ public open class PackageWriter(stringTable: StringTable, contextExtensions: Lis
         t.addAllFunction(kmPackage.functions.map { c.writeFunction(it).build() })
         t.addAllProperty(kmPackage.properties.map { c.writeProperty(it).build() })
         t.addAllTypeAlias(kmPackage.typeAliases.map { c.writeTypeAlias(it).build() })
-        kmPackage.extensions.writeExtensions { writePackageExtensions(it, t, c) }
+        kmPackage.extensions.matchExtensions { writePackageExtensions(it, t, c) }
         c.versionRequirements.serialize()?.let {
             t.versionRequirementTable = it
         }

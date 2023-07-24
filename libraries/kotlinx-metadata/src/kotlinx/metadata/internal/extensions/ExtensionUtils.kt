@@ -20,6 +20,17 @@ internal fun <T : KmExtensionVisitor> applySingleExtension(type: KmExtensionType
     return result
 }
 
+internal fun <E : KmExtension<*>> List<E>.matchExtensions(block: MetadataExtensions.(E) -> Boolean) {
+    forEach { ext ->
+        var processed = false
+        for (extesion in MetadataExtensions.INSTANCES) {
+            val current = extesion.block(ext)
+            if (processed && current) throw IllegalStateException("Multiple extensions handle the same extension type: ${ext.type}")
+            processed = current
+        }
+    }
+}
+
 internal fun <N : KmExtension<*>> Collection<N>.singleOfType(type: KmExtensionType): N {
     var result: N? = null
     for (node in this) {

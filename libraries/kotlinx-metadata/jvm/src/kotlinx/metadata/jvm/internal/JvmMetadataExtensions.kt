@@ -117,59 +117,34 @@ internal class JvmMetadataExtensions : MetadataExtensions {
 
     override fun readValueParameterExtensions(v: KmValueParameterVisitor, proto: ProtoBuf.ValueParameter, c: ReadContext) {}
 
-//    fun writeClassExtensions(extension: KmClassExtension, proto: ProtoBuf.Class.Builder, c: WriteContext) {
-//        if (extension.type != JvmClassExtensionVisitor.TYPE) return
-//        extension as JvmClassExtension
-//        extension.anonymousObjectOriginName?.let {  }
-//    }
-
-    override fun writeClassExtensions(type: KmExtensionType, proto: ProtoBuf.Class.Builder, c: WriteContext): KmClassExtensionVisitor? {
-        if (type != JvmClassExtensionVisitor.TYPE) return null
-        return object : JvmClassExtensionVisitor() {
-            override fun visitAnonymousObjectOriginName(internalName: String) {
-                proto.setExtension(JvmProtoBuf.anonymousObjectOriginName, c[internalName])
-            }
-
-            override fun visitLocalDelegatedProperty(
-                flags: Int, name: String, getterFlags: Int, setterFlags: Int
-            ): KmPropertyVisitor? {
-                return null
-//                TODO return writeProperty(c, flags, name, getterFlags, setterFlags) {
-//                    proto.addExtension(JvmProtoBuf.classLocalVariable, it.build())
-//                }
-            }
-
-            override fun visitModuleName(name: String) {
-                if (name != JvmProtoBufUtil.DEFAULT_MODULE_NAME) {
-                    proto.setExtension(JvmProtoBuf.classModuleName, c[name])
-                }
-            }
-
-            override fun visitJvmFlags(flags: Int) {
-                if (flags != 0) {
-                    proto.setExtension(JvmProtoBuf.jvmClassFlags, flags)
-                }
-            }
+    override fun writeClassExtensions(extension: KmClassExtension, proto: ProtoBuf.Class.Builder, c: WriteContext): Boolean {
+        if (extension.type != JvmClassExtensionVisitor.TYPE) return false
+        extension as JvmClassExtension
+        extension.anonymousObjectOriginName?.let { proto.setExtension(JvmProtoBuf.anonymousObjectOriginName, c[it]) }
+        extension.localDelegatedProperties.forEach {
+            proto.addExtension(JvmProtoBuf.classLocalVariable, c.writeProperty(it).build())
         }
+        extension.moduleName?.let { moduleName ->
+            if (moduleName != JvmProtoBufUtil.DEFAULT_MODULE_NAME) proto.setExtension(JvmProtoBuf.classModuleName, c[moduleName])
+        }
+        if (extension.jvmFlags != 0) proto.setExtension(JvmProtoBuf.jvmClassFlags, extension.jvmFlags)
+        return true
     }
 
     override fun writePackageExtensions(
-        type: KmExtensionType, proto: ProtoBuf.Package.Builder, c: WriteContext
-    ): KmPackageExtensionVisitor? {
-        if (type != JvmPackageExtensionVisitor.TYPE) return null
-        return object : JvmPackageExtensionVisitor() {
-            override fun visitLocalDelegatedProperty(
-                flags: Int, name: String, getterFlags: Int, setterFlags: Int
-            ): KmPropertyVisitor? = null // TODO writeProperty(c, flags, name, getterFlags, setterFlags) {
-//                proto.addExtension(JvmProtoBuf.packageLocalVariable, it.build())
-//            }
-
-            override fun visitModuleName(name: String) {
-                if (name != JvmProtoBufUtil.DEFAULT_MODULE_NAME) {
-                    proto.setExtension(JvmProtoBuf.packageModuleName, c[name])
-                }
+        extension: KmPackageExtension, proto: ProtoBuf.Package.Builder, c: WriteContext
+    ): Boolean {
+        if (extension.type != JvmPackageExtensionVisitor.TYPE) return false
+        extension as JvmPackageExtension
+        extension.localDelegatedProperties.forEach {
+            proto.addExtension(JvmProtoBuf.packageLocalVariable, c.writeProperty(it).build())
+        }
+        extension.moduleName?.let { name ->
+            if (name != JvmProtoBufUtil.DEFAULT_MODULE_NAME) {
+                proto.setExtension(JvmProtoBuf.packageModuleName, c[name])
             }
         }
+        return true
     }
 
     // PackageFragment is not used by JVM backend.
