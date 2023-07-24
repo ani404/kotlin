@@ -73,9 +73,7 @@ class LLFirSessionCache(private val project: Project) {
     /**
      * Removes the session(s) associated with [module] after it has been invalidated. Must be called in a write action.
      *
-     * [removeSession] returns `true` if any sessions were removed. If not, it is guaranteed that no sessions that depend on [module]'s
-     * session exist in the session cache, unless there is currently an invalidation in progress and some sessions have already been
-     * removed.
+     * @return `true` if any sessions were removed.
      */
     fun removeSession(module: KtModule): Boolean {
         ApplicationManager.getApplication().assertWriteAccessAllowed()
