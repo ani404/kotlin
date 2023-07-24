@@ -181,12 +181,14 @@ interface KotlinJvmCompile : BaseKotlinCompile,
 }
 
 /**
- * Represent a Kotlin task participating in annotation processing using [Kotlin/Kapt](https://kotlinlang.org/docs/kapt.html).
+ * Represents a Kotlin task generating stubs of the Java annotation processing result.
  *
  * This task generates annotation processing output stubs (without actual methods implementation)
  * using Java source code.
  * These generated stubs then could be referenced in Kotlin source code compilation before doing actual
  * annotation processing.
+ *
+ * This task is a part of [Kotlin/Kapt](https://kotlinlang.org/docs/kapt.html).
  */
 interface KaptGenerateStubs : KotlinJvmCompile {
     /**
