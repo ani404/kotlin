@@ -2,7 +2,13 @@
 // IGNORE_BACKEND: JS
 // KJS_WITH_FULL_RUNTIME
 // EXPECTED_REACHABLE_NODES: 1555
+
+// TODO: Remove after enumEntries become public
+@file:Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
+
 package foo
+
+import kotlin.enums.enumEntries
 
 enum class EmptyEnum
 
