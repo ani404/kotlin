@@ -111,7 +111,7 @@ internal class LLFirDependenciesSymbolProvider(
      * other and session creation tries to access dependency symbol providers eagerly, the creation of session A would try to create session
      * B (to get its symbol providers), which in turn would try to create session A, and so on.
      */
-    val providers: List<FirSymbolProvider> by lazy(LazyThreadSafetyMode.PUBLICATION) {
+    val providers: List<FirSymbolProvider> by lazy {
         computeProviders().also { providers ->
             require(providers.all { it !is LLFirModuleWithDependenciesSymbolProvider }) {
                 "${LLFirDependenciesSymbolProvider::class.simpleName} may not contain ${LLFirModuleWithDependenciesSymbolProvider::class.simpleName}:" +
