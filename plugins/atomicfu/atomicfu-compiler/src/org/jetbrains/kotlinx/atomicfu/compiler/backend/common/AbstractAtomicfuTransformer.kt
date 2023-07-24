@@ -223,7 +223,8 @@ abstract class AbstractAtomicfuTransformer(val pluginContext: IrPluginContext) {
          */
         private fun IrDeclarationContainer.transformDelegatedAtomic(atomicProperty: IrProperty) {
             val getDelegate = atomicProperty.backingField?.initializer?.expression
-            require(getDelegate is IrCall) { "Expected initializer of the delegated property ${this.render()} is IrCall but found ${getDelegate?.render()}" }
+            require(getDelegate is IrCall) { "Unexpected initializer of the delegated property ${atomicProperty.render()}: " +
+                    "expected invocation of the delegate atomic property getter, but found ${getDelegate?.render()}." + CONSTRAINTS_MESSAGE }
             val delegateVolatileField = when {
                 getDelegate.isAtomicFactoryCall() -> {
                     /**
@@ -253,10 +254,12 @@ abstract class AbstractAtomicfuTransformer(val pluginContext: IrPluginContext) {
                     check(delegate.parent == atomicProperty.parent) {
                         "The delegated property [${atomicProperty.render()}] declared in [${atomicProperty.parent.render()}] should be declared in the same scope " +
                                 "as the corresponding atomic property [${delegate.render()}] declared in [${delegate.parent.render()}]" + CONSTRAINTS_MESSAGE}
-                    val volatileProperty = atomicfuPropertyToVolatile[delegate] ?: error("The delegate property was not transformed: ${delegate.render()}")
-                    volatileProperty.backingField ?: error("Transformed atomic field should have a non-null backingField")
+                    val volatileProperty = atomicfuPropertyToVolatile[delegate]
+                        ?: error("No generated volatile property was found for the delegate atomic property ${delegate.render()}")
+                    volatileProperty.backingField
+                        ?: error("Volatile property ${volatileProperty.render()} corresponding to the atomic property ${delegate.render()} should have a non-null backingField")
                 }
-                else -> error("Unexpected initializer of the delegated property ${this.render()}")
+                else -> error("Unexpected initializer of the delegated property ${getDelegate.render()}" + CONSTRAINTS_MESSAGE)
             }
             atomicProperty.getter?.transformAccessor(delegateVolatileField)
             atomicProperty.setter?.transformAccessor(delegateVolatileField)
@@ -292,13 +295,13 @@ abstract class AbstractAtomicfuTransformer(val pluginContext: IrPluginContext) {
             parentContainer: IrDeclarationContainer,
             tweakBooleanToInt: Boolean
         ): IrField {
-            val atomicField = requireNotNull(atomicProperty.backingField) { "BackingField of atomic property $atomicProperty should not be null" }
+            val atomicField = requireNotNull(atomicProperty.backingField) { "The backing field of the atomic property ${atomicProperty.render()} declared in ${parentContainer.render()} should not be null."  + CONSTRAINTS_MESSAGE }
             val fieldType = (atomicField.type as IrSimpleType).atomicToPrimitiveType()
             val initializer = atomicField.initializer?.expression
             if (initializer == null) {
                 val initBlock = atomicField.getInitBlockForField(parentContainer)
                 val initExprWithIndex = initBlock.getInitExprWithIndexFromInitBlock(atomicField.symbol)
-                    ?: error("Expected initialization of the atomic property ${atomicProperty.render()} in the init block ${initBlock.render()}")
+                    ?: error("The atomic property ${atomicProperty.render()} was not initialized neither at the declaration, nor in the init block." + CONSTRAINTS_MESSAGE)
                 val atomicFactoryCall = initExprWithIndex.value.value
                 val initExprIndex = initExprWithIndex.index
                 val initValue = atomicFactoryCall.getAtomicFactoryValueArgument()
@@ -338,14 +341,14 @@ abstract class AbstractAtomicfuTransformer(val pluginContext: IrPluginContext) {
             parentContainer: IrDeclarationContainer
         ): IrField {
             val atomicArrayField =
-                requireNotNull(atomicProperty.backingField) { "The backing field of the atomic array $atomicProperty should not be null" + CONSTRAINTS_MESSAGE }
+                requireNotNull(atomicProperty.backingField) { "The backing field of the atomic array ${atomicProperty.render()} should not be null." + CONSTRAINTS_MESSAGE }
             val initializer = atomicArrayField.initializer?.expression
             if (initializer == null) {
                 // replace field initialization in the init block
                 val initBlock = atomicArrayField.getInitBlockForField(parentContainer)
                 // property initialization order in the init block matters -> transformed initializer should be placed at the same position
                 val initExprWithIndex = initBlock.getInitExprWithIndexFromInitBlock(atomicArrayField.symbol)
-                    ?: error("Expected initialization of the atomic array ${atomicProperty.render()} in the init block ${initBlock.render()}" + CONSTRAINTS_MESSAGE)
+                    ?: error("The atomic array ${atomicProperty.render()} was not initialized neither at the declaration, nor in the init block." + CONSTRAINTS_MESSAGE)
                 val atomicFactoryCall = initExprWithIndex.value.value
                 val initExprIndex = initExprWithIndex.index
                 val arraySize = atomicFactoryCall.getArraySizeArgument()
@@ -358,7 +361,8 @@ abstract class AbstractAtomicfuTransformer(val pluginContext: IrPluginContext) {
                     (atomicFactoryCall as IrFunctionAccessExpression).dispatchReceiver,
                     parentContainer
                 ).also {
-                    val initExpr = it.initializer?.expression ?: error("Initializer of the generated field ${it.render()} can not be null" + CONSTRAINTS_MESSAGE)
+                    val initExpr = it.initializer?.expression
+                        ?: error("The generated atomic array field ${it.render()} should've already be initialized." + CONSTRAINTS_MESSAGE)
                     it.initializer = null
                     initBlock.updateFieldInitialization(atomicArrayField.symbol, it.symbol, initExpr, initExprIndex)
                 }
@@ -550,7 +554,7 @@ abstract class AbstractAtomicfuTransformer(val pluginContext: IrPluginContext) {
                     val isArrayReceiver = when {
                         propertyGetterCall is IrCall -> propertyGetterCall.isArrayElementReceiver(data)
                         propertyGetterCall.isThisReceiver() -> data != null && data.name.asString().isMangledAtomicArrayExtension()
-                        else -> error("Unsupported atomic array receiver")
+                        else -> error("Unsupported atomic array receiver ${propertyGetterCall.render()}" + CONSTRAINTS_MESSAGE)
                     }
                     if (expression.symbol.owner.isFromKotlinxAtomicfuPackage()) {
                         /**
@@ -685,7 +689,7 @@ abstract class AbstractAtomicfuTransformer(val pluginContext: IrPluginContext) {
                  *
                  * a.atomicfu$loop(dispatchReceiver, fu) { ... }
                  */
-                requireNotNull(parentFunction) { "Parent function of this call ${expression.render()} is null" + CONSTRAINTS_MESSAGE }
+                requireNotNull(parentFunction) { "Expected containing function of the call ${expression.render()}, but found null." + CONSTRAINTS_MESSAGE }
                 val loopFunc = parentFunction.parentDeclarationContainer.getOrBuildInlineLoopFunction(
                     functionName = functionName,
                     valueType = if (valueType.isBoolean()) irBuiltIns.intType else valueType,
@@ -745,7 +749,7 @@ abstract class AbstractAtomicfuTransformer(val pluginContext: IrPluginContext) {
                  *   bar(new)                              --->    bar$atomicfu(dispatchReceiver, handler, new)
                  * }
                  */
-                requireNotNull(parentFunction) { "Parent function of the call ${expression.render()} is null" }
+                requireNotNull(parentFunction) { "Expected containing function of the call ${expression.render()}, but found null." }
                 val parent = originalAtomicExtension.parent as IrDeclarationContainer
                 val transformedAtomicExtension = parent.getOrBuildTransformedAtomicExtension(originalAtomicExtension, isArrayReceiver)
                 val syntheticValueArguments = buildSyntheticValueArgsForTransformedAtomicExtensionCall(expression, getPropertyReceiver, isArrayReceiver, parentFunction)
@@ -826,7 +830,7 @@ abstract class AbstractAtomicfuTransformer(val pluginContext: IrPluginContext) {
                     }
                 }
                 atomicCallReceiver.isThisReceiver() -> {
-                    requireNotNull(parentFunction) { "Containing function of the atomic call with <this> receiver should not be null" + CONSTRAINTS_MESSAGE}
+                    requireNotNull(parentFunction) { "Expected containing function of the call with receiver ${atomicCallReceiver.render()}, but found null." + CONSTRAINTS_MESSAGE}
                     require(parentFunction.isTransformedAtomicExtension())
                     val isArrayReceiver =  parentFunction.name.asString().isMangledAtomicArrayExtension()
                     if (isArrayReceiver) parentFunction.valueParameters[0].capture() else parentFunction.valueParameters[1].capture()
@@ -1071,21 +1075,21 @@ abstract class AbstractAtomicfuTransformer(val pluginContext: IrPluginContext) {
 
     protected val IrDeclaration.parentDeclarationContainer: IrDeclarationContainer
         get() = parents.filterIsInstance<IrDeclarationContainer>().firstOrNull()
-            ?: error("In the sequence of parents for ${this.render()} no IrDeclarationContainer was found")
+            ?: error("In the sequence of parents for ${this.render()} no IrDeclarationContainer was found" + CONSTRAINTS_MESSAGE)
 
     protected val IrFunction.containingFunction: IrFunction
         get() {
             if (this.origin != IrDeclarationOrigin.LOCAL_FUNCTION_FOR_LAMBDA) return this
             return parents.filterIsInstance<IrFunction>().firstOrNull {
                 it.origin != IrDeclarationOrigin.LOCAL_FUNCTION_FOR_LAMBDA
-            } ?: error("In the sequence of parents for the local function ${this.render()} no containing function was found")
+            } ?: error("In the sequence of parents for the local function ${this.render()} no containing function was found" + CONSTRAINTS_MESSAGE)
         }
 
     // atomic(value = 0) -> 0
     protected fun IrExpression.getAtomicFactoryValueArgument(): IrExpression {
         require(this is IrCall) { "Expected atomic factory invocation but found: ${this.render()}" }
         return getValueArgument(0)?.deepCopyWithSymbols()
-            ?: error("Atomic factory should take at least one argument: ${this.render()}")
+            ?: error("Atomic factory should take at least one argument: ${this.render()}" + CONSTRAINTS_MESSAGE)
     }
 
     // AtomicIntArray(size = 10) -> 10
@@ -1094,7 +1098,7 @@ abstract class AbstractAtomicfuTransformer(val pluginContext: IrPluginContext) {
             "Expected atomic array factory invocation, but found: ${this.render()}."
         }
         return getValueArgument(0)?.deepCopyWithSymbols()
-            ?: error("Atomic array factory should take at least one argument: ${this.render()}")
+            ?: error("Atomic array factory should take at least one argument: ${this.render()}" + CONSTRAINTS_MESSAGE)
     }
 
     protected fun IrExpression.getArrayElementIndex(parentFunction: IrFunction?): IrExpression =

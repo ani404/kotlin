@@ -265,7 +265,8 @@ class JvmAtomicfuIrBuilder internal constructor(
             val index = valueParameters[1]
             val action = valueParameters[2]
             +irWhile().apply {
-                val atomicArrayClassSymbol = (atomicHandler.type as IrSimpleType).classOrNull ?: error("Failed to obtain the class corresponding to the array type ${atomicHandler.render()}")
+                val atomicArrayClassSymbol = (atomicHandler.type as IrSimpleType).classOrNull
+                    ?: error("Failed to obtain the class corresponding to the array type ${atomicHandler.render()}.")
                 condition = irTrue()
                 body = irBlock {
                     val cur = createTmpVariable(

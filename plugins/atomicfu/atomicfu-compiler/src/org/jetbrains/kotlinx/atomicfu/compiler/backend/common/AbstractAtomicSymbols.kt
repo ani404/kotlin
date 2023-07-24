@@ -64,7 +64,7 @@ abstract class AbstractAtomicSymbols(
             "AtomicLongArray" -> atomicLongArrayClassSymbol
             "AtomicBooleanArray" -> atomicIntArrayClassSymbol
             "AtomicArray" -> atomicRefArrayClassSymbol
-            else -> error("Unexpected atomicfu array type ${atomicfuArrayType.render()}")
+            else -> error("Unexpected atomicfu array type ${atomicfuArrayType.render()}.")
         }
 
     fun getAtomicArrayClassByValueType(valueType: IrType): IrClassSymbol =
@@ -73,7 +73,7 @@ abstract class AbstractAtomicSymbols(
             valueType == irBuiltIns.booleanType -> atomicIntArrayClassSymbol
             valueType == irBuiltIns.longType -> atomicLongArrayClassSymbol
             !valueType.isPrimitiveType() -> atomicRefArrayClassSymbol
-            else -> error("No corresponding atomic array class found for this value type ${valueType.render()} ")
+            else -> error("No corresponding atomic array class found for the given value type ${valueType.render()}.")
         }
 
     fun getAtomicHandlerFunctionSymbol(atomicHandlerClass: IrClassSymbol, name: String): IrSimpleFunctionSymbol =
@@ -81,7 +81,7 @@ abstract class AbstractAtomicSymbols(
             "<get-value>", "getValue" -> atomicHandlerClass.getSimpleFunction("get")
             "<set-value>", "setValue", "lazySet" -> atomicHandlerClass.getSimpleFunction("set")
             else -> atomicHandlerClass.getSimpleFunction(name)
-        } ?: error("No $name function found in $name")
+        } ?: error("No $name function found in ${atomicHandlerClass.owner.render()}")
 
     abstract fun createBuilder(
         symbol: IrSymbol,

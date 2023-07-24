@@ -225,7 +225,7 @@ abstract class AbstractAtomicfuIrBuilder(
 
     private fun IrProperty.addGetter(isStatic: Boolean, parentContainer: IrDeclarationContainer, irBuiltIns: IrBuiltIns) {
         val property = this
-        val field = requireNotNull(backingField) { "BackingField of the property $property should not be null"}
+        val field = requireNotNull(backingField) { "The backing field of the property $property should not be null."}
         addGetter {
             visibility = property.visibility
             returnType = field.type
@@ -258,7 +258,7 @@ abstract class AbstractAtomicfuIrBuilder(
 
     private fun IrProperty.addSetter(isStatic: Boolean, parentClass: IrDeclarationContainer, irBuiltIns: IrBuiltIns) {
         val property = this
-        val field = requireNotNull(property.backingField) { "BackingField of the property $property should not be null"}
+        val field = requireNotNull(property.backingField) { "The backing field of the property $property should not be null."}
         this@addSetter.addSetter {
             visibility = property.visibility
             returnType = irBuiltIns.unitType

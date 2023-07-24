@@ -193,7 +193,9 @@ class AtomicfuJvmIrTransformer(
             if (index < 0 && !type.isAtomicValueType()) {
                 // data is a transformed function
                 // index == -1 for `this` parameter
-                return transformedExtension.dispatchReceiverParameter ?: error("Dispatch receiver of ${transformedExtension.render()} is null" + CONSTRAINTS_MESSAGE)
+                return transformedExtension.dispatchReceiverParameter
+                    ?: error("During remapping of value parameters from the original atomic extension ${this.parent.render()} to the transformed one ${transformedExtension}:" +
+                                     "dispatchReceiver parameter (index == -1) was not found at the transformed extension." + CONSTRAINTS_MESSAGE)
             }
             if (index >= 0) {
                 val shift = 2 // 2 synthetic value parameters
@@ -226,7 +228,7 @@ class AtomicfuJvmIrTransformer(
                         parentFunction.valueParameters[0].capture()
                     } else null
                 }
-                else -> error("Unexpected type of atomic function call receiver: ${atomicCallReceiver.render()}" + CONSTRAINTS_MESSAGE)
+                else -> error("Unexpected type of atomic function call receiver: ${atomicCallReceiver.render()}." + CONSTRAINTS_MESSAGE)
             }
 
         private fun IrCall.getDispatchReceiver(): IrExpression? {
