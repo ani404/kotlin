@@ -270,8 +270,7 @@ interface BaseKapt : Task,
     /**
      * Represents a list of annotation processor option providers.
      *
-     * This property is annotated with @get:Nested to indicate that it should be accessed in a nested manner.
-     * The type of each element in the list is Any, meaning it can hold any type of annotation processor option provider.
+     * Accepts [List] of [org.gradle.process.CommandLineArgumentProvider]s.
      */
     @get:Nested
     val annotationProcessorOptionProviders: MutableList<Any>
