@@ -75,7 +75,7 @@ interface KotlinCompileTool : PatternFilterable, Task {
 }
 
 /**
- * Represents a base interface for all Kotlin compilation tasks.
+ * Represents any Kotlin compilation task including common tasks inputs.
  */
 interface BaseKotlinCompile : KotlinCompileTool {
 
