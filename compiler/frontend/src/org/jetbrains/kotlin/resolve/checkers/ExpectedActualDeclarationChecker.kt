@@ -23,6 +23,7 @@ import org.jetbrains.kotlin.config.LanguageFeature
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.diagnostics.Errors
 import org.jetbrains.kotlin.incremental.components.ExpectActualTracker
+import org.jetbrains.kotlin.mpp.TypeAliasSymbolMarker
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.hasActualModifier
 import org.jetbrains.kotlin.resolve.*
@@ -32,7 +33,7 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.isAnnotationConstructor
 import org.jetbrains.kotlin.resolve.descriptorUtil.isPrimaryConstructorOfInlineClass
 import org.jetbrains.kotlin.resolve.descriptorUtil.module
 import org.jetbrains.kotlin.resolve.multiplatform.*
-import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualCompatibility.*
+import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualCompatibility.Incompatible
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.source.KotlinSourceElement
 import org.jetbrains.kotlin.resolve.source.PsiSourceFile
@@ -336,12 +337,12 @@ class ExpectedActualDeclarationChecker(
             }
         }
         // We want to report errors even if a candidate is incompatible, but it's single
-        val expectSingleCandidate = compatibility.singleOrNull { (_, result) -> result.compatibility.compatible }?.first
-            ?: compatibility.singleOrNull()?.first
-        if (expectSingleCandidate != null) {
-            checkIfExpectHasDefaultArgumentsAndActualizedWithTypealias(expectSingleCandidate, reportOn, trace)
-            checkAnnotationsMatch(expectSingleCandidate, descriptor, reportOn, trace)
-        }
+        val (expectSingleCandidate, compatibilityResult) = compatibility.singleOrNull { (_, result) -> result.compatibility.compatible }
+            ?: compatibility.singleOrNull()
+            ?: return
+
+        checkIfExpectHasDefaultArgumentsAndActualizedWithTypealias(expectSingleCandidate, reportOn, trace)
+        checkAnnotationsMatch(expectSingleCandidate, descriptor, compatibilityResult, reportOn, trace)
     }
 
     private fun checkAmbiguousExpects(
@@ -442,12 +443,15 @@ class ExpectedActualDeclarationChecker(
     private fun checkAnnotationsMatch(
         expectDescriptor: MemberDescriptor,
         actualDescriptor: MemberDescriptor,
+        compatibilityResult: ExpectActualCompatibilityCheckResult<MemberDescriptor>,
         reportOn: KtNamedDeclaration,
         trace: BindingTrace
     ) {
         val context = ClassicExpectActualMatchingContext(actualDescriptor.module)
-        val incompatibility =
-            AbstractExpectActualAnnotationMatchChecker.areAnnotationsCompatible(expectDescriptor, actualDescriptor, context) ?: return
+        val incompatibility = AbstractExpectActualAnnotationMatchChecker.areAnnotationsCompatible(
+            expectDescriptor, actualDescriptor, compatibilityResult,
+            checkMemberScope = actualDescriptor is TypeAliasSymbolMarker, context
+        ) ?: return
         trace.report(
             Errors.ACTUAL_ANNOTATIONS_NOT_MATCH_EXPECT.on(
                 reportOn,

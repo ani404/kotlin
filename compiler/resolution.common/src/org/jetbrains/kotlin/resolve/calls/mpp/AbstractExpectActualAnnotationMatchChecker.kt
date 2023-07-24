@@ -8,6 +8,10 @@ package org.jetbrains.kotlin.resolve.calls.mpp
 import org.jetbrains.kotlin.mpp.*
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.StandardClassIds
+import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualClassifierCompatibilityCheckResult
+import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualCompatibilityCheckResult
+import org.jetbrains.kotlin.resolve.multiplatform.ExpectClassScopeMembersMapping
+import org.jetbrains.kotlin.resolve.multiplatform.compatible
 
 object AbstractExpectActualAnnotationMatchChecker {
     private val SKIPPED_CLASS_IDS = setOf(
@@ -25,20 +29,31 @@ object AbstractExpectActualAnnotationMatchChecker {
     fun areAnnotationsCompatible(
         expectSymbol: DeclarationSymbolMarker,
         actualSymbol: DeclarationSymbolMarker,
+        compatibilityResult: ExpectActualCompatibilityCheckResult<DeclarationSymbolMarker>?,
+        checkMemberScope: Boolean,
         context: ExpectActualMatchingContext<*>,
-    ): Incompatibility? = with(context) { areAnnotationsCompatible(expectSymbol, actualSymbol) }
+    ): Incompatibility? = with(context) {
+        areAnnotationsCompatible(expectSymbol, actualSymbol, compatibilityResult, checkMemberScope)
+    }
 
     context (ExpectActualMatchingContext<*>)
     private fun areAnnotationsCompatible(
         expectSymbol: DeclarationSymbolMarker,
         actualSymbol: DeclarationSymbolMarker,
+        compatibilityResult: ExpectActualCompatibilityCheckResult<*>?,
+        checkMemberScope: Boolean,
     ): Incompatibility? {
         return when (expectSymbol) {
             is CallableSymbolMarker -> {
                 areCallableAnnotationsCompatible(expectSymbol, actualSymbol as CallableSymbolMarker)
             }
             is RegularClassSymbolMarker -> {
-                areClassAnnotationsCompatible(expectSymbol, actualSymbol as ClassLikeSymbolMarker)
+                val membersToCheck = if (checkMemberScope) {
+                    (compatibilityResult as ExpectActualClassifierCompatibilityCheckResult).membersMapping
+                } else {
+                    null
+                }
+                areClassAnnotationsCompatible(expectSymbol, actualSymbol as ClassLikeSymbolMarker, membersToCheck)
             }
             else -> error("Incorrect types: $expectSymbol $actualSymbol")
         }
@@ -58,13 +73,16 @@ object AbstractExpectActualAnnotationMatchChecker {
     private fun areClassAnnotationsCompatible(
         expectSymbol: RegularClassSymbolMarker,
         actualSymbol: ClassLikeSymbolMarker,
+        membersToCheck: ExpectClassScopeMembersMapping<DeclarationSymbolMarker>?,
     ): Incompatibility? {
         if (actualSymbol is TypeAliasSymbolMarker) {
             val expanded = actualSymbol.expandToRegularClass() ?: return null
-            return areClassAnnotationsCompatible(expectSymbol, expanded)
+            return areClassAnnotationsCompatible(expectSymbol, expanded, membersToCheck)
         }
         commonForClassAndCallableChecks(expectSymbol, actualSymbol)?.let { return it }
-        // TODO(Roman.Efremov, KT-58551): fix actual typealias class members not checked in FE checkers
+        if (membersToCheck != null) {
+            checkAnnotationsInClassMemberScope(membersToCheck)?.let { return it }
+        }
         // TODO(Roman.Efremov, KT-58551): check annotations on fake overrides in case of implicit actualization
 
         return null
@@ -117,5 +135,20 @@ object AbstractExpectActualAnnotationMatchChecker {
         } else {
             ExpectActualCollectionArgumentsCompatibilityCheckStrategy.Default
         }
+    }
+
+    context (ExpectActualMatchingContext<*>)
+    private fun checkAnnotationsInClassMemberScope(
+        membersToCheck: ExpectClassScopeMembersMapping<DeclarationSymbolMarker>,
+    ): Incompatibility? {
+        for ((expectSymbol, actualsWithCompatibilities) in membersToCheck.entries) {
+            val (actualSymbol, compatibilityResult) =
+                actualsWithCompatibilities.singleOrNull { (_, result) -> result.compatibility.compatible }
+                    ?: continue
+
+            areAnnotationsCompatible(expectSymbol, actualSymbol, compatibilityResult, checkMemberScope = true)
+                ?.let { return it }
+        }
+        return null
     }
 }
