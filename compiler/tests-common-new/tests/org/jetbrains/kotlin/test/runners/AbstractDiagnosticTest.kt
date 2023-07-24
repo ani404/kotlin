@@ -16,6 +16,7 @@ import org.jetbrains.kotlin.test.directives.DiagnosticsDirectives.CHECK_COMPILE_
 import org.jetbrains.kotlin.test.directives.DiagnosticsDirectives.DIAGNOSTICS
 import org.jetbrains.kotlin.test.directives.DiagnosticsDirectives.REPORT_JVM_DIAGNOSTICS_ON_FRONTEND
 import org.jetbrains.kotlin.test.directives.JvmEnvironmentConfigurationDirectives.JDK_KIND
+import org.jetbrains.kotlin.test.directives.JvmEnvironmentConfigurationDirectives.NO_RUNTIME
 import org.jetbrains.kotlin.test.directives.JvmEnvironmentConfigurationDirectives.USE_PSI_CLASS_FILES_READING
 import org.jetbrains.kotlin.test.directives.JvmEnvironmentConfigurationDirectives.WITH_REFLECT
 import org.jetbrains.kotlin.test.directives.LanguageSettingsDirectives.EXPLICIT_API_MODE
@@ -89,9 +90,9 @@ abstract class AbstractDiagnosticTest : AbstractKotlinCompilerTest() {
             ::ClassicFrontendFailingTestSuppressor
         )
 
-        forTestsMatching("compiler/testData/diagnostics/testsWithStdLib/*") {
+        forTestsMatching("compiler/testData/diagnostics/noRuntime/*") {
             defaultDirectives {
-                +WITH_STDLIB
+                +NO_RUNTIME
             }
         }
 

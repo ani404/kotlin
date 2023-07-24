@@ -22,6 +22,7 @@ import org.jetbrains.kotlin.test.directives.ConfigurationDirectives.WITH_STDLIB
 import org.jetbrains.kotlin.test.directives.FirDiagnosticsDirectives.FIR_DUMP
 import org.jetbrains.kotlin.test.directives.FirDiagnosticsDirectives.WITH_EXTENDED_CHECKERS
 import org.jetbrains.kotlin.test.directives.JvmEnvironmentConfigurationDirectives.JDK_KIND
+import org.jetbrains.kotlin.test.directives.JvmEnvironmentConfigurationDirectives.NO_RUNTIME
 import org.jetbrains.kotlin.test.directives.JvmEnvironmentConfigurationDirectives.WITH_REFLECT
 import org.jetbrains.kotlin.test.directives.LanguageSettingsDirectives
 import org.jetbrains.kotlin.test.directives.LanguageSettingsDirectives.ALLOW_KOTLIN_PACKAGE
@@ -182,6 +183,12 @@ fun TestConfigurationBuilder.baseFirDiagnosticTestConfiguration(
     ) {
         defaultDirectives {
             +WITH_STDLIB
+        }
+    }
+
+    forTestsMatching("compiler/fir/analysis-tests/testData/resolve/noRuntime/*") {
+        defaultDirectives {
+            +NO_RUNTIME
         }
     }
 
