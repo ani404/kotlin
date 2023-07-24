@@ -55,7 +55,8 @@ interface KotlinCompileTool : PatternFilterable, Task {
     /**
      * Collection of external artifacts participating in the output artifact generation.
      *
-     * For example, for a Kotlin/JVM compilation task it will be an external jar files or location with already compiled class files.
+     * For example, for a Kotlin/JVM compilation task it will be an external jar files or
+     * external location with already compiled class files.
      */
     @get:Classpath
     @get:Incremental
