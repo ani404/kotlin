@@ -97,8 +97,13 @@ class JvmBackendDiagnosticsHandler(testServices: TestServices) : JvmBinaryArtifa
             }
         }
 
+        val firParserSuffix = when (module.directives.singleOrZeroValue(FirDiagnosticsDirectives.FIR_PARSER)) {
+            FirParser.Psi -> ".psi"
+            FirParser.LightTree -> ".lt"
+            null -> ""
+        }
         testServices.assertions.assertEqualsToFile(
-            File(FileUtil.getNameWithoutExtension(module.files.first().originalFile.absolutePath) + ".diag.txt"),
+            File(FileUtil.getNameWithoutExtension(module.files.first().originalFile.absolutePath) + "$firParserSuffix.diag.txt"),
             reportedDiagnostics.joinToString(separator = "\n\n", postfix = "\n")
         )
     }
