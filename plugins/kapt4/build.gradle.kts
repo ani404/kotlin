@@ -57,7 +57,9 @@ fun Project.kaptTestTask(name: String, javaLanguageVersion: JavaLanguageVersion)
 
 publish()
 runtimeJar()
-sourcesJar()
+sourcesJar {
+    dependsOn(":compiler:fir:checkers:generateCheckersComponents")
+}
 javadocJar()
 
 
