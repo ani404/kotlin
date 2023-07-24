@@ -139,7 +139,6 @@ void gc::ConcurrentMarkAndSweep::PerformFullGC(int64_t epoch) noexcept {
     RuntimeAssert(didSuspend, "Only GC thread can request suspension");
     gcHandle.suspensionRequested();
 
-    RuntimeAssert(!kotlin::mm::IsCurrentThreadRegistered(), "GC must run on unregistered thread");
     WaitForThreadsReadyToMark();
     gcHandle.threadsAreSuspended();
 
@@ -218,6 +217,7 @@ void gc::ConcurrentMarkAndSweep::SetMarkingRequested(uint64_t epoch) noexcept {
 }
 
 void gc::ConcurrentMarkAndSweep::WaitForThreadsReadyToMark() noexcept {
+    RuntimeAssert(!kotlin::mm::IsCurrentThreadRegistered(), "GC must run on unregistered thread");
     mm::ThreadRegistry::Instance().waitAllThreads([](mm::ThreadData& thread) noexcept {
         return thread.suspensionData().suspendedOrNative() || thread.gc().impl().gc().marking_.load();
     });
