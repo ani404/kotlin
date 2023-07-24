@@ -38,7 +38,8 @@ public:
 #endif
         gcScheduler_(GlobalData::Instance().gcScheduler(), *this),
         gc_(GlobalData::Instance().gc(), *this),
-        suspensionData_(ThreadState::kNative, *this) {}
+        suspensionData_(ThreadState::kNative, *this) {
+    }
 
     ~ThreadData() = default;
 

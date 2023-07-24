@@ -37,9 +37,11 @@ public:
     Impl(GC& gc, mm::ThreadData& threadData) noexcept :
         gc_(gc.impl_->gc(), threadData),
 #ifdef CUSTOM_ALLOCATOR
-        alloc_(gc.impl_->gc().heap()) {}
+        alloc_(gc.impl_->gc().heap()) {
+    }
 #else
-    objectFactoryThreadQueue_(gc.impl_->objectFactory(), gc_.CreateAllocator()) {}
+        objectFactoryThreadQueue_(gc.impl_->objectFactory(), gc_.CreateAllocator()) {
+    }
 #endif
 
     GCImpl::ThreadData& gc() noexcept { return gc_; }
