@@ -196,7 +196,7 @@ interface KaptGenerateStubs : KotlinJvmCompile {
     val stubsDir: DirectoryProperty
 
     /**
-     * Allows adding artifacts (usually jar files)
+     * Allows adding artifacts (accepted by [JVM classpath](https://docs.oracle.com/javase/8/docs/technotes/tools/windows/classpath.html))
      * containing implementation of Java [annotation processor](https://jcp.org/en/jsr/detail?id=269).
      *
      * Should be configured with the same artifacts as in the related [Kapt] task.
