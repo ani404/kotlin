@@ -36616,6 +36616,12 @@ public class LLFirPreresolvedReversedDiagnosticCompilerFE10TestDataTestGenerated
         }
 
         @Test
+        @TestMetadata("listAssignmentInWhen.kt")
+        public void testListAssignmentInWhen() throws Exception {
+            runTest("compiler/testData/diagnostics/testsWithStdLib/listAssignmentInWhen.kt");
+        }
+
+        @Test
         @TestMetadata("outstar.kt")
         public void testOutstar() throws Exception {
             runTest("compiler/testData/diagnostics/testsWithStdLib/outstar.kt");
