@@ -6881,18 +6881,6 @@ public class FirJsES6CodegenBoxTestGenerated extends AbstractFirJsES6CodegenBoxT
             }
 
             @Test
-            @TestMetadata("splitTryCorner1.kt")
-            public void testSplitTryCorner1() throws Exception {
-                runTest("compiler/testData/codegen/box/controlStructures/tryCatchInExpressions/splitTryCorner1.kt");
-            }
-
-            @Test
-            @TestMetadata("splitTryCorner2.kt")
-            public void testSplitTryCorner2() throws Exception {
-                runTest("compiler/testData/codegen/box/controlStructures/tryCatchInExpressions/splitTryCorner2.kt");
-            }
-
-            @Test
             @TestMetadata("try.kt")
             public void testTry() throws Exception {
                 runTest("compiler/testData/codegen/box/controlStructures/tryCatchInExpressions/try.kt");
@@ -6920,6 +6908,12 @@ public class FirJsES6CodegenBoxTestGenerated extends AbstractFirJsES6CodegenBoxT
             @TestMetadata("tryCatchAfterWhileTrue.kt")
             public void testTryCatchAfterWhileTrue() throws Exception {
                 runTest("compiler/testData/codegen/box/controlStructures/tryCatchInExpressions/tryCatchAfterWhileTrue.kt");
+            }
+
+            @Test
+            @TestMetadata("tryFinallyOfTypeUnit.kt")
+            public void testTryFinallyOfTypeUnit() throws Exception {
+                runTest("compiler/testData/codegen/box/controlStructures/tryCatchInExpressions/tryFinallyOfTypeUnit.kt");
             }
 
             @Test
@@ -21097,6 +21091,18 @@ public class FirJsES6CodegenBoxTestGenerated extends AbstractFirJsES6CodegenBoxT
         @TestMetadata("floatOperations.kt")
         public void testFloatOperations() throws Exception {
             runTest("compiler/testData/codegen/box/involvesIrInterpreter/floatOperations.kt");
+        }
+
+        @Test
+        @TestMetadata("inJavaLangPackage.kt")
+        public void testInJavaLangPackage() throws Exception {
+            runTest("compiler/testData/codegen/box/involvesIrInterpreter/inJavaLangPackage.kt");
+        }
+
+        @Test
+        @TestMetadata("inJavaPackage.kt")
+        public void testInJavaPackage() throws Exception {
+            runTest("compiler/testData/codegen/box/involvesIrInterpreter/inJavaPackage.kt");
         }
 
         @Test
@@ -36851,6 +36857,12 @@ public class FirJsES6CodegenBoxTestGenerated extends AbstractFirJsES6CodegenBoxT
         @TestMetadata("kt59346.kt")
         public void testKt59346() throws Exception {
             runTest("compiler/testData/codegen/box/when/kt59346.kt");
+        }
+
+        @Test
+        @TestMetadata("kt60212.kt")
+        public void testKt60212() throws Exception {
+            runTest("compiler/testData/codegen/box/when/kt60212.kt");
         }
 
         @Test
