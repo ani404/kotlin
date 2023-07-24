@@ -24,7 +24,10 @@
 namespace kotlin::gcScheduler::internal {
 
 /**
- * Coordinating mutator assists to the GC.
+ * Coordinating mutator assistance to the GC.
+ *
+ * Currently assisting only by pausing threads. So assisting means not creating
+ * more work for the GC thread.
  *
  * Threads (both mutators and any other) can call `requestAssists(epoch)` for any
  * `epoch` at any time.
