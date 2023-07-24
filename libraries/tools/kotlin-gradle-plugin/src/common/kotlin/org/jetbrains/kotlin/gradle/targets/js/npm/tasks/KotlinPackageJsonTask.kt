@@ -5,8 +5,10 @@
 
 package org.jetbrains.kotlin.gradle.targets.js.npm.tasks
 
+import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.work.DisableCachingByDefault
@@ -55,16 +57,15 @@ abstract class KotlinPackageJsonTask :
     @get:Internal
     abstract val compilationDisambiguatedName: Property<String>
 
-    private val packageJsonHandlers: List<PackageJson.() -> Unit>
-        get() = npmResolutionManager.get().parameters.packageJsonHandlers.get()
-            .getValue("$projectPath:${compilationDisambiguatedName.get()}")
+    @get:Internal
+    abstract val packageJsonHandlers: ListProperty<Action<PackageJson>>
 
     @get:Input
-    val packageJsonCustomFields: Map<String, Any?> by lazy {
+    val packageJsonCustomFields: PackageJson by lazy {
         PackageJson(fakePackageJsonValue, fakePackageJsonValue)
             .apply {
-                packageJsonHandlers.forEach { it() }
-            }.customFields
+                packageJsonHandlers.get().forEach { it.execute(this) }
+            }
     }
 
 
@@ -112,6 +113,7 @@ abstract class KotlinPackageJsonTask :
         npmResolutionManager.get().resolution.get()[projectPath][compilationDisambiguatedName.get()]
             .prepareWithDependencies(
                 npmResolutionManager = npmResolutionManager.get(),
+                packageJsonHandlers = packageJsonHandlers,
                 logger = logger
             )
     }
@@ -130,6 +132,7 @@ abstract class KotlinPackageJsonTask :
             val gradleNodeModules = GradleNodeModulesCache.registerIfAbsent(project, null, null)
             val packageJsonTask = project.registerTask<KotlinPackageJsonTask>(packageJsonTaskName) { task ->
                 task.compilationDisambiguatedName.set(compilation.disambiguatedName)
+                task.packageJsonHandlers.set(compilation.packageJsonHandlers)
                 task.description = "Create package.json file for $compilation"
                 task.group = NodeJsRootPlugin.TASKS_GROUP_NAME
 

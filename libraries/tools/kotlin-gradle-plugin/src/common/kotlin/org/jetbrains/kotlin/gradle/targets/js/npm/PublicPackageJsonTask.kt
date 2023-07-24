@@ -5,7 +5,9 @@
 
 package org.jetbrains.kotlin.gradle.targets.js.npm
 
+import org.gradle.api.Action
 import org.gradle.api.DefaultTask
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
@@ -38,22 +40,21 @@ abstract class PublicPackageJsonTask :
     @get:Internal
     abstract val npmProjectMain: Property<String>
 
-    private val packageJsonHandlers: List<PackageJson.() -> Unit>
-        get() = npmResolutionManager.get().parameters.packageJsonHandlers.get()
-            .getValue("$projectPath:${compilationDisambiguatedName.get()}")
-
+    @get:Internal
+    abstract val packageJsonHandlers: ListProperty<Action<PackageJson>>
 
     @get:Input
-    val packageJsonCustomFields: Map<String, Any?>
+    val packageJsonCustomFields: PackageJson
         get() = PackageJson(fakePackageJsonValue, fakePackageJsonValue)
             .apply {
-                packageJsonHandlers.forEach { it() }
-            }.customFields
+                packageJsonHandlers.get().forEach { it.execute(this) }
+            }
 
     private val compilationResolution
         get() = npmResolutionManager.get().resolution.get()[projectPath][compilationDisambiguatedName.get()]
             .getResolutionOrPrepare(
                 npmResolutionManager.get(),
+                packageJsonHandlers,
                 logger
             )
 
@@ -78,7 +79,7 @@ abstract class PublicPackageJsonTask :
             projectVersion,
             npmProjectMain.get(),
             externalDependencies,
-            packageJsonHandlers
+            packageJsonHandlers.get()
         ).let { packageJson ->
             packageJson.main = "${npmProjectName.get()}.js"
 
