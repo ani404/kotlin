@@ -74,7 +74,7 @@ TEST(AggressiveSchedulerTest, TriggerGCOnAllocationThreshold) {
                 });
 
         for (; i < 10; i++) {
-            scheduler.SetAllocatedBytes(i + 1);
+            scheduler.setAllocatedBytes(i + 1);
         }
         testing::Mock::VerifyAndClearExpectations(&scheduleGC);
     }();

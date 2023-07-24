@@ -120,7 +120,7 @@ void gc::SameThreadMarkAndSweep::PerformFullGC(int64_t epoch) noexcept {
     gcHandle.threadsAreSuspended();
 
     auto& scheduler = gcScheduler_;
-    scheduler.gcData().OnPerformFullGC();
+    scheduler.onGCStart();
 
     state_.start(epoch);
 

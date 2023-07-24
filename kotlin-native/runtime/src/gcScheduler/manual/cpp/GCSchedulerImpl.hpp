@@ -11,17 +11,10 @@
 
 namespace kotlin::gcScheduler {
 
-namespace internal {
-
-class GCSchedulerDataManual : public GCSchedulerData {
+class GCScheduler::Impl : private Pinned {
 public:
-    GCSchedulerDataManual() noexcept { RuntimeLogInfo({kTagGC}, "Manual GC scheduler initialized"); }
-
-    void OnPerformFullGC() noexcept override {}
-    void SetAllocatedBytes(size_t bytes) noexcept override {}
+    Impl() noexcept { RuntimeLogInfo({kTagGC}, "Manual GC scheduler initialized"); }
 };
-
-} // namespace internal
 
 class GCScheduler::ThreadData::Impl : private Pinned {};
 

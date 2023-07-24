@@ -27,7 +27,7 @@ class GCSchedulerDataAdaptive;
 
 class GCScheduler::ThreadData::Impl : private Pinned {
 public:
-    Impl(GCSchedulerData& scheduler, mm::ThreadData& thread) noexcept;
+    Impl(GCScheduler& scheduler, mm::ThreadData& thread) noexcept;
 
     internal::GCSchedulerDataAdaptive<steady_clock>& scheduler() noexcept { return scheduler_; }
 
@@ -41,7 +41,7 @@ private:
 namespace internal {
 
 template <typename Clock>
-class GCSchedulerDataAdaptive : public GCSchedulerData {
+class GCSchedulerDataAdaptive {
 public:
     GCSchedulerDataAdaptive(GCSchedulerConfig& config, std::function<int64_t()> scheduleGC) noexcept :
         config_(config),
@@ -61,12 +61,12 @@ public:
         RuntimeLogInfo({kTagGC}, "Adaptive GC scheduler initialized");
     }
 
-    void OnPerformFullGC() noexcept override {
+    void onGCStart() noexcept {
         regularIntervalPacer_.OnPerformFullGC();
         timer_.restart(config_.regularGcInterval());
     }
 
-    void SetAllocatedBytes(size_t bytes) noexcept override {
+    void setAllocatedBytes(size_t bytes) noexcept {
         auto boundary = heapGrowthController_.boundaryForHeapSize(bytes);
         switch (boundary) {
             case HeapGrowthController::MemoryBoundary::kNone:
@@ -110,5 +110,15 @@ private:
 };
 
 } // namespace internal
+
+class GCScheduler::Impl : private Pinned {
+public:
+    explicit Impl(GCSchedulerConfig& config) noexcept;
+
+    internal::GCSchedulerDataAdaptive<steady_clock>& impl() noexcept { return impl_; }
+
+private:
+    internal::GCSchedulerDataAdaptive<steady_clock> impl_;
+};
 
 } // namespace kotlin::gcScheduler

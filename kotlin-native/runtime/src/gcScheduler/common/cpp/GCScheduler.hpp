@@ -20,23 +20,10 @@ class ThreadData;
 
 namespace kotlin::gcScheduler {
 
-class GCSchedulerData {
-public:
-    virtual ~GCSchedulerData() = default;
-
-    // The protocol is: after the scheduler schedules the GC, the GC eventually calls `OnPerformFullGC`
-    // when the collection has started, followed by `UpdateAliveSetBytes` when the marking has finished.
-    // TODO: Consider returning a sort of future from the scheduleGC, and listen to it instead.
-
-    // Always called by the GC thread.
-    virtual void OnPerformFullGC() noexcept = 0;
-
-    // Called by different mutator threads.
-    virtual void SetAllocatedBytes(size_t bytes) noexcept = 0;
-};
-
 class GCScheduler : private Pinned {
 public:
+    class Impl;
+
     class ThreadData : private Pinned {
     public:
         class Impl;
@@ -53,9 +40,14 @@ public:
     };
 
     GCScheduler() noexcept;
+    ~GCScheduler();
+
+    Impl& impl() noexcept { return *impl_; }
 
     GCSchedulerConfig& config() noexcept { return config_; }
-    GCSchedulerData& gcData() noexcept { return *gcData_; }
+
+    // Called by different mutator threads.
+    void setAllocatedBytes(size_t bytes) noexcept;
 
     // Can be called by any thread.
     void schedule() noexcept;
@@ -66,12 +58,15 @@ public:
     // Can be called by any thread.
     void scheduleAndWaitFinalized() noexcept;
 
+    // Always called by the GC thread.
+    void onGCStart() noexcept;
+
     // Called by the GC thread only.
     void onGCFinish(int64_t epoch, size_t aliveBytes) noexcept;
 
 private:
     GCSchedulerConfig config_;
-    std_support::unique_ptr<GCSchedulerData> gcData_;
+    std_support::unique_ptr<Impl> impl_;
 };
 
 } // namespace kotlin::gcScheduler

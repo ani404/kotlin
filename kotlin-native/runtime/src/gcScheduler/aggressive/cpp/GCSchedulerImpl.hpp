@@ -25,7 +25,7 @@ class GCSchedulerDataAggressive;
 
 class GCScheduler::ThreadData::Impl : private Pinned {
 public:
-    Impl(GCSchedulerData& scheduler, mm::ThreadData& thread) noexcept;
+    Impl(GCScheduler& scheduler, mm::ThreadData& thread) noexcept;
 
     internal::GCSchedulerDataAggressive& scheduler() noexcept { return scheduler_; }
 
@@ -39,15 +39,14 @@ private:
 namespace internal {
 
 // The slowpath will trigger GC if this thread didn't meet this safepoint/allocation site before.
-class GCSchedulerDataAggressive : public GCSchedulerData {
+class GCSchedulerDataAggressive {
 public:
     GCSchedulerDataAggressive(GCSchedulerConfig& config, std::function<int64_t()> scheduleGC) noexcept :
         scheduleGC_(std::move(scheduleGC)), heapGrowthController_(config) {
         RuntimeLogInfo({kTagGC}, "Aggressive GC scheduler initialized");
     }
 
-    void OnPerformFullGC() noexcept override {}
-    void SetAllocatedBytes(size_t bytes) noexcept override {
+    void setAllocatedBytes(size_t bytes) noexcept {
         // Still checking allocations: with a long running loop all safepoints
         // might be "met", so that's the only trigger to not run out of memory.
         auto boundary = heapGrowthController_.boundaryForHeapSize(bytes);
@@ -99,5 +98,15 @@ private:
 };
 
 } // namespace internal
+
+class GCScheduler::Impl : private Pinned {
+public:
+    explicit Impl(GCSchedulerConfig& config) noexcept;
+
+    internal::GCSchedulerDataAggressive& impl() noexcept { return impl_; }
+
+private:
+    internal::GCSchedulerDataAggressive impl_;
+};
 
 } // namespace kotlin::gcScheduler

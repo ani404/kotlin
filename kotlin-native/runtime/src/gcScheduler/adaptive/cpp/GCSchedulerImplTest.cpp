@@ -20,18 +20,19 @@ namespace {
 
 class MutatorThread : private Pinned {
 public:
-    explicit MutatorThread(gcScheduler::GCSchedulerData& scheduler) : executor_([&scheduler] { return Context{scheduler}; }) {}
+    explicit MutatorThread(gcScheduler::internal::GCSchedulerDataAdaptive<test_support::manual_clock>& scheduler) :
+        executor_([&scheduler] { return Context{scheduler}; }) {}
 
     std::future<void> SetAllocatedBytes(size_t bytes) {
         return executor_.execute([&, bytes] {
             auto& context = executor_.context();
-            context.scheduler.SetAllocatedBytes(bytes);
+            context.scheduler.setAllocatedBytes(bytes);
         });
     }
 
 private:
     struct Context {
-        gcScheduler::GCSchedulerData& scheduler;
+        gcScheduler::internal::GCSchedulerDataAdaptive<test_support::manual_clock>& scheduler;
     };
 
     SingleThreadExecutor<Context> executor_;
@@ -53,7 +54,7 @@ public:
         return mutators_[mutator]->SetAllocatedBytes(allocatedBytes);
     }
 
-    void OnPerformFullGC() { scheduler_.OnPerformFullGC(); }
+    void OnPerformFullGC() { scheduler_.onGCStart(); }
 
     void onGCFinish(int64_t epoch, size_t bytes) {
         allocatedBytes_.store(bytes);

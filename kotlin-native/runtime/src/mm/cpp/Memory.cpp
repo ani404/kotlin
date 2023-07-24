@@ -641,5 +641,5 @@ RUNTIME_NOTHROW extern "C" void DisposeRegularWeakReferenceImpl(ObjHeader* weakR
 }
 
 void kotlin::OnMemoryAllocation(size_t totalAllocatedBytes) noexcept {
-    mm::GlobalData::Instance().gcScheduler().gcData().SetAllocatedBytes(totalAllocatedBytes);
+    mm::GlobalData::Instance().gcScheduler().setAllocatedBytes(totalAllocatedBytes);
 }

@@ -152,7 +152,7 @@ void gc::ConcurrentMarkAndSweep::PerformFullGC(int64_t epoch) noexcept {
 #endif
 
     auto& scheduler = gcScheduler_;
-    scheduler.gcData().OnPerformFullGC();
+    scheduler.onGCStart();
 
     state_.start(epoch);
 
