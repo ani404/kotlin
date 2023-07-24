@@ -39,6 +39,8 @@ dependencies {
     testApi(projectTests(":compiler:tests-compiler-utils"))
     testApi(projectTests(":compiler:tests-common-new"))
     testImplementation(projectTests(":compiler:fir:analysis-tests"))
+    testImplementation(project(":kotlin-util-klib-abi")) { isTransitive = false }
+    testImplementation(prohectTest(":kotlin-util-klib-abi")) { isTransitive = false }
 
     testCompileOnly(project(":compiler:frontend"))
     testCompileOnly(project(":compiler:cli"))

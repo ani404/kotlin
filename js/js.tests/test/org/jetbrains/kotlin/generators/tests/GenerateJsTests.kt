@@ -228,5 +228,16 @@ fun main(args: Array<String>) {
                 model("loadJava/compiledKotlinWithStdlib", extension = "kt")
             }
         }
+
+        generateTestGroupSuiteWithJUnit5 {
+            testGroup("js/js.tests/tests-gen", "compiler/util-klib-abi/testData") {
+                testClass<AbstractFirJsLibraryAbiReaderTest> {
+                    model("content")
+                }
+                testClass<AbstractClassicJsLibraryAbiReaderTest> {
+                    model("content")
+                }
+            }
+        }
     }
 }
