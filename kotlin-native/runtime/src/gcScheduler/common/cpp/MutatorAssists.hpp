@@ -35,7 +35,7 @@ namespace kotlin::gcScheduler::internal {
  * If the current GC epoch is greater than `epoch`, the mutators should ignore
  * the request to assist.
  *
- * Otherwise the mutators must wait in the native state 
+ * Otherwise the mutators must wait in the native state
  * until the GC thread calls `completeEpoch(epoch)` for epoch >= `epoch`.
  *
  * The GC thread shall call `completeEpoch(epoch)` once it is done with the epoch,
