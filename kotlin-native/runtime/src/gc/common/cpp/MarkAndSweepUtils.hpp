@@ -94,8 +94,6 @@ template <typename Traits>
 void Mark(GCHandle handle, typename Traits::MarkQueue& markQueue) noexcept {
     auto markHandle = handle.mark();
     while (ObjHeader* top = Traits::tryDequeue(markQueue)) {
-        // TODO: Consider moving it to the sweep phase to make this loop more tight.
-        //       This, however, requires care with scheduler interoperation.
         markHandle.addObject();
 
         Traits::processInMark(markQueue, top);
