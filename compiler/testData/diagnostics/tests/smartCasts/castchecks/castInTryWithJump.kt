@@ -1,3 +1,5 @@
+// DUMP_CFG
+
 interface A {
     fun aaa()
 }
