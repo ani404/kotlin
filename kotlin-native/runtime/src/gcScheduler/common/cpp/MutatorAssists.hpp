@@ -95,6 +95,8 @@ private:
     std::optional<mm::SafePointActivator> safePointActivator_;
     std::mutex m_;
 #if KONAN_WINDOWS
+    // winpthreads being weird. Using this implementation of condvar means that assisting mutators will spin for the entire duration of the GC.
+    // This is fine: reaching assisting state should be rare and this state exists to ward of "memory leaks", and additionally assists can be disabled.
     ConditionVariableSpin cv_;
 #else
     std::condition_variable cv_;
