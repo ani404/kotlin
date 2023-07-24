@@ -80,9 +80,6 @@ private fun KotlinTargetContainerWithJsPresetFunctions.jsInternal(
     compiler: KotlinJsCompilerType? = null,
     configure: KotlinJsTargetDsl.() -> Unit
 ): KotlinJsTargetDsl {
-    val compilerOrDefault = compiler
-        ?: defaultJsCompilerType
-
     @Suppress("UNCHECKED_CAST")
     return configureOrCreate(
         name,

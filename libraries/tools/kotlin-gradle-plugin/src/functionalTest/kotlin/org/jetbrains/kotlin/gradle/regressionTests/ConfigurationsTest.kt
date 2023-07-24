@@ -219,7 +219,7 @@ class ConfigurationsTest : MultiplatformExtensionTest() {
     fun `test js IR compilation dependencies`() {
         val project = buildProjectWithMPP {
             kotlin {
-                js(IR)
+                js()
                 targets.withType<KotlinJsIrTarget> {
                     compilations.getByName("main").dependencies {
                         api("test:compilation-dependency")
